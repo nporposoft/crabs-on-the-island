@@ -3,30 +3,30 @@
 [ext_resource type="Script" path="res://crabs/Crab.gd" id="1_xe67b"]
 [ext_resource type="Texture2D" uid="uid://dkqevv6a7hwt5" path="res://assets/crab.png" id="2_5n7jq"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_tmjfl"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_1o5ow"]
 atlas = ExtResource("2_5n7jq")
-region = Rect2(0, 0, 20, 20)
+region = Rect2(0, 0, 18, 18)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_c2ou0"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_dusqb"]
 atlas = ExtResource("2_5n7jq")
-region = Rect2(20, 0, 20, 20)
+region = Rect2(22, 0, 18, 18)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_o0ggk"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_h24nu"]
 atlas = ExtResource("2_5n7jq")
-region = Rect2(0, 20, 20, 20)
+region = Rect2(0, 22, 18, 18)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_wufgr"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_xaugl"]
 atlas = ExtResource("2_5n7jq")
-region = Rect2(20, 20, 20, 20)
+region = Rect2(22, 22, 18, 18)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_0lpsw"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_tmjfl")
+"texture": SubResource("AtlasTexture_1o5ow")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_c2ou0")
+"texture": SubResource("AtlasTexture_dusqb")
 }],
 "loop": true,
 "name": &"idle",
@@ -34,10 +34,10 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_o0ggk")
+"texture": SubResource("AtlasTexture_h24nu")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_wufgr")
+"texture": SubResource("AtlasTexture_xaugl")
 }],
 "loop": true,
 "name": &"move",
@@ -54,9 +54,9 @@ script = ExtResource("1_xe67b")
 texture_filter = 1
 scale = Vector2(0.5, 0.5)
 sprite_frames = SubResource("SpriteFrames_0lpsw")
-animation = &"move"
+animation = &"idle"
 frame = 1
-frame_progress = 0.363198
+frame_progress = 0.0917215
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_hx6oy")
