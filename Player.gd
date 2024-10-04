@@ -9,7 +9,6 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	var input: Vector2
-	if Input.is_action_pressed("ui_down"):
-		input.y = 1
-	
+	input.x = Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
+	input.y = Input.get_action_strength("move_down") - Input.get_action_strength("move_up")
 	_character.move(input.normalized())
