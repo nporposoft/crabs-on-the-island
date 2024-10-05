@@ -117,19 +117,27 @@ z_index = 1
 position = Vector2(484, 255)
 
 [node name="Crab" parent="Player" instance=ExtResource("3_s85qb")]
+position = Vector2(-219, -1009)
 
 [node name="resource" parent="." instance=ExtResource("6_2lyxb")]
-position = Vector2(579, 328)
+position = Vector2(1668, -914)
+mat_type = 1
 
 [node name="resource2" parent="." instance=ExtResource("6_2lyxb")]
-position = Vector2(676, 190)
+position = Vector2(-1447, -566)
+mat_type = 1
 
 [node name="resource3" parent="." instance=ExtResource("6_2lyxb")]
-position = Vector2(436, 394)
+position = Vector2(-2111, 1392)
+mat_type = 1
 
 [node name="resource4" parent="." instance=ExtResource("6_2lyxb")]
-position = Vector2(698, 431)
-is_chunk = true
+position = Vector2(1101, 1756)
+mat_type = 1
+
+[node name="resource5" parent="." instance=ExtResource("6_2lyxb")]
+position = Vector2(3, 787)
+mat_type = 0
 
 [connection signal="battery_charge_changed" from="Player/Crab" to="hud" method="_on_crab_battery_charge_changed"]
 
