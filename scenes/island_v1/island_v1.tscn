@@ -1,5 +1,6 @@
-[gd_scene load_steps=8 format=4 uid="uid://co582gapcsfm4"]
+[gd_scene load_steps=9 format=4 uid="uid://co582gapcsfm4"]
 
+[ext_resource type="PackedScene" uid="uid://cx2ye0w0rqf4n" path="res://hud.tscn" id="1_gs3nj"]
 [ext_resource type="Texture2D" uid="uid://dovldgw8fq5vi" path="res://assets/temp-tilemap.png" id="1_gs215"]
 [ext_resource type="PackedScene" uid="uid://c0mfa4rplirjk" path="res://player.tscn" id="2_0en58"]
 [ext_resource type="PackedScene" uid="uid://2uy6byy1384y" path="res://scenes/day_night_cycle.tscn" id="2_4tlql"]
@@ -53,6 +54,9 @@ physics_layer_0/collision_layer = 1
 sources/0 = SubResource("TileSetAtlasSource_t8rii")
 
 [node name="IslandV1" type="Node2D"]
+
+[node name="hud" parent="." node_paths=PackedStringArray("_player") instance=ExtResource("1_gs3nj")]
+_player = NodePath("../Player")
 
 [node name="DayNightCycle" parent="." instance=ExtResource("2_4tlql")]
 
