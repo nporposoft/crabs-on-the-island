@@ -8,13 +8,13 @@ var ingotTXR := preload("res://assets/ingot.png")
 
 enum MATERIAL_TYPE {COBALT, IRON, SILICON}
 
-@export var materialType = MATERIAL_TYPE.SILICON
+@export var mat_type = MATERIAL_TYPE.SILICON
 @export var amount = 1000.0
 @export var is_chunk = false
 
 
 func _set_resource (_mat, _amount, _isChunk):
-	materialType = _mat
+	mat_type = _mat
 	amount = _amount
 	is_chunk = _isChunk
 
@@ -27,7 +27,7 @@ func _set_resource (_mat, _amount, _isChunk):
 		ingot_collider.set_disabled(false)
 		chunk_collider.set_disabled(true)
 
-	match materialType:
+	match mat_type:
 		MATERIAL_TYPE.COBALT:
 			sprite.set_modulate(Color(0.33, 0.33, 1.0))
 			set_mass(amount * 8.8)
@@ -48,4 +48,4 @@ func _extract (extractAmount) -> float:
 
 
 func _ready():
-	_set_resource(material, amount, is_chunk)
+	_set_resource(mat_type, amount, is_chunk)

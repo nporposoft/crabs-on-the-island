@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://b530dsmiuti0k"]
+[gd_scene load_steps=6 format=3 uid="uid://b530dsmiuti0k"]
 
 [ext_resource type="Script" path="res://resource.gd" id="1_bccdp"]
 [ext_resource type="Texture2D" uid="uid://eluu412tp81f" path="res://assets/chunk.png" id="2_o2o1f"]

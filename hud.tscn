@@ -1,0 +1,92 @@
+[gd_scene load_steps=10 format=3 uid="uid://cx2ye0w0rqf4n"]
+
+[ext_resource type="Script" path="res://hud.gd" id="1_a2y7d"]
+[ext_resource type="Texture2D" uid="uid://c2e3eoxyqgivc" path="res://assets/energy.png" id="1_p7i3m"]
+[ext_resource type="Texture2D" uid="uid://b4812ywitkgq0" path="res://assets/water.png" id="2_2ik4q"]
+[ext_resource type="Texture2D" uid="uid://eluu412tp81f" path="res://assets/chunk.png" id="3_acu0v"]
+[ext_resource type="Texture2D" uid="uid://bfaup65ugpegb" path="res://assets/ingot.png" id="4_q7b3k"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eyiba"]
+bg_color = Color(0.784314, 0.784314, 0, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wm8pw"]
+bg_color = Color(0.439216, 0.564706, 1, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dv2vv"]
+bg_color = Color(0.752941, 0.627451, 0.376471, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vgvjd"]
+bg_color = Color(0.12549, 0.12549, 0.12549, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[node name="hud" type="CanvasLayer"]
+script = ExtResource("1_a2y7d")
+
+[node name="energy_bar" type="ProgressBar" parent="."]
+offset_left = 64.0
+offset_top = 32.0
+offset_right = 364.0
+offset_bottom = 64.0
+theme_override_font_sizes/font_size = 11
+theme_override_styles/fill = SubResource("StyleBoxFlat_eyiba")
+value = 50.0
+
+[node name="energy_label" type="Sprite2D" parent="."]
+position = Vector2(32, 48)
+texture = ExtResource("1_p7i3m")
+
+[node name="water_bar" type="ProgressBar" parent="."]
+offset_left = 64.0
+offset_top = 80.0
+offset_right = 364.0
+offset_bottom = 112.0
+theme_override_font_sizes/font_size = 11
+theme_override_styles/fill = SubResource("StyleBoxFlat_wm8pw")
+value = 50.0
+
+[node name="water_label" type="Sprite2D" parent="."]
+position = Vector2(32, 96)
+texture = ExtResource("2_2ik4q")
+
+[node name="silicon_bar" type="ProgressBar" parent="."]
+offset_left = 64.0
+offset_top = 128.0
+offset_right = 364.0
+offset_bottom = 160.0
+theme_override_font_sizes/font_size = 11
+theme_override_styles/fill = SubResource("StyleBoxFlat_dv2vv")
+value = 50.0
+
+[node name="silicon_label" type="Sprite2D" parent="."]
+modulate = Color(0.6, 1, 1, 1)
+position = Vector2(32, 144)
+texture = ExtResource("3_acu0v")
+
+[node name="iron_bar" type="ProgressBar" parent="."]
+offset_left = 64.0
+offset_top = 176.0
+offset_right = 364.0
+offset_bottom = 208.0
+theme_override_font_sizes/font_size = 11
+theme_override_styles/fill = SubResource("StyleBoxFlat_vgvjd")
+value = 50.0
+
+[node name="iron_label" type="Sprite2D" parent="."]
+modulate = Color(0.4, 0.4, 0.4, 1)
+position = Vector2(32, 192)
+texture = ExtResource("4_q7b3k")
