@@ -73,12 +73,24 @@ func move(movementDirection: Vector2) -> void:
 
 
 func dodge() -> void:
-	if !_state in [States.IDLE, States.RUNNING]: return
+	if !_state in [States.IDLE, States.RUNNING] or _dodge_cooldown_timer.time_left > 0.0: return
 
 	_state = States.DODGING
 	var direction: Vector2 = Util.get_vector_from_direction(_direction)
 	apply_central_impulse(direction * _stats.move_speed * dodge_speed_multiplier)
 	_modify_battery_energy(-dodge_battery_usage)
+
+
+func harvest() -> void:
+	if _state == States.OUT_OF_BATTERY: return
+	
+	var closestDist = 100.0
+	var pickups_in_reach = $reach_area.get_overlapping_bodies()
+	for item: RigidBody2D in pickups_in_reach:
+		var resource = item as Morsel
+		if item == null: continue
+		
+		pass
 
 
 func _process(delta: float) -> void:

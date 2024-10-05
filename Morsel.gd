@@ -1,3 +1,5 @@
+class_name Morsel
+
 extends RigidBody2D
 
 @onready var sprite = $Sprite2D

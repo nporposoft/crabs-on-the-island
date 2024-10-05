@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://b530dsmiuti0k"]
 
-[ext_resource type="Script" path="res://resource.gd" id="1_bccdp"]
+[ext_resource type="Script" path="res://Morsel.gd" id="1_bccdp"]
 [ext_resource type="Texture2D" uid="uid://bfaup65ugpegb" path="res://assets/ingot.png" id="2_2qlx0"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_86wl0"]
@@ -10,7 +10,7 @@ absorbent = true
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_d3qxw"]
 size = Vector2(20, 18.8393)
 
-[node name="resource" type="RigidBody2D"]
+[node name="Morsel" type="RigidBody2D"]
 mass = 50.0
 physics_material_override = SubResource("PhysicsMaterial_86wl0")
 gravity_scale = 0.0

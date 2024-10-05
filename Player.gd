@@ -6,6 +6,7 @@ extends Node
 func _process(delta: float) -> void:
 	_process_movement()
 	_process_dodge()
+	_process_harvest()
 	_update_camera_position()
 
 
@@ -19,6 +20,11 @@ func _process_movement() -> void:
 	moveInput.x = Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
 	moveInput.y = Input.get_action_strength("move_down") - Input.get_action_strength("move_up")
 	$Crab.move(moveInput)
+
+
+func _process_harvest() -> void:
+	if Input.is_action_pressed("harvest"):
+		$Crab.harvest()
 
 
 func _update_camera_position() -> void:
