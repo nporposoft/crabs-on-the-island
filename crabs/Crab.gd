@@ -6,6 +6,7 @@ extends RigidBody2D
 @export var dodge_battery_usage: float = 0.5
 @export var harvest_battery_usage: float = 0.1
 @export var dodge_cooldown_seconds: float = 1.67
+@export var dodge_duration: float = 0.5
 @export var dodge_speed_multiplier: float = 1.0
 
 const movementThreshold: float = 5.0
@@ -31,7 +32,6 @@ var _state: int
 
 var _current_animation: String
 var _current_flip_h: bool
-var _dodge_cooldown_timer: Timer
 
 var _body_resources: Dictionary = {
 	"iron": 0,
@@ -57,16 +57,6 @@ var _stats: Dictionary = {
 }
 
 
-func _ready() -> void:
-	_dodge_cooldown_timer = Timer.new()
-	_dodge_cooldown_timer.wait_time = dodge_cooldown_seconds
-	_dodge_cooldown_timer.one_shot = true
-	_dodge_cooldown_timer.timeout.connect(func() -> void:
-		_unset_state(States.DODGING)
-	)
-	call_deferred("add_child", _dodge_cooldown_timer)
-
-
 func init(body_resources: Dictionary, stats: Dictionary) -> void:
 	_body_resources = body_resources
 	_stats = stats
@@ -85,11 +75,16 @@ func dodge() -> void:
 	if _has_any_state([States.DODGING, States.DODGE_COOLDOWN, States.OUT_OF_BATTERY, States.REPRODUCING]): return
 
 	_set_state(States.DODGING)
+	_set_state(States.DODGE_COOLDOWN)
 	var direction: Vector2 = Util.get_vector_from_direction(_direction)
 	apply_central_impulse(direction * _stats.move_speed * dodge_speed_multiplier)
 	_modify_battery_energy(-dodge_battery_usage)
-	_dodge_cooldown_timer.start()
-
+	_one_shot_timer(dodge_duration, func() -> void:
+		_unset_state(States.DODGING)
+	)
+	_one_shot_timer(dodge_cooldown_seconds, func() -> void:
+		_unset_state(States.DODGE_COOLDOWN)	
+	)
 
 func harvest() -> void:
 	if _has_state(States.OUT_OF_BATTERY): return
@@ -167,6 +162,19 @@ func _update_animation_from_state() -> void:
 		_current_flip_h = flip_h
 		$AnimatedSprite2D.play(_current_animation)
 		$AnimatedSprite2D.flip_h = _current_flip_h
+
+
+func _one_shot_timer(duration: float, callback: Callable) -> void:
+	var timer: Timer = Timer.new()
+	timer.wait_time = duration
+	timer.one_shot = true
+	timer.timeout.connect(func() -> void:
+		callback.call()
+		remove_child(timer)
+		timer.queue_free()	
+	)
+	add_child(timer)
+	timer.start()
 
 
 func _has_state(state: States) -> bool:
