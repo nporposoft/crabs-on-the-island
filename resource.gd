@@ -17,7 +17,7 @@ func _set_resource (_mat, _amount, _isChunk):
 	materialType = _mat
 	amount = _amount
 	is_chunk = _isChunk
-	
+
 	if is_chunk:
 		sprite.set_texture(chunkTXR)
 		chunk_collider.set_disabled(false)
@@ -26,7 +26,7 @@ func _set_resource (_mat, _amount, _isChunk):
 		sprite.set_texture(ingotTXR)
 		ingot_collider.set_disabled(false)
 		chunk_collider.set_disabled(true)
-	
+
 	match materialType:
 		MATERIAL_TYPE.COBALT:
 			sprite.set_modulate(Color(0.33, 0.33, 1.0))
@@ -47,11 +47,5 @@ func _extract (extractAmount) -> float:
 		return extractAmount
 
 
-# Called when the node enters the scene tree for the first time.
 func _ready():
-	_set_resource(materialType, amount, is_chunk)
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
+	_set_resource(material, amount, is_chunk)

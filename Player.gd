@@ -68,12 +68,6 @@ func _process(delta: float) -> void:
 	
 	_character.apply_central_impulse(moveDir.normalized() * _character._stats.move_speed)
 	
-	
-	#var input: Vector2
-	#input.x = Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
-	#input.y = Input.get_action_strength("move_down") - Input.get_action_strength("move_up")
-	#_character.move(input.normalized())
-
 	$Camera2D.position = _character.position
 	
 	_tickCooldowns(delta)

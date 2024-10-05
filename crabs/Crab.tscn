@@ -61,8 +61,6 @@ texture_filter = 1
 scale = Vector2(0.5, 0.5)
 sprite_frames = SubResource("SpriteFrames_0lpsw")
 animation = &"idle"
-frame = 1
-frame_progress = 0.0917215
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_hx6oy")
