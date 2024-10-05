@@ -14,7 +14,8 @@ const permutation_matrices = [
 func apply_mutation(stats: Dictionary, mutation: Dictionary) -> Dictionary:
 	var new_stats: Dictionary = stats.duplicate()
 	for stat in mutation.keys:
-		new_stats[stat] += new_stats[stat] (mutation[stat] * 0.01)
+		new_stats[stat] += new_stats[stat] * (mutation[stat] * 0.01)
+	return new_stats
 
 func get_mutation_options(stats: Dictionary) -> Dictionary:
 	var permutation: Array = permutation_matrices[randi_range(0, permutation_matrices.size())]
