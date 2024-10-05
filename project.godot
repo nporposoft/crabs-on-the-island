@@ -20,6 +20,7 @@ config/icon="res://icon.svg"
 WorldClock="*res://Clock.gd"
 MutationEngine="*res://crabs/Mutator.gd"
 Debug="*res://DebugSettings.gd"
+Util="*res://Util.gd"
 
 [display]
 

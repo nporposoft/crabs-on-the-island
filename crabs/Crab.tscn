@@ -1,10 +1,14 @@
-[gd_scene load_steps=13 format=3 uid="uid://ch3lyfrb4hms3"]
+[gd_scene load_steps=15 format=3 uid="uid://ch3lyfrb4hms3"]
 
 [ext_resource type="Script" path="res://crabs/Crab.gd" id="1_xe67b"]
 [ext_resource type="Texture2D" uid="uid://dkqevv6a7hwt5" path="res://assets/crab.png" id="2_5n7jq"]
 [ext_resource type="Script" path="res://crabs/CrabStatsDebug.gd" id="3_wxbeg"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_0bir5"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ih6k0"]
+atlas = ExtResource("2_5n7jq")
+region = Rect2(22, 22, 18, 18)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1o5ow"]
 atlas = ExtResource("2_5n7jq")
@@ -22,8 +26,20 @@ region = Rect2(0, 22, 18, 18)
 atlas = ExtResource("2_5n7jq")
 region = Rect2(22, 22, 18, 18)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_dffjh"]
+atlas = ExtResource("2_5n7jq")
+region = Rect2(22, 0, 18, 18)
+
 [sub_resource type="SpriteFrames" id="SpriteFrames_0lpsw"]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ih6k0")
+}],
+"loop": true,
+"name": &"dodge",
+"speed": 5.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_1o5ow")
@@ -44,6 +60,14 @@ animations = [{
 }],
 "loop": true,
 "name": &"move",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dffjh")
+}],
+"loop": true,
+"name": &"sleep",
 "speed": 5.0
 }]
 
@@ -67,7 +91,7 @@ script = ExtResource("1_xe67b")
 texture_filter = 1
 scale = Vector2(4, 4)
 sprite_frames = SubResource("SpriteFrames_0lpsw")
-animation = &"idle"
+animation = &"dodge"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_hx6oy")

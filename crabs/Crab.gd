@@ -8,15 +8,16 @@ extends RigidBody2D
 @export var dodge_cooldown_seconds: float = 1.67
 @export var dodge_speed_multiplier: float = 1.5
 
-const movementThreshold: float = 0.5
+const movementThreshold: float = 5.0
 
-enum Directions { UP, UP_LEFT, LEFT, DOWN_LEFT, DOWN, DOWN_RIGHT, RIGHT, UP_RIGHT }
-var _direction: Directions = Directions.DOWN
+
+var _direction: Util.Directions = Util.Directions.DOWN
 
 enum States { IDLE, RUNNING, DODGING, ATTACKING, REPRODUCING, OUT_OF_BATTERY }
 var _state: States = States.IDLE
 
 var _current_animation: String
+var _current_flip_h: bool
 var _dodge_cooldown_timer: Timer
 
 var _body_resources: Dictionary = {
@@ -58,17 +59,18 @@ func init(body_resources: Dictionary, stats: Dictionary) -> void:
 
 
 func move(movementDirection: Vector2) -> void:
+	if _state in [States.REPRODUCING, States.OUT_OF_BATTERY]: return
+	
 	_state = States.RUNNING
-	_direction = _get_direction_from_vector(movementDirection)
+	_direction = Util.get_direction_from_vector(movementDirection)
 	apply_central_force(movementDirection.normalized() * _stats.move_speed)
 
 
 func dodge() -> void:
-	if !_state in [States.IDLE, States.RUNNING]:
-		return
+	if !_state in [States.IDLE, States.RUNNING]: return
 
 	_state = States.DODGING
-	var direction: Vector2 = _get_vector_from_direction(_direction)
+	var direction: Vector2 = Util.get_vector_from_direction(_direction)
 	apply_central_impulse(direction * _stats.move_speed * dodge_speed_multiplier)
 	_modify_battery_energy(-dodge_battery_usage)
 
@@ -88,8 +90,7 @@ func _harvest_sunlight(delta: float) -> void:
 
 
 func _deplete_battery_from_movement(delta: float) -> void:
-	if _state != States.RUNNING:
-		return
+	if _state != States.RUNNING: return
 	
 	var lost_energy: float = move_battery_usage * delta
 	_modify_battery_energy(-lost_energy)
@@ -97,62 +98,36 @@ func _deplete_battery_from_movement(delta: float) -> void:
 
 func _modify_battery_energy(value: float) -> void:
 	_carried_resources.battery_energy = clampf(_carried_resources.battery_energy + value, 0, _stats.battery_capacity)
+	if _state == States.OUT_OF_BATTERY && _carried_resources.battery_energy > 0:
+		_state = States.IDLE
+	elif _carried_resources.battery_energy == 0:
+		_state = States.OUT_OF_BATTERY
 
 
 func _update_movement_state() -> void:
-	# TODO: do we need to gate against any states here?
+	if _state in [States.OUT_OF_BATTERY]: return
+	
 	if linear_velocity.length() < movementThreshold:
 		_state = States.IDLE
 
 
 func _update_animation_state() -> void:
 	var animation: String
+	var flip_h: bool
+	
 	match _state:
 		States.IDLE:
 			animation = "idle"
 		States.RUNNING:
 			animation = "move"
+		States.OUT_OF_BATTERY:
+			animation = "sleep"
+		States.DODGING:
+			animation = "dodge"
+			if _direction in Util.LeftDirections: flip_h = true
 	
-	if animation != _current_animation:
+	if animation != _current_animation || flip_h != _current_flip_h:
 		_current_animation = animation
+		_current_flip_h = flip_h
 		$AnimatedSprite2D.play(_current_animation)
-
-
-func _get_direction_from_vector(vector: Vector2) -> Directions:
-	if vector.x > movementThreshold && vector.y < -movementThreshold:
-		return Directions.UP_RIGHT
-	if vector.x > movementThreshold && vector.y > movementThreshold:
-		return Directions.DOWN_RIGHT
-	if vector.x < -movementThreshold && vector.y < -movementThreshold:
-		return Directions.UP_LEFT
-	if vector.x < -movementThreshold && vector.y > movementThreshold:
-		return Directions.DOWN_LEFT
-	if vector.y < -movementThreshold:
-		return Directions.UP
-	if vector.y > movementThreshold:
-		return Directions.DOWN
-	if vector.x < -movementThreshold:
-		return Directions.LEFT
-	# default to right
-	return Directions.RIGHT
-
-
-func _get_vector_from_direction(direction: Directions) -> Vector2:
-	# default to right
-	var vector: Vector2 = Vector2.RIGHT
-	match direction:
-		Directions.UP:
-			vector = Vector2.UP
-		Directions.UP_LEFT:
-			vector = Vector2.UP + Vector2.LEFT
-		Directions.LEFT:
-			vector = Vector2.LEFT
-		Directions.DOWN_LEFT:
-			vector = Vector2.DOWN + Vector2.LEFT
-		Directions.DOWN:
-			vector = Vector2.DOWN
-		Directions.DOWN_RIGHT:
-			vector = Vector2.DOWN + Vector2.RIGHT
-		Directions.UP_RIGHT:
-			vector = Vector2.UP + Vector2.RIGHT
-	return vector.normalized()
+		$AnimatedSprite2D.flip_h = _current_flip_h

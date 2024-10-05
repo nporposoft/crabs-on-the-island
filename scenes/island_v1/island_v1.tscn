@@ -68,6 +68,11 @@ position = Vector2(484, 255)
 metadata/_edit_group_ = true
 
 [node name="Crab" parent="Player" instance=ExtResource("3_s85qb")]
+move_battery_usage = 0.1
+dodge_battery_usage = 0.5
+harvest_battery_usage = 0.1
+dodge_cooldown_seconds = 1.67
+dodge_speed_multiplier = 1.5
 
 [node name="resource" parent="." instance=ExtResource("6_2lyxb")]
 position = Vector2(579, 328)
