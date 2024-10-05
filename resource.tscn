@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://b530dsmiuti0k"]
+[gd_scene load_steps=5 format=3 uid="uid://b530dsmiuti0k"]
 
 [ext_resource type="Script" path="res://resource.gd" id="1_bccdp"]
 [ext_resource type="Texture2D" uid="uid://bfaup65ugpegb" path="res://assets/ingot.png" id="2_2qlx0"]
@@ -9,9 +9,6 @@ absorbent = true
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_d3qxw"]
 size = Vector2(20, 18.8393)
-
-[sub_resource type="CircleShape2D" id="CircleShape2D_8doo5"]
-radius = 203.062
 
 [node name="resource" type="RigidBody2D"]
 mass = 50.0
@@ -38,8 +35,3 @@ rotation = 0.785398
 scale = Vector2(6, 14)
 shape = SubResource("RectangleShape2D_d3qxw")
 disabled = true
-
-[node name="Area2D" type="Area2D" parent="."]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
-shape = SubResource("CircleShape2D_8doo5")

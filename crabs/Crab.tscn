@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://ch3lyfrb4hms3"]
+[gd_scene load_steps=13 format=3 uid="uid://ch3lyfrb4hms3"]
 
 [ext_resource type="Script" path="res://crabs/Crab.gd" id="1_xe67b"]
 [ext_resource type="Texture2D" uid="uid://dkqevv6a7hwt5" path="res://assets/crab.png" id="2_5n7jq"]
@@ -53,6 +53,9 @@ radius = 27.2947
 [sub_resource type="Theme" id="Theme_4eqcg"]
 default_font_size = 16
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_t5lib"]
+radius = 64.0
+
 [node name="Crab" type="RigidBody2D"]
 physics_material_override = SubResource("PhysicsMaterial_0bir5")
 gravity_scale = 0.0
@@ -78,3 +81,8 @@ offset_bottom = 11.0
 theme = SubResource("Theme_4eqcg")
 vertical_alignment = 1
 script = ExtResource("3_wxbeg")
+
+[node name="reach_area" type="Area2D" parent="."]
+
+[node name="reach_area_collider" type="CollisionShape2D" parent="reach_area"]
+shape = SubResource("CircleShape2D_t5lib")
