@@ -6,7 +6,7 @@ extends RigidBody2D
 @export var dodge_battery_usage: float = 0.5
 @export var harvest_battery_usage: float = 0.1
 @export var dodge_cooldown_seconds: float = 1.67
-@export var dodge_speed_multiplier: float = 1.5
+@export var dodge_speed_multiplier: float = 1.0
 
 const movementThreshold: float = 5.0
 
