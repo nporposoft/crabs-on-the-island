@@ -19,8 +19,15 @@ signal battery_charge_changed
 
 var _direction: Util.Directions = Util.Directions.DOWN
 
-enum States { IDLE, RUNNING, DODGING, ATTACKING, REPRODUCING, OUT_OF_BATTERY }
-var _state: States = States.IDLE
+enum States { 
+	RUNNING = 0,
+	DODGING = 1,
+	DODGE_COOLDOWN = 2,
+	ATTACKING = 3,
+	REPRODUCING = 4,
+	OUT_OF_BATTERY = 5
+}
+var _state: int
 
 var _current_animation: String
 var _current_flip_h: bool
@@ -55,8 +62,9 @@ func _ready() -> void:
 	_dodge_cooldown_timer.wait_time = dodge_cooldown_seconds
 	_dodge_cooldown_timer.one_shot = true
 	_dodge_cooldown_timer.timeout.connect(func() -> void:
-		_state = States.IDLE
+		_unset_state(States.DODGING)
 	)
+	call_deferred("add_child", _dodge_cooldown_timer)
 
 
 func init(body_resources: Dictionary, stats: Dictionary) -> void:
@@ -65,24 +73,26 @@ func init(body_resources: Dictionary, stats: Dictionary) -> void:
 
 
 func move(movementDirection: Vector2) -> void:
-	if _state in [States.REPRODUCING, States.OUT_OF_BATTERY]: return
+	if _has_any_state([States.REPRODUCING, States.OUT_OF_BATTERY, States.DODGING]): return
+	if movementDirection.length() == 0: return
 	
-	_state = States.RUNNING
+	_set_state(States.RUNNING)
 	_direction = Util.get_direction_from_vector(movementDirection)
 	apply_central_force(movementDirection.normalized() * _stats.move_speed)
 
 
 func dodge() -> void:
-	if !_state in [States.IDLE, States.RUNNING] or _dodge_cooldown_timer.time_left > 0.0: return
+	if _has_any_state([States.DODGING, States.DODGE_COOLDOWN, States.OUT_OF_BATTERY, States.REPRODUCING]): return
 
-	_state = States.DODGING
+	_set_state(States.DODGING)
 	var direction: Vector2 = Util.get_vector_from_direction(_direction)
 	apply_central_impulse(direction * _stats.move_speed * dodge_speed_multiplier)
 	_modify_battery_energy(-dodge_battery_usage)
+	_dodge_cooldown_timer.start()
 
 
 func harvest() -> void:
-	if _state == States.OUT_OF_BATTERY: return
+	if _has_state(States.OUT_OF_BATTERY): return
 	
 	var closestDist = 100.0
 	var pickups_in_reach = $reach_area.get_overlapping_bodies()
@@ -93,11 +103,19 @@ func harvest() -> void:
 		pass
 
 
+func get_mutations(num_options: int = 1) -> Array:
+	var mutations: Array
+	for _i in num_options:
+		mutations.push_back(MutationEngine.get_mutation_options(_stats))
+	return mutations
+
+
 func _process(delta: float) -> void:
-	_update_movement_state()
-	_update_animation_state()
-	_harvest_sunlight(delta)
-	_deplete_battery_from_movement(delta)
+	pass
+	#_update_movement_state()
+	#_harvest_sunlight(delta)
+	#_deplete_battery_from_movement(delta)
+	#_update_animation_from_state()
 
 
 func _harvest_sunlight(delta: float) -> void:
@@ -108,7 +126,7 @@ func _harvest_sunlight(delta: float) -> void:
 
 
 func _deplete_battery_from_movement(delta: float) -> void:
-	if _state != States.RUNNING: return
+	if !_has_state(States.RUNNING): return
 	
 	var lost_energy: float = move_battery_usage * delta
 	_modify_battery_energy(-lost_energy)
@@ -116,37 +134,58 @@ func _deplete_battery_from_movement(delta: float) -> void:
 
 func _modify_battery_energy(value: float) -> void:
 	_carried_resources.battery_energy = clampf(_carried_resources.battery_energy + value, 0, _stats.battery_capacity)
-	if _state == States.OUT_OF_BATTERY && _carried_resources.battery_energy > 0:
-		_state = States.IDLE
+	if _has_state(States.OUT_OF_BATTERY) && _carried_resources.battery_energy > 0:
+		_unset_state(States.OUT_OF_BATTERY)
 	elif _carried_resources.battery_energy == 0:
-		_state = States.OUT_OF_BATTERY
+		_set_state(States.OUT_OF_BATTERY)
 	battery_charge_changed.emit()
 
 
 func _update_movement_state() -> void:
-	if _state in [States.OUT_OF_BATTERY]: return
+	if _has_any_state([States.OUT_OF_BATTERY, States.DODGING]): return
 	
 	if linear_velocity.length() < movementThreshold:
-		_state = States.IDLE
+		_unset_state(States.RUNNING)
 
 
-func _update_animation_state() -> void:
+func _update_animation_from_state() -> void:
 	var animation: String
 	var flip_h: bool
 	
-	match _state:
-		States.IDLE:
-			animation = "idle"
-		States.RUNNING:
-			animation = "move"
-		States.OUT_OF_BATTERY:
-			animation = "sleep"
-		States.DODGING:
-			animation = "dodge"
-			if _direction in Util.LeftDirections: flip_h = true
+	if _direction in Util.LeftDirections: flip_h = true
+	
+	if _has_state(States.OUT_OF_BATTERY):
+		animation = "sleep"
+	elif _has_state(States.DODGING):
+		animation = "dodge"
+	elif _has_state(States.RUNNING):
+		animation = "move"
+	else:
+		animation = "idle"
 	
 	if animation != _current_animation || flip_h != _current_flip_h:
 		_current_animation = animation
 		_current_flip_h = flip_h
 		$AnimatedSprite2D.play(_current_animation)
 		$AnimatedSprite2D.flip_h = _current_flip_h
+
+
+func _has_state(state: States) -> bool:
+	var mask: int = 1 << state
+	return _state & mask
+
+
+func _has_any_state(states: Array[States]) -> bool:
+	for state: States in states:
+		if _has_state(state): return true
+	return false
+
+
+func _set_state(state: States) -> void:
+	var mask: int = 1 << state
+	_state = _state | mask
+
+
+func _unset_state(state: States) -> void:
+	var mask: int = 1 << state
+	_state = _state & ~mask

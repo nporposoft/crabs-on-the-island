@@ -4,8 +4,8 @@
 [ext_resource type="PackedScene" uid="uid://2uy6byy1384y" path="res://scenes/day_night_cycle.tscn" id="2_4tlql"]
 [ext_resource type="Texture2D" uid="uid://dpnein262wtyt" path="res://assets/tileset2.png" id="2_8m5ny"]
 [ext_resource type="PackedScene" uid="uid://ch3lyfrb4hms3" path="res://crabs/Crab.tscn" id="3_s85qb"]
-[ext_resource type="PackedScene" uid="uid://b530dsmiuti0k" path="res://Morsel.tscn" id="6_2lyxb"]
-[ext_resource type="PackedScene" uid="uid://cx2ye0w0rqf4n" path="res://hud.tscn" id="6_63d84"]
+[ext_resource type="PackedScene" path="res://Morsel.tscn" id="6_2lyxb"]
+[ext_resource type="PackedScene" path="res://hud.tscn" id="6_63d84"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_wmjxi"]
 texture = ExtResource("2_8m5ny")
@@ -118,11 +118,11 @@ position = Vector2(484, 255)
 
 [node name="Crab" parent="Player" instance=ExtResource("3_s85qb")]
 position = Vector2(-219, -1009)
-move_battery_usage = null
-dodge_battery_usage = null
-harvest_battery_usage = null
-dodge_cooldown_seconds = null
-dodge_speed_multiplier = null
+move_battery_usage = 0.1
+dodge_battery_usage = 0.5
+harvest_battery_usage = 0.1
+dodge_cooldown_seconds = 1.67
+dodge_speed_multiplier = 1.0
 
 [node name="resource" parent="." instance=ExtResource("6_2lyxb")]
 position = Vector2(1668, -914)
