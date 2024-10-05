@@ -10,6 +10,12 @@ extends RigidBody2D
 
 const movementThreshold: float = 5.0
 
+signal carried_iron_changed
+signal carried_cobalt_changed
+signal carried_silicon_changed
+signal carried_water_changed
+signal battery_charge_changed
+
 
 var _direction: Util.Directions = Util.Directions.DOWN
 
@@ -102,6 +108,7 @@ func _modify_battery_energy(value: float) -> void:
 		_state = States.IDLE
 	elif _carried_resources.battery_energy == 0:
 		_state = States.OUT_OF_BATTERY
+	battery_charge_changed.emit()
 
 
 func _update_movement_state() -> void:

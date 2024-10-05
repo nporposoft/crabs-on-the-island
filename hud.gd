@@ -8,16 +8,24 @@ extends CanvasLayer
 @onready var siliconBar = $silicon_bar
 @onready var ironBar = $iron_bar
 @onready var sundial = $sundial
+@onready var dayLabel = $day_label
+
+
+func _new_day_rollover(): #never triggers atm; stand-in function for WorldClock signal #TODO: find out where WorldClock is instantiated to connect the signal here
+	dayLabel.text = "Day " + str(WorldClock.day_count)
+
+func _on_crab_battery_charge_changed():
+	energyBar.value = 100.0 * _crab._carried_resources.battery_energy / _crab._stats.battery_capacity
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
-
+	dayLabel.text = "Day " + str(WorldClock.day_count)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	energyBar.value = 100.0 * _crab._carried_resources.battery_energy / _crab._stats.battery_capacity
-	waterBar.value = 100.0 * _crab._carried_resources.water / 100.0
-	siliconBar.value = 100.0 * _crab._carried_resources.silicon / 100.0
-	ironBar.value = 100.0 * _crab._carried_resources.iron / 100.0
+	#energyBar.value = 100.0 * _crab._carried_resources.battery_energy / _crab._stats.battery_capacity
+	waterBar.value = 100.0 * _crab._carried_resources.water / 100.0 #TODO: set US water_bar maximum to crab target water maximum
+	siliconBar.value = 100.0 * _crab._carried_resources.silicon / 100.0 #TODO: set US silicon_bar maximum to crab target silicon maximum
+	ironBar.value = 100.0 * _crab._carried_resources.iron / 100.0 #TODO: set US iron_bar maximum to crab target iron maximum
 	sundial.set_rotation(2.0 * PI * WorldClock.time)
+	dayLabel.text = "Day " + str(WorldClock.day_count) #TODO: remove this once signal is connected
