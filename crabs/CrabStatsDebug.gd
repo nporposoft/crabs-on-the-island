@@ -28,14 +28,14 @@ func _process(_delta: float) -> void:
 
 # Returns array of [name, value]
 func _get_stat(path: Array) -> Array:
-	var value: String
-	var name: String
+	var stat_value: String
+	var stat_name: String
 	
 	if path.size() == 1:
-		name = path[0]
-		value = str(_crab[path[0]])
+		stat_name = path[0]
+		stat_value = str(_crab[path[0]])
 	else:
-		name = path[0] + "." + path[1]
-		value = str(_crab[path[0]][path[1]])
+		stat_name = path[0] + "." + path[1]
+		stat_value = str(_crab[path[0]][path[1]])
 		
-	return [name, value]
+	return [stat_name, stat_value]
