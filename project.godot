@@ -17,6 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+WorldClock="*res://Clock.gd"
 MutationEngine="*res://crabs/Mutator.gd"
 
 [display]

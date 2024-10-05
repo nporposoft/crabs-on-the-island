@@ -30,11 +30,5 @@ func _extract (extractAmount) -> float:
 		return extractAmount
 
 
-# Called when the node enters the scene tree for the first time.
 func _ready():
 	_set_resource(material, amount, is_chunk)
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass

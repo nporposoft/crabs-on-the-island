@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://dcfm07kupsf77"]
-
-[ext_resource type="Script" path="res://scenes/WorldClock.gd" id="1_s4t78"]
-
-[node name="WorldClock" type="Node"]
-script = ExtResource("1_s4t78")
