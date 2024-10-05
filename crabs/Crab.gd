@@ -14,6 +14,8 @@ var _stats: Dictionary = {
 	"harvest_speed": 10
 }
 
+var _current_animation: String
+
 
 func init(body_resources: Dictionary, stats: Dictionary) -> void:
 	_body_resources = body_resources
@@ -21,10 +23,12 @@ func init(body_resources: Dictionary, stats: Dictionary) -> void:
 
 
 func _process(_delta: float) -> void:
-	pass
-	#move_and_slide()
-
-
-func move(new_velocity: Vector2) -> void:
-	pass
-	#velocity = new_velocity * _stats.move_speed
+	var animation: String
+	if (linear_velocity.length() > 1):
+		animation = "move"
+	else:
+		animation = "idle"
+	
+	if animation != _current_animation:
+		_current_animation = animation
+		$AnimatedSprite2D.play(_current_animation)
