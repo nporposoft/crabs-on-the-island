@@ -6,4 +6,3 @@
 script = ExtResource("1_gdfm8")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(5, 5)
