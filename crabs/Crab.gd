@@ -6,7 +6,18 @@ extends RigidBody2D
 @export var dash_battery_usage: float = 0.5
 @export var harvest_battery_usage: float = 0.1
 
-var _body_resources: Dictionary
+enum Directions { UP, DOWN, LEFT, RIGHT }
+var _direction: Directions = Directions.DOWN
+enum States { IDLE, RUNNING, DODGING, ATTACKING, REPRODUCING, OUT_OF_BATTERY }
+var _state: States = States.IDLE
+var _current_animation: String
+
+var _body_resources: Dictionary = {
+	"iron": 0,
+	"cobalt": 0,
+	"silicon": 0,
+	"water": 0,
+}
 var _carried_resources: Dictionary = {
 	"iron": 0,
 	"cobalt": 0,
@@ -19,12 +30,10 @@ var _stats: Dictionary = {
 	"hit_points": 10,
 	"strength": 10,
 	"move_speed": 100.0,
-	"solar_efficiency": 0.1,
+	"solar_efficiency": 0.2,
 	"battery_capacity": 10,
 	"harvest_speed": 10
 }
-
-var _current_animation: String
 
 
 func init(body_resources: Dictionary, stats: Dictionary) -> void:

@@ -10,14 +10,16 @@ var lateralDodgeMult = 50.0
 var canDodge = true
 
 
-func _tickCooldowns(_delta) -> void:
+func _tickCooldowns(_delta: float) -> void:
 	if dodgeCooldown > 0.0:
 		dodgeCooldown -= _delta
 		if dodgeCooldown <= 0.0:
 			canDodge = true
 
+
 func _ready() -> void:
 	_character = $Crab
+
 
 func _process(delta: float) -> void:
 	var moveDir = Vector2(0.0, 0.0)
