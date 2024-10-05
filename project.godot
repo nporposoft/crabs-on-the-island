@@ -15,6 +15,10 @@ run/main_scene="res://scenes/island_v1/island_v1.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[autoload]
+
+MutationEngine="*res://crabs/Mutator.gd"
+
 [display]
 
 window/size/viewport_width=1920
