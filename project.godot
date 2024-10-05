@@ -13,7 +13,7 @@ config_version=5
 config/name="Crabs on the Island"
 run/main_scene="res://scenes/island_v1/island_v1.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
-config/icon="res://icon.svg"
+config/icon="res://crab.png"
 
 [autoload]
 
