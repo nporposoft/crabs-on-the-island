@@ -23,3 +23,4 @@ func _process_movement() -> void:
 
 func _update_camera_position() -> void:
 	$Camera2D.position = $Crab.position
+	$Camera2D.transform = $Crab.transform
