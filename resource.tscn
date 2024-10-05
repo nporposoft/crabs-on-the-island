@@ -1,16 +1,17 @@
 [gd_scene load_steps=6 format=3 uid="uid://b530dsmiuti0k"]
 
 [ext_resource type="Script" path="res://resource.gd" id="1_bccdp"]
-[ext_resource type="Texture2D" uid="uid://eluu412tp81f" path="res://assets/chunk.png" id="2_o2o1f"]
+[ext_resource type="Texture2D" uid="uid://bfaup65ugpegb" path="res://assets/ingot.png" id="2_2qlx0"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_86wl0"]
 rough = true
 absorbent = true
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_d3qxw"]
+size = Vector2(20, 18.8393)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_8doo5"]
-radius = 24.0
+radius = 203.062
 
 [node name="resource" type="RigidBody2D"]
 mass = 50.0
@@ -22,15 +23,19 @@ script = ExtResource("1_bccdp")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 modulate = Color(0.904695, 0.826261, 0.628914, 1)
-texture = ExtResource("2_o2o1f")
+texture_filter = 1
+scale = Vector2(8, 8)
+texture = ExtResource("2_2qlx0")
 
 [node name="chunk_collider" type="CollisionPolygon2D" parent="."]
+scale = Vector2(8, 8)
 polygon = PackedVector2Array(7, 0, 7, 4, 2, 6, 1, 12, -12, 12, -11, 3, -7, 0, -7, -7, -1, -12, 13, -12, 13, -5)
 disabled = true
 
 [node name="ingot_collider" type="CollisionShape2D" parent="."]
+position = Vector2(6.24999, -6.25)
 rotation = 0.785398
-scale = Vector2(0.75, 1.75)
+scale = Vector2(6, 14)
 shape = SubResource("RectangleShape2D_d3qxw")
 disabled = true
 

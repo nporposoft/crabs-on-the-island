@@ -48,10 +48,10 @@ animations = [{
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_hx6oy"]
-radius = 5.0
+radius = 27.2947
 
 [sub_resource type="Theme" id="Theme_4eqcg"]
-default_font_size = 10
+default_font_size = 16
 
 [node name="Crab" type="RigidBody2D"]
 physics_material_override = SubResource("PhysicsMaterial_0bir5")
@@ -62,7 +62,7 @@ script = ExtResource("1_xe67b")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 texture_filter = 1
-scale = Vector2(0.5, 0.5)
+scale = Vector2(4, 4)
 sprite_frames = SubResource("SpriteFrames_0lpsw")
 animation = &"idle"
 
@@ -71,11 +71,10 @@ shape = SubResource("CircleShape2D_hx6oy")
 
 [node name="CrabStatsDebug" type="Label" parent="."]
 texture_filter = 1
-offset_left = 8.0
+offset_left = 43.0
 offset_top = -12.0
-offset_right = 48.0
+offset_right = 83.0
 offset_bottom = 11.0
 theme = SubResource("Theme_4eqcg")
 vertical_alignment = 1
 script = ExtResource("3_wxbeg")
-_enabled = true

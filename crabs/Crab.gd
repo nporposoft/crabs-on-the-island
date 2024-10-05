@@ -18,7 +18,7 @@ var _stats: Dictionary = {
 	"size": 1,
 	"hit_points": 10,
 	"strength": 10,
-	"move_speed": 10.0,
+	"move_speed": 100.0,
 	"solar_efficiency": 0.1,
 	"battery_capacity": 10,
 	"harvest_speed": 10
