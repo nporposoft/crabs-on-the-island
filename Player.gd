@@ -1,6 +1,6 @@
 class_name Player
 
-extends Node2D
+extends Node
 
 var _character: CharacterBody2D
 
