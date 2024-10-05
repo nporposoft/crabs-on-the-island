@@ -45,7 +45,7 @@ animations = [{
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_hx6oy"]
-radius = 32.0156
+radius = 5.0
 
 [node name="Crab" type="CharacterBody2D"]
 script = ExtResource("1_xe67b")

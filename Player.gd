@@ -12,3 +12,5 @@ func _process(delta: float) -> void:
 	input.x = Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
 	input.y = Input.get_action_strength("move_down") - Input.get_action_strength("move_up")
 	_character.move(input.normalized())
+
+	$Camera2D.position = _character.position

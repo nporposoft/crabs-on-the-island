@@ -61,4 +61,4 @@ position = Vector2(649, 448)
 metadata/_edit_group_ = true
 
 [node name="Crab" parent="Player" instance=ExtResource("3_s85qb")]
-_speed = 10.0
+_speed = 50.0
