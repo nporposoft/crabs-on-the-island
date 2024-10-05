@@ -111,11 +111,10 @@ func get_mutations(num_options: int = 1) -> Array:
 
 
 func _process(delta: float) -> void:
-	pass
-	#_update_movement_state()
-	#_harvest_sunlight(delta)
-	#_deplete_battery_from_movement(delta)
-	#_update_animation_from_state()
+	_update_movement_state()
+	_harvest_sunlight(delta)
+	_deplete_battery_from_movement(delta)
+	_update_animation_from_state()
 
 
 func _harvest_sunlight(delta: float) -> void:
