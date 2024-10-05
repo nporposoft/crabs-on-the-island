@@ -11,6 +11,8 @@ func _ready() -> void:
 		_available_properties.push_back(["_carried_resources",property])
 	for property in _crab._stats.keys():
 		_available_properties.push_back(["_stats",property])
+	_available_properties.push_back(["_state"])
+	_available_properties.push_back(["_direction"])
 
 func _process(_delta: float) -> void:
 	if !Debug.enabled:
@@ -21,5 +23,19 @@ func _process(_delta: float) -> void:
 		_current_stat_index = (_current_stat_index + 1) % _available_properties.size()
 	
 	var stat: Array = _available_properties[_current_stat_index]
-	var value: String = str(_crab[stat[0]][stat[1]])
-	text = stat[0] + "." + stat[1] + ": " + value
+	var value = _get_stat(stat)
+	text = value[0] + ": " + value[1]
+
+# Returns array of [name, value]
+func _get_stat(path: Array) -> Array:
+	var value: String
+	var name: String
+	
+	if path.size() == 1:
+		name = path[0]
+		value = str(_crab[path[0]])
+	else:
+		name = path[0] + "." + path[1]
+		value = str(_crab[path[0]][path[1]])
+		
+	return [name, value]

@@ -1,11 +1,11 @@
 [gd_scene load_steps=9 format=4 uid="uid://co582gapcsfm4"]
 
-[ext_resource type="PackedScene" uid="uid://cx2ye0w0rqf4n" path="res://hud.tscn" id="1_gs3nj"]
 [ext_resource type="Texture2D" uid="uid://dovldgw8fq5vi" path="res://assets/temp-tilemap.png" id="1_gs215"]
 [ext_resource type="PackedScene" uid="uid://c0mfa4rplirjk" path="res://player.tscn" id="2_0en58"]
 [ext_resource type="PackedScene" uid="uid://2uy6byy1384y" path="res://scenes/day_night_cycle.tscn" id="2_4tlql"]
 [ext_resource type="PackedScene" uid="uid://ch3lyfrb4hms3" path="res://crabs/Crab.tscn" id="3_s85qb"]
 [ext_resource type="PackedScene" uid="uid://b530dsmiuti0k" path="res://resource.tscn" id="6_2lyxb"]
+[ext_resource type="PackedScene" path="res://hud.tscn" id="6_63d84"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t8rii"]
 texture = ExtResource("1_gs215")
@@ -55,9 +55,6 @@ sources/0 = SubResource("TileSetAtlasSource_t8rii")
 
 [node name="IslandV1" type="Node2D"]
 
-[node name="hud" parent="." node_paths=PackedStringArray("_player") instance=ExtResource("1_gs3nj")]
-_player = NodePath("../Player")
-
 [node name="DayNightCycle" parent="." instance=ExtResource("2_4tlql")]
 
 [node name="TileMapLayer" type="TileMapLayer" parent="."]
@@ -84,5 +81,8 @@ position = Vector2(436, 394)
 [node name="resource4" parent="." instance=ExtResource("6_2lyxb")]
 position = Vector2(698, 431)
 is_chunk = true
+
+[node name="hud" parent="." node_paths=PackedStringArray("_player") instance=ExtResource("6_63d84")]
+_player = NodePath("../Player")
 
 [editable path="DayNightCycle"]
