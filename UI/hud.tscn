@@ -212,6 +212,7 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_wm8pw")
 value = 50.0
 
 [node name="water_clone_bar" type="ProgressBar" parent="water_bar"]
+layout_mode = 0
 offset_right = 300.0
 offset_bottom = 32.0
 theme_override_font_sizes/font_size = 11
@@ -234,6 +235,7 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_dv2vv")
 value = 50.0
 
 [node name="silicon_clone_bar" type="ProgressBar" parent="silicon_bar"]
+layout_mode = 0
 offset_right = 300.0
 offset_bottom = 32.0
 theme_override_font_sizes/font_size = 11
@@ -257,6 +259,7 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_vgvjd")
 value = 50.0
 
 [node name="iron_clone_bar" type="ProgressBar" parent="iron_bar"]
+layout_mode = 0
 offset_right = 300.0
 offset_bottom = 32.0
 theme_override_font_sizes/font_size = 11

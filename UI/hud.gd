@@ -117,12 +117,6 @@ func _ready():
 	_crab.carried_water_changed.connect(_update_water)
 	_crab.battery_charge_changed.connect(_update_battery)
 	_crab.build_progress_changed.connect(_update_build_prog)
-	_update_battery()
-	_update_build_prog()
-	_update_cobalt()
-	_update_iron()
-	_update_silicon()
-	_update_water()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):

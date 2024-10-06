@@ -2,6 +2,9 @@ class_name Player
 
 extends Node
 
+func _ready():
+	$Crab.isPlayerFamily = true
+	$Crab/AnimatedSprite2D.set_self_modulate(Color(1.0, 0.0, 0.0))
 
 func _process(delta: float) -> void:
 	_process_movement()

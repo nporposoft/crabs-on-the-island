@@ -31,6 +31,7 @@ signal iron_ready
 signal silicon_ready
 signal water_ready
 
+var isPlayerFamily: bool
 var _HP: float
 var _direction: Util.Directions = Util.Directions.DOWN
 var _velocity: Vector2
@@ -101,6 +102,7 @@ func _ready() -> void:
 	carried_silicon_changed.emit()
 	carried_water_changed.emit()
 	battery_charge_changed.emit()
+	build_progress_changed.emit()
 	
 	$healthBar/healthNum.set_text(str(_HP))
 	
@@ -108,7 +110,10 @@ func _ready() -> void:
 	_start_sleep(false)
 
 
-func init(body_resources: Dictionary, stats: Dictionary) -> void:
+func init(body_resources: Dictionary, stats: Dictionary, playerFam: bool) -> void:
+	isPlayerFamily = playerFam
+	if isPlayerFamily:
+		$AnimatedSprite2D.set_self_modulate(Color(1.0, 0.0, 0.0))
 	_body_resources = body_resources
 	if _body_resources.cobalt == 0.0 and _body_resources.iron == 0.0 and _body_resources.silicon:
 		_body_resources = { "iron": _stats.size * material_size_mult, "cobalt": 0.0, "silicon": _stats.size * material_size_mult }
@@ -372,11 +377,13 @@ func can_reach_morsel(morsel: Morsel) -> bool:
 	return get_nearby_morsels().has(morsel)
 
 
-func auto_reproduce(delta) -> bool:
-	if _sm.has_any_state([States.OUT_OF_BATTERY]):
-		return false
-	
+func auto_reproduce(delta: float) -> bool:
+	#if _sm.has_any_state([States.OUT_OF_BATTERY]):
+		#return false
+	#
 	if can_reproduce():
+		if _sm.has_any_state([States.OUT_OF_BATTERY]):
+			return true
 		buildProgress += _stats.build_speed * delta
 		_modify_battery_energy(_stats.build_speed * delta * buildDrainMult)
 		if buildProgress >= 1.0:
@@ -410,7 +417,7 @@ func reproduce(mutation: Dictionary) -> void:
 	var new_crab: Crab = crab_scene.instantiate()
 	var new_body_resources = { "iron": _carried_resources.iron, "cobalt": _carried_resources.cobalt, "silicon": _carried_resources.silicon }
 	_carried_resources = { "iron": 0.0, "cobalt": 0.0, "silicon": 0.0, "water": 0.0, "battery_energy": 0.0 }
-	new_crab.init(new_body_resources, new_stats)
+	new_crab.init(new_body_resources, new_stats, isPlayerFamily)
 	var new_crab_direction: Vector2 = Util.random_direction()
 	new_crab.position = position + (new_crab_direction * 20.0)
 	var new_ai_crab: CrabAI = crab_ai_scene.instantiate()
@@ -429,7 +436,6 @@ func has_reproduction_resources() -> bool:
 
 func can_reproduce() -> bool:
 	if !has_reproduction_resources(): return false
-	#if 100.0 * (_carried_resources.battery_energy / _stats.battery_capacity) < batteryEnergyTargetPercentage: return false
 	return true
 
 
