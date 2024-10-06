@@ -1,8 +1,11 @@
-[gd_scene load_steps=15 format=3 uid="uid://ch3lyfrb4hms3"]
+[gd_scene load_steps=18 format=3 uid="uid://ch3lyfrb4hms3"]
 
 [ext_resource type="Script" path="res://crabs/Crab.gd" id="1_xe67b"]
 [ext_resource type="Texture2D" uid="uid://dkqevv6a7hwt5" path="res://assets/crab.png" id="2_5n7jq"]
 [ext_resource type="Script" path="res://crabs/CrabStatsDebug.gd" id="3_wxbeg"]
+[ext_resource type="AudioStream" uid="uid://droer2prtggda" path="res://assets/sfx/poweron2.wav" id="4_3pxvx"]
+[ext_resource type="AudioStream" uid="uid://qh5qcwmukbyf" path="res://assets/sfx/poweroff.wav" id="5_g3tvs"]
+[ext_resource type="AudioStream" uid="uid://bktiyb8rih1f2" path="res://assets/sfx/dash.wav" id="6_s5pfp"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_0bir5"]
 
@@ -110,3 +113,12 @@ script = ExtResource("3_wxbeg")
 
 [node name="reach_area_collider" type="CollisionShape2D" parent="reach_area"]
 shape = SubResource("CircleShape2D_t5lib")
+
+[node name="PowerOnSoundEffect" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_3pxvx")
+
+[node name="PowerOffSoundEffect" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_g3tvs")
+
+[node name="DashSoundEffect" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("6_s5pfp")

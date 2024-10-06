@@ -8,6 +8,7 @@ extends RigidBody2D
 @export var dodge_cooldown_seconds: float = 1.67
 @export var dodge_duration: float = 0.5
 @export var dodge_speed_multiplier: float = 1.0
+@export var shutdown_cooldown_seconds: float = 3.0
 
 const movementThreshold: float = 5.0
 const harvestDrain = -2.0
@@ -22,7 +23,6 @@ signal carried_silicon_changed
 signal carried_water_changed
 signal battery_charge_changed
 
-
 var _direction: Util.Directions = Util.Directions.DOWN
 
 enum States { 
@@ -31,7 +31,8 @@ enum States {
 	DODGE_COOLDOWN = 2,
 	ATTACKING = 3,
 	REPRODUCING = 4,
-	OUT_OF_BATTERY = 5
+	OUT_OF_BATTERY = 5,
+	SHUTDOWN_COOLDOWN = 6
 }
 var _state: int
 
@@ -84,6 +85,7 @@ func dodge() -> void:
 	var direction: Vector2 = Util.get_vector_from_direction(_direction)
 	apply_central_impulse(direction * _stats.move_speed * dodge_speed_multiplier)
 	_modify_battery_energy(-dodge_battery_usage)
+	$DashSoundEffect.play()
 	_one_shot_timer(dodge_duration, func() -> void:
 		_unset_state(States.DODGING)
 	)
@@ -147,10 +149,16 @@ func _deplete_battery_from_movement(delta: float) -> void:
 
 func _modify_battery_energy(value: float) -> void:
 	_carried_resources.battery_energy = clampf(_carried_resources.battery_energy + value, 0, _stats.battery_capacity)
-	if _has_state(States.OUT_OF_BATTERY) && _carried_resources.battery_energy > 0:
+	if !_has_state(States.SHUTDOWN_COOLDOWN) && _has_state(States.OUT_OF_BATTERY) && _carried_resources.battery_energy > 0:
 		_unset_state(States.OUT_OF_BATTERY)
-	elif _carried_resources.battery_energy == 0:
+		$PowerOnSoundEffect.play()
+	elif _carried_resources.battery_energy == 0 && !_has_state(States.OUT_OF_BATTERY):
 		_set_state(States.OUT_OF_BATTERY)
+		_set_state(States.SHUTDOWN_COOLDOWN)
+		$PowerOffSoundEffect.play()
+		_one_shot_timer(shutdown_cooldown_seconds, func() -> void:
+			_unset_state(States.SHUTDOWN_COOLDOWN)
+		)
 	battery_charge_changed.emit()
 
 func _extract_cobalt(value: float, delta: float) -> void:
