@@ -8,6 +8,7 @@ var _sm: MultiStateMachine = MultiStateMachine.new()
 var _vision_area: Area2D
 
 var _wander_timer: Timer
+var _crab: Crab
 
 enum States {
 	IDLING,
@@ -19,36 +20,30 @@ enum States {
 var _wander_direction: Vector2
 
 func _ready() -> void:
+	_crab = $Crab
 	_create_vision_area()
 	_create_wander_timer()
 
+
 func _process(delta: float) -> void:
-	_vision_area.position = $Crab.position
-	
 	var visibleMorsels: Array = _find_visible_morsels_by_distance()
 	for morsel: Morsel in visibleMorsels:
 		if !_want_morsel(morsel): continue
 		
 		_sm.unset_all_states()
+		$Crab.move(Vector2.ZERO) # gross
 		
-		if $Crab.can_reach_morsel(morsel):
-			_sm.set_state(States.HARVESTING)
-			$Crab.harvest_morsel(delta, morsel)
-		else:
-			_sm.set_state(States.MOVING_TO_RESOURCE)
-			_move_toward_morsel(morsel)
+		if $Crab.can_reach_morsel(morsel): _harvest_morsel(delta, morsel)
+		else: _move_toward_morsel(morsel)
 		return
 	
-	$Crab.stop_harvest()
+	_stop_harvesting()
 	
 	if _sm.has_state(States.WANDERING):
-		if _time_to_idle():
-			_start_idling()
-		else: 
-			_keep_wandering()
+		if _time_to_idle(): _start_idling()
+		else: _keep_wandering()
 	else:
-		if _time_to_wander(): 
-			_start_wandering()
+		if _time_to_wander(): _start_wandering()
 
 
 func _start_wandering() -> void:
@@ -61,6 +56,7 @@ func _start_wandering() -> void:
 func _start_idling() -> void:
 	_sm.unset_state(States.WANDERING)
 	_sm.set_state(States.IDLING)
+	$Crab.move(Vector2.ZERO) # gross
 	_start_idle_timer()
 
 
@@ -73,21 +69,32 @@ func _time_to_wander() -> bool:
 
 
 func _start_wander_timer() -> void:
-	_wander_timer.wait_time = randf_range(3.0, 6.0)
+	_wander_timer.wait_time = randf_range(1.0, 3.0)
 	_wander_timer.start()
 
 
 func _start_idle_timer() -> void:
-	_wander_timer.wait_time = randf_range(1.0, 3.0)
-	_wander_timer.start()
+	_start_wander_timer()
+
 
 func _keep_wandering() -> void:
 	$Crab.move(_wander_direction)
 
 
 func _move_toward_morsel(morsel: Morsel) -> void:
+	_sm.set_state(States.MOVING_TO_RESOURCE)
 	var direction: Vector2 = morsel.position - $Crab.position
 	$Crab.move(direction)
+
+
+func _harvest_morsel(delta: float, morsel: Morsel) -> void:
+	_sm.set_state(States.HARVESTING)
+	$Crab.harvest_morsel(delta, morsel)
+
+
+func _stop_harvesting() -> void:
+	$Crab.stop_harvest()
+	_sm.unset_state(States.HARVESTING)
 
 
 func _want_morsel(morsel: Morsel) -> bool:
@@ -150,4 +157,4 @@ func _create_vision_area() -> void:
 	
 	_vision_area = Area2D.new()
 	_vision_area.add_child(_vision_area_shape)
-	add_child(_vision_area)
+	$Crab.add_child(_vision_area)
