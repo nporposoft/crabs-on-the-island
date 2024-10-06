@@ -1,9 +1,13 @@
-[gd_scene load_steps=16 format=3 uid="uid://ch3lyfrb4hms3"]
+[gd_scene load_steps=20 format=3 uid="uid://ch3lyfrb4hms3"]
 
 [ext_resource type="Script" path="res://crabs/Crab.gd" id="1_xe67b"]
 [ext_resource type="Texture2D" uid="uid://dkqevv6a7hwt5" path="res://assets/crab.png" id="2_5n7jq"]
 [ext_resource type="Script" path="res://crabs/CrabStatsDebug.gd" id="3_wxbeg"]
-[ext_resource type="PackedScene" uid="uid://cigl58gfahcla" path="res://assets/sparks.tscn" id="4_bjkj3"]
+[ext_resource type="AudioStream" uid="uid://droer2prtggda" path="res://assets/sfx/poweron2.wav" id="4_3pxvx"]
+[ext_resource type="AudioStream" uid="uid://qh5qcwmukbyf" path="res://assets/sfx/poweroff.wav" id="5_g3tvs"]
+[ext_resource type="AudioStream" uid="uid://bktiyb8rih1f2" path="res://assets/sfx/dash.wav" id="6_s5pfp"]
+[ext_resource type="AudioStream" uid="uid://mmp73kcler03" path="res://assets/sfx/step1.wav" id="7_e6rox"]
+[ext_resource type="AudioStream" uid="uid://dydsdao7apbh8" path="res://assets/sfx/step2.wav" id="8_gxgl0"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_0bir5"]
 
@@ -94,11 +98,6 @@ scale = Vector2(4, 4)
 sprite_frames = SubResource("SpriteFrames_0lpsw")
 animation = &"dodge"
 
-[node name="Sparks" parent="." instance=ExtResource("4_bjkj3")]
-position = Vector2(0, -26)
-scale = Vector2(0.5, 0.5)
-emitting = false
-
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_hx6oy")
 
@@ -116,3 +115,20 @@ script = ExtResource("3_wxbeg")
 
 [node name="reach_area_collider" type="CollisionShape2D" parent="reach_area"]
 shape = SubResource("CircleShape2D_t5lib")
+
+[node name="PowerOnSoundEffect" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_3pxvx")
+
+[node name="PowerOffSoundEffect" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_g3tvs")
+
+[node name="DashSoundEffect" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("6_s5pfp")
+
+[node name="FootStepSound1" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("7_e6rox")
+volume_db = -15.0
+
+[node name="FootStepSound2" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("8_gxgl0")
+volume_db = -15.0

@@ -8,8 +8,10 @@ extends RigidBody2D
 @export var dodge_cooldown_seconds: float = 1.67
 @export var dodge_duration: float = 0.5
 @export var dodge_speed_multiplier: float = 1.0
+@export var shutdown_cooldown_seconds: float = 3.0
+@export var foot_step_time_delay: float = 0.1
 
-const movementThreshold: float = 5.0
+const movementThreshold: float = 20.0
 const harvestDrain = -1.0
 const cobaltTarget = 10.0
 const ironTarget = 10.0
@@ -22,16 +24,19 @@ signal carried_silicon_changed
 signal carried_water_changed
 signal battery_charge_changed
 
-
 var _direction: Util.Directions = Util.Directions.DOWN
 
-enum States { 
+var _foot_step_sounds: Array[AudioStreamPlayer2D]
+var _foot_step_timer: Timer
+
+enum States {
 	RUNNING = 0,
 	DODGING = 1,
 	DODGE_COOLDOWN = 2,
 	ATTACKING = 3,
 	REPRODUCING = 4,
-	OUT_OF_BATTERY = 5
+	OUT_OF_BATTERY = 5,
+	SHUTDOWN_COOLDOWN = 6
 }
 var _state: int
 
@@ -61,6 +66,12 @@ var _stats: Dictionary = {
 	"harvest_speed": 2.0
 }
 
+func _ready() -> void:
+	_foot_step_sounds = [$FootStepSound1, $FootStepSound2]
+	_foot_step_timer = Timer.new()
+	_foot_step_timer.wait_time = foot_step_time_delay
+	_foot_step_timer.timeout.connect(_play_random_footstep_sound)
+	add_child(_foot_step_timer)
 
 func init(body_resources: Dictionary, stats: Dictionary) -> void:
 	_body_resources = body_resources
@@ -70,8 +81,12 @@ func init(body_resources: Dictionary, stats: Dictionary) -> void:
 func move(movementDirection: Vector2) -> void:
 	if _has_any_state([States.REPRODUCING, States.OUT_OF_BATTERY, States.DODGING]): return
 	if movementDirection.length() == 0: return
-	
-	_set_state(States.RUNNING)
+
+	if !_has_state(States.RUNNING):
+		_set_state(States.RUNNING)
+		_play_random_footstep_sound()
+		_foot_step_timer.start()
+
 	_direction = Util.get_direction_from_vector(movementDirection)
 	apply_central_force(movementDirection.normalized() * _stats.move_speed)
 
@@ -84,16 +99,17 @@ func dodge() -> void:
 	var direction: Vector2 = Util.get_vector_from_direction(_direction)
 	apply_central_impulse(direction * _stats.move_speed * dodge_speed_multiplier)
 	_modify_battery_energy(-dodge_battery_usage)
+	$DashSoundEffect.play()
 	_one_shot_timer(dodge_duration, func() -> void:
 		_unset_state(States.DODGING)
 	)
 	_one_shot_timer(dodge_cooldown_seconds, func() -> void:
-		_unset_state(States.DODGE_COOLDOWN)	
+		_unset_state(States.DODGE_COOLDOWN)
 	)
 
 func harvest(delta: float) -> bool:
 	if _has_state(States.OUT_OF_BATTERY): return false
-	
+
 	var closestDist = 1000.0
 	var closestMorsel: Morsel
 	var pickups_in_reach = $reach_area.get_overlapping_bodies()
@@ -149,17 +165,23 @@ func _harvest_sunlight(delta: float) -> void:
 
 func _deplete_battery_from_movement(delta: float) -> void:
 	if !_has_state(States.RUNNING): return
-	
+
 	var lost_energy: float = move_battery_usage * delta
 	_modify_battery_energy(-lost_energy)
 
 
 func _modify_battery_energy(value: float) -> void:
 	_carried_resources.battery_energy = clampf(_carried_resources.battery_energy + value, 0, _stats.battery_capacity)
-	if _has_state(States.OUT_OF_BATTERY) && _carried_resources.battery_energy > 0:
+	if !_has_state(States.SHUTDOWN_COOLDOWN) && _has_state(States.OUT_OF_BATTERY) && _carried_resources.battery_energy > 0:
 		_unset_state(States.OUT_OF_BATTERY)
-	elif _carried_resources.battery_energy == 0:
+		$PowerOnSoundEffect.play()
+	elif _carried_resources.battery_energy == 0 && !_has_state(States.OUT_OF_BATTERY):
 		_set_state(States.OUT_OF_BATTERY)
+		_set_state(States.SHUTDOWN_COOLDOWN)
+		$PowerOffSoundEffect.play()
+		_one_shot_timer(shutdown_cooldown_seconds, func() -> void:
+			_unset_state(States.SHUTDOWN_COOLDOWN)
+		)
 	battery_charge_changed.emit()
 
 func _extract_cobalt(value: float, delta: float) -> void:
@@ -179,18 +201,24 @@ func _extract_silicon(value: float, delta: float) -> void:
 
 
 func _update_movement_state() -> void:
-	if _has_any_state([States.OUT_OF_BATTERY, States.DODGING]): return
-	
+	if _has_state(States.OUT_OF_BATTERY):
+		_foot_step_timer.stop()
+		_unset_state(States.RUNNING)
+		return
+
+	if _has_state(States.DODGING): return
+
 	if linear_velocity.length() < movementThreshold:
+		_foot_step_timer.stop()
 		_unset_state(States.RUNNING)
 
 
 func _update_animation_from_state() -> void:
 	var animation: String
 	var flip_h: bool
-	
+
 	if _direction in Util.LeftDirections: flip_h = true
-	
+
 	if _has_state(States.OUT_OF_BATTERY):
 		animation = "sleep"
 	elif _has_state(States.DODGING):
@@ -199,12 +227,18 @@ func _update_animation_from_state() -> void:
 		animation = "move"
 	else:
 		animation = "idle"
-	
+
 	if animation != _current_animation || flip_h != _current_flip_h:
 		_current_animation = animation
 		_current_flip_h = flip_h
 		$AnimatedSprite2D.play(_current_animation)
 		$AnimatedSprite2D.flip_h = _current_flip_h
+
+
+func _play_random_footstep_sound() -> void:
+	var sound: AudioStreamPlayer2D = _foot_step_sounds[randi_range(0, _foot_step_sounds.size() - 1)]
+	sound.pitch_scale = randf_range(0.8, 1.2)
+	sound.play()
 
 
 func _one_shot_timer(duration: float, callback: Callable) -> void:
@@ -214,7 +248,7 @@ func _one_shot_timer(duration: float, callback: Callable) -> void:
 	timer.timeout.connect(func() -> void:
 		callback.call()
 		remove_child(timer)
-		timer.queue_free()	
+		timer.queue_free()
 	)
 	add_child(timer)
 	timer.start()
