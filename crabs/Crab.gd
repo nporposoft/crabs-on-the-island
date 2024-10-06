@@ -10,7 +10,7 @@ extends RigidBody2D
 @export var dodge_speed_multiplier: float = 1.0
 
 const movementThreshold: float = 5.0
-const harvestDrain = 2.0
+const harvestDrain = -2.0
 const cobaltTarget = 100.0
 const ironTarget = 100.0
 const siliconTarget = 100.0
@@ -94,8 +94,7 @@ func dodge() -> void:
 func harvest(delta: float) -> void:
 	if _has_state(States.OUT_OF_BATTERY): return
 	
-	
-	var closestDist = 640.0
+	var closestDist = 1000.0
 	var closestMorsel: Morsel
 	var pickups_in_reach = $reach_area.get_overlapping_bodies()
 	for item: RigidBody2D in pickups_in_reach:
@@ -105,16 +104,15 @@ func harvest(delta: float) -> void:
 			closestDist = (morselItem.position - self.position).length()
 			closestMorsel = morselItem
 	if closestMorsel != null:
+		var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrain))
+		print(str(partial_harvest))
 		match closestMorsel.mat_type:
 			Morsel.MATERIAL_TYPE.COBALT:
-				if _carried_resources.cobalt < cobaltTarget: _extract_cobalt(closestMorsel._extract(_stats.harvest_speed * delta), delta)
-				print("I ate " + str(_stats.harvest_speed * delta) + " units of cobalt")
+				if _carried_resources.cobalt < cobaltTarget: _extract_cobalt(partial_harvest * closestMorsel._extract(_stats.harvest_speed * delta), delta)
 			Morsel.MATERIAL_TYPE.IRON:
-				if _carried_resources.iron < ironTarget: _extract_iron(closestMorsel._extract(_stats.harvest_speed * delta), delta)
-				print("I ate " + str(_stats.harvest_speed * delta) + " units of iron")
+				if _carried_resources.iron < ironTarget: _extract_iron(partial_harvest * closestMorsel._extract(_stats.harvest_speed * delta), delta)
 			Morsel.MATERIAL_TYPE.SILICON:
-				if _carried_resources.silicon < siliconTarget: _extract_silicon(closestMorsel._extract(_stats.harvest_speed * delta), delta)
-				print("I ate " + str(_stats.harvest_speed * delta) + " units of silicon")
+				if _carried_resources.silicon < siliconTarget: _extract_silicon(partial_harvest * closestMorsel._extract(_stats.harvest_speed * delta), delta)
 	else:
 		pass #TODO: if no morsel in reach, check if on sand or in water
 
@@ -157,17 +155,17 @@ func _modify_battery_energy(value: float) -> void:
 
 func _extract_cobalt(value: float, delta: float) -> void:
 	_carried_resources.cobalt = clampf(_carried_resources.cobalt + value, 0, cobaltTarget)
-	_modify_battery_energy(-value * delta * harvestDrain)
+	_modify_battery_energy(delta * harvestDrain)
 	carried_cobalt_changed.emit()
 
 func _extract_iron(value: float, delta: float) -> void:
 	_carried_resources.iron = clampf(_carried_resources.iron + value, 0, ironTarget)
-	_modify_battery_energy(-value * delta * harvestDrain)
+	_modify_battery_energy(delta * harvestDrain)
 	carried_iron_changed.emit()
 
 func _extract_silicon(value: float, delta: float) -> void:
 	_carried_resources.silicon = clampf(_carried_resources.silicon + value, 0, siliconTarget)
-	_modify_battery_energy(-value * delta * harvestDrain)
+	_modify_battery_energy(delta * harvestDrain)
 	carried_silicon_changed.emit()
 
 
