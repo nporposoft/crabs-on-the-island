@@ -25,7 +25,7 @@ signal carried_water_changed
 signal battery_charge_changed
 
 var _direction: Util.Directions = Util.Directions.DOWN
-
+var _velocity: Vector2
 var _foot_step_sounds: Array[AudioStreamPlayer2D]
 var _foot_step_timer: Timer
 
@@ -79,6 +79,8 @@ func init(body_resources: Dictionary, stats: Dictionary) -> void:
 
 
 func move(movementDirection: Vector2) -> void:
+	_velocity = movementDirection
+	
 	if _has_any_state([States.REPRODUCING, States.OUT_OF_BATTERY, States.DODGING]): return
 	if movementDirection.length() == 0: return
 
@@ -210,7 +212,7 @@ func _update_movement_state() -> void:
 
 	if _has_state(States.DODGING): return
 
-	if linear_velocity.length() < movementThreshold:
+	if _velocity.length() == 0:
 		_foot_step_timer.stop()
 		_unset_state(States.RUNNING)
 
