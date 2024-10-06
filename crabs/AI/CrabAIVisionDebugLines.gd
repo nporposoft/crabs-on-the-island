@@ -20,7 +20,7 @@ func _process(_delta: float) -> void:
 
 func _draw_line(direction: Vector2) -> void:
 	var line2d: Line2D = Line2D.new()
-	line2d.width = 5.0
+	line2d.width = 1.0
 	line2d.add_point(Vector2.ZERO)
 	line2d.add_point(direction * _ai._vision_distance)
 	_lines.push_back(line2d)
