@@ -12,11 +12,8 @@ extends RigidBody2D
 @export var foot_step_time_delay: float = 0.1
 
 const movementThreshold: float = 20.0
-const harvestDrain = -0.5
-const cobaltTarget = 10.0
-const ironTarget = 10.0
-const siliconTarget = 10.0
-const waterTarget = 10.0
+const harvestDrain = -0.25
+const material_size_mult = 10.0
 
 signal carried_iron_changed
 signal carried_cobalt_changed
@@ -33,6 +30,11 @@ var _velocity: Vector2
 var _foot_step_sounds: Array[AudioStreamPlayer2D]
 var _foot_step_timer: Timer
 var _attacks_enabled: bool = false
+
+var cobaltTarget = 10.0
+var ironTarget = 10.0
+var siliconTarget = 10.0
+var waterTarget = 10.0
 
 enum States {
 	RUNNING,
@@ -69,7 +71,7 @@ var _stats: Dictionary = {
 	"move_speed": 5000.0,
 	"solar_charge_rate": 0.2,
 	"battery_capacity": 10.0,
-	"harvest_speed": 2.0
+	"harvest_speed": 1.0
 }
 
 func _ready() -> void:
@@ -86,6 +88,10 @@ func _ready() -> void:
 func init(body_resources: Dictionary, stats: Dictionary) -> void:
 	_body_resources = body_resources
 	_stats = stats
+	cobaltTarget = _stats.size * material_size_mult
+	ironTarget = _stats.size * material_size_mult
+	siliconTarget = _stats.size * material_size_mult
+	waterTarget = _stats.size * material_size_mult
 
 
 func move(movementDirection: Vector2) -> void:
