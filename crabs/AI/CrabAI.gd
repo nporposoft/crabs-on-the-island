@@ -27,7 +27,10 @@ enum States {
 	IDLING,
 	WANDERING,
 	MOVING_TO_RESOURCE,
-	HARVESTING
+	HARVESTING,
+	REPRODUCING,
+	CHARGING_BATTERY,
+	SLEEPING
 }
 
 
@@ -39,6 +42,23 @@ func _ready() -> void:
 
 # CrabAI runs in physics process b/c it uses 2D raycasting for obstacle detection
 func _physics_process(delta: float) -> void:
+	if _crab._sm.has_state(Crab.States.OUT_OF_BATTERY):
+		_sm.unset_all_states()
+		_stop_harvesting() # TODO: would be nice if the Crab state machine handled this
+		_sm.set_state(States.SLEEPING)
+		return
+	
+	if _crab.has_reproduction_resources():
+		_sm.unset_all_states()
+		_stop_harvesting() # TODO: would be nice if the Crab state machine handled this
+
+		if _crab.can_reproduce():
+			_sm.set_state(States.REPRODUCING)
+			_crab.auto_reproduce()
+		else:
+			_sm.set_state(States.CHARGING_BATTERY)
+		return
+	
 	var visibleResources: Array = _find_visible_resources()
 	for resource: Dictionary in visibleResources:
 		if !_want_resource(resource): continue
@@ -47,7 +67,9 @@ func _physics_process(delta: float) -> void:
 		_crab.move(Vector2.ZERO) # TODO: would be nice if the Crab state machine handled this
 		
 		if _can_reach_resource(resource): _harvest_resource(delta, resource)
-		else: _move_toward_resource(resource)
+		else:
+			_stop_harvesting() # TODO: would be nice if the Crab state machine handled this 
+			_move_toward_resource(resource)
 		return
 	
 	_stop_harvesting() # TODO: would be nice if the Crab state machine handled this
@@ -60,7 +82,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _start_wandering() -> void:
-	_wander_direction = Vector2(randf_range(-1, 1), randf_range(-1, 1)).normalized()
+	_wander_direction = Util.random_direction()
 	_sm.set_state(States.WANDERING)
 	_sm.unset_state(States.IDLING)
 	_start_wander_timer()

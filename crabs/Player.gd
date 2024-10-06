@@ -8,6 +8,7 @@ func _process(delta: float) -> void:
 	_process_dash()
 	_process_harvest(delta)
 	_process_pickup()
+	_process_reproduction()
 	_update_camera_position()
 
 
@@ -38,6 +39,10 @@ func _process_pickup() -> void:
 		else:
 			$Crab.drop_held()
 
+
+func _process_reproduction() -> void:
+	if Input.is_action_just_pressed("reproduce"):
+		$Crab.auto_reproduce()
 
 func _update_camera_position() -> void:
 	$Camera2D.position = $Crab.position

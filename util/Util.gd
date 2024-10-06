@@ -19,6 +19,10 @@ static func one_shot_timer(object: Node, duration: float, callback: Callable) ->
 	timer.start()
 
 
+static func random_direction() -> Vector2:
+	return Vector2(randf_range(-1, 1), randf_range(-1, 1)).normalized()
+
+
 static func get_direction_from_vector(vector: Vector2) -> Directions:
 	if vector.x > 0 && vector.y < 0:
 		return Directions.UP_RIGHT

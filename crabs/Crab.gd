@@ -15,6 +15,9 @@ const movementThreshold: float = 20.0
 const harvestDrain = -0.25
 const material_size_mult = 10.0
 
+var crab_scene: PackedScene = preload("res://crabs/Crab.tscn")
+var crab_ai_scene: PackedScene = preload("res://crabs/AI/AICrab.tscn")
+
 signal carried_iron_changed
 signal carried_cobalt_changed
 signal carried_silicon_changed
@@ -36,6 +39,7 @@ var cobaltTarget = 10.0
 var ironTarget = 10.0
 var siliconTarget = 10.0
 var waterTarget = 10.0
+var batteryEnergyTargetPercentage = 50
 
 enum States {
 	RUNNING,
@@ -125,21 +129,6 @@ func dash() -> void:
 		_sm.unset_state(States.DASH_COOLDOWN)
 	)
 
-#func get_nearby_morsels() -> Array:
-	#return ($reach_area.get_overlapping_bodies()
-		#.map(func(body) -> Morsel: return body as Morsel)
-		#.filter(func(body) -> bool: return body != null)
-	#)
-#
-#func get_nearest_morsel() -> Morsel:
-	#var nearest: Morsel
-	#var nearest_distance: float = 1000.0 # arbitrary max float
-	#for morsel: Morsel in get_nearby_morsels():
-		#var distance: float = (morsel.position - position).length()
-		#if distance < nearest_distance:
-			#nearest = morsel
-			#nearest_distance = distance
-	#return nearest
 
 func get_nearby_pickuppables() -> Array:
 	return ($reach_area.get_overlapping_bodies()
@@ -275,6 +264,43 @@ func can_reach_morsel(morsel: Morsel) -> bool:
 	return get_nearby_morsels().has(morsel)
 
 
+func auto_reproduce() -> void:
+	if _sm.has_any_state([States.OUT_OF_BATTERY]):
+		return
+	
+	if can_reproduce():
+		var mutation: Dictionary = MutationEngine.get_mutation_options(_stats)
+		reproduce(mutation)
+
+
+func reproduce(mutation: Dictionary) -> void:
+	var new_stats: Dictionary = MutationEngine.apply_mutation(_stats, mutation)
+	var new_crab: Crab = crab_scene.instantiate()
+	# TODO: deduct _carried_resources and pass to new crab for body resources (first arg)
+	new_crab.init({}, new_stats)
+	var new_crab_direction: Vector2 = Util.random_direction()
+	new_crab.position = position + (new_crab_direction * 20.0)
+	var new_ai_crab: CrabAI = crab_ai_scene.instantiate()
+	# TODO: reparent old crab (this one) to the new AI and parent the new crab to the player
+	# NB: that probably shouldn't be happening inside the crab class, b/c it won't work for AI crabs
+	new_ai_crab.add_child(new_crab)
+	$"../..".add_child(new_ai_crab)
+	_modify_battery_energy(-_stats.battery_capacity)
+
+
+func has_reproduction_resources() -> bool:
+	if _carried_resources.iron < ironTarget: return false
+	if _carried_resources.silicon < siliconTarget: return false
+	if _carried_resources.water < waterTarget: return false
+	return true
+
+
+func can_reproduce() -> bool:
+	if !has_reproduction_resources(): return false
+	if 100.0 * (_carried_resources.battery_energy / _stats.battery_capacity) < batteryEnergyTargetPercentage: return false
+	return true
+
+
 func get_mutations(num_options: int = 1) -> Array:
 	var mutations: Array
 	for _i in num_options:
@@ -310,13 +336,14 @@ func _update_sleep_state() -> void:
 func _modify_battery_energy(value: float) -> void:
 	_carried_resources.battery_energy = clampf(_carried_resources.battery_energy + value, 0, _stats.battery_capacity)
 	battery_charge_changed.emit()
-	if _carried_resources.battery_energy == 0 && !_sm.has_state(States.OUT_OF_BATTERY):
+	if _carried_resources.battery_energy == 0:
 		_start_sleep()
-	
+
 
 func _start_sleep(play_sound: bool = true) -> void:
-	_sm.set_state(States.OUT_OF_BATTERY)
-	_sm.set_state(States.SHUTDOWN_COOLDOWN)
+	if _sm.has_state(States.OUT_OF_BATTERY): return
+	
+	_sm.set_states([States.OUT_OF_BATTERY, States.SHUTDOWN_COOLDOWN])
 	if play_sound: $PowerOffSoundEffect.play()
 	$Zs.set_emitting(true)
 	stop_harvest()
