@@ -12,7 +12,7 @@ extends RigidBody2D
 @export var foot_step_time_delay: float = 0.1
 
 const movementThreshold: float = 20.0
-const harvestDrain = -1.0
+const harvestDrain = -0.5
 const cobaltTarget = 10.0
 const ironTarget = 10.0
 const siliconTarget = 10.0
@@ -23,11 +23,16 @@ signal carried_cobalt_changed
 signal carried_silicon_changed
 signal carried_water_changed
 signal battery_charge_changed
+signal cobalt_ready
+signal iron_ready
+signal silicon_ready
+signal water_ready
 
 var _direction: Util.Directions = Util.Directions.DOWN
 var _velocity: Vector2
 var _foot_step_sounds: Array[AudioStreamPlayer2D]
 var _foot_step_timer: Timer
+var _attacks_enabled: bool = false
 
 enum States {
 	RUNNING = 0,
@@ -116,20 +121,43 @@ func harvest(delta: float) -> bool:
 	if nearestMorsel != null: 
 		return harvest_morsel(delta, nearestMorsel)
 	else:
-		return false #TODO: if no morsel in reach, check if on sand or in water
+		var sandBodies = $"../../sandArea".get_overlapping_bodies()
+		if sandBodies.has(self):
+			return harvest_sand(delta)
+		else:
+			var waterBodies = $"../../waterArea".get_overlapping_bodies()
+			if waterBodies.has(self):
+				return harvest_water(delta)
+		return false
+
+
+func harvest_sand(delta: float) -> bool:
+	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrain))
+	if _carried_resources.silicon < siliconTarget:
+		_add_silicon(partial_harvest * _stats.harvest_speed * delta, delta)
+		return true
+	return false
+
+
+func harvest_water(delta: float) -> bool:
+	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrain))
+	if _carried_resources.water < waterTarget:
+		_add_water(partial_harvest * _stats.harvest_speed * delta, delta)
+		return true
+	return false
 
 
 func harvest_morsel(delta: float, morsel: Morsel) -> bool:
 	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrain))
 	match morsel.mat_type:
 		Morsel.MATERIAL_TYPE.COBALT:
-			if _carried_resources.cobalt < cobaltTarget: _extract_cobalt(partial_harvest * morsel._extract(_stats.harvest_speed * delta), delta)
+			if _carried_resources.cobalt < cobaltTarget: _add_cobalt(partial_harvest * morsel._extract(_stats.harvest_speed * delta), delta)
 			else: return false
 		Morsel.MATERIAL_TYPE.IRON:
-			if _carried_resources.iron < ironTarget: _extract_iron(partial_harvest * morsel._extract(_stats.harvest_speed * delta), delta)
+			if _carried_resources.iron < ironTarget: _add_iron(partial_harvest * morsel._extract(_stats.harvest_speed * delta), delta)
 			else: return false
 		Morsel.MATERIAL_TYPE.SILICON:
-			if _carried_resources.silicon < siliconTarget: _extract_silicon(partial_harvest * morsel._extract(_stats.harvest_speed * delta), delta)
+			if _carried_resources.silicon < siliconTarget: _add_silicon(partial_harvest * morsel._extract(_stats.harvest_speed * delta), delta)
 			else: return false
 	$Sparks.set_emitting(true)
 	$Sparks.global_position = morsel.global_position
@@ -212,20 +240,34 @@ func _end_sleep() -> void:
 	$PowerOnSoundEffect.play()
 	$Zs.set_emitting(false)
 
-func _extract_cobalt(value: float, delta: float) -> void:
+func _add_cobalt(value: float, delta: float) -> void:
 	_carried_resources.cobalt = clampf(_carried_resources.cobalt + value, 0, cobaltTarget)
 	_modify_battery_energy(delta * harvestDrain)
 	carried_cobalt_changed.emit()
+	if _carried_resources.cobalt >= cobaltTarget:
+		cobalt_ready.emit()
+		_attacks_enabled = true
 
-func _extract_iron(value: float, delta: float) -> void:
+func _add_iron(value: float, delta: float) -> void:
 	_carried_resources.iron = clampf(_carried_resources.iron + value, 0, ironTarget)
 	_modify_battery_energy(delta * harvestDrain)
 	carried_iron_changed.emit()
+	if _carried_resources.iron >= ironTarget:
+		iron_ready.emit()
 
-func _extract_silicon(value: float, delta: float) -> void:
+func _add_silicon(value: float, delta: float) -> void:
 	_carried_resources.silicon = clampf(_carried_resources.silicon + value, 0, siliconTarget)
 	_modify_battery_energy(delta * harvestDrain)
 	carried_silicon_changed.emit()
+	if _carried_resources.silicon >= siliconTarget:
+		silicon_ready.emit()
+
+func _add_water(value: float, delta: float) -> void:
+	_carried_resources.water = clampf(_carried_resources.water + value, 0, waterTarget)
+	_modify_battery_energy(delta * harvestDrain)
+	carried_water_changed.emit()
+	if _carried_resources.water >= waterTarget:
+		water_ready.emit()
 
 
 func _update_movement_state() -> void:

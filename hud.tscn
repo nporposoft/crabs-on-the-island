@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://cx2ye0w0rqf4n"]
+[gd_scene load_steps=16 format=3 uid="uid://cx2ye0w0rqf4n"]
 
 [ext_resource type="Script" path="res://hud.gd" id="1_a2y7d"]
 [ext_resource type="Texture2D" uid="uid://c2e3eoxyqgivc" path="res://assets/energy.png" id="1_p7i3m"]
@@ -7,7 +7,10 @@
 [ext_resource type="Texture2D" uid="uid://bfaup65ugpegb" path="res://assets/ingot.png" id="4_q7b3k"]
 [ext_resource type="Texture2D" uid="uid://db5h2n8wc1b1q" path="res://assets/sundial2.png" id="6_60k4m"]
 [ext_resource type="Texture2D" uid="uid://cmvlebmq2gpxo" path="res://assets/pointer.png" id="7_2ohxd"]
-[ext_resource type="Texture2D" uid="uid://cfwkh7gbpuxwn" path="res://assets/noenergy.png" id="7_mi8p6"]
+[ext_resource type="Texture2D" uid="uid://ft47laog7nx3" path="res://assets/cobalt.png" id="8_6l8nk"]
+[ext_resource type="Texture2D" uid="uid://gm8f1tim2xoe" path="res://assets/clone.png" id="9_bb551"]
+[ext_resource type="Texture2D" uid="uid://w0vkk10ewy2j" path="res://assets/spark.png" id="9_fjlsm"]
+[ext_resource type="Texture2D" uid="uid://c6qci8pbv05x" path="res://assets/linelight.png" id="11_vefkc"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eyiba"]
 bg_color = Color(0.784314, 0.784314, 0, 1)
@@ -121,7 +124,38 @@ autowrap_mode = 2
 justification_flags = 3
 uppercase = true
 
-[node name="no_energy" type="Sprite2D" parent="."]
+[node name="cobalt_light" type="Sprite2D" parent="."]
+self_modulate = Color(0.0627451, 0.0627451, 0.0627451, 1)
+position = Vector2(420, 64)
+texture = ExtResource("8_6l8nk")
+
+[node name="cobalt_glow" type="Sprite2D" parent="cobalt_light"]
 visible = false
-position = Vector2(960, 540)
-texture = ExtResource("7_mi8p6")
+self_modulate = Color(0.0627451, 0.0627451, 0.0627451, 1)
+show_behind_parent = true
+position = Vector2(0, 4)
+scale = Vector2(2, 2)
+texture = ExtResource("9_fjlsm")
+
+[node name="clone_light" type="Sprite2D" parent="."]
+self_modulate = Color(0.0627451, 0.0627451, 0.0627451, 1)
+position = Vector2(420, 144)
+texture = ExtResource("9_bb551")
+
+[node name="silicon_light" type="Sprite2D" parent="clone_light"]
+self_modulate = Color(0.0627451, 0.0627451, 0.0627451, 1)
+position = Vector2(-41, 0)
+scale = Vector2(0.5, 1)
+texture = ExtResource("11_vefkc")
+
+[node name="iron_light" type="Sprite2D" parent="clone_light"]
+self_modulate = Color(0.0627451, 0.0627451, 0.0627451, 1)
+position = Vector2(-36, 36)
+rotation = -0.785398
+texture = ExtResource("11_vefkc")
+
+[node name="water_light" type="Sprite2D" parent="clone_light"]
+self_modulate = Color(0.0627451, 0.0627451, 0.0627451, 1)
+position = Vector2(-36, -36)
+rotation = 0.785398
+texture = ExtResource("11_vefkc")
