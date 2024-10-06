@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=4 uid="uid://co582gapcsfm4"]
+[gd_scene load_steps=10 format=4 uid="uid://co582gapcsfm4"]
 
 [ext_resource type="PackedScene" uid="uid://c0mfa4rplirjk" path="res://player.tscn" id="2_0en58"]
 [ext_resource type="PackedScene" uid="uid://2uy6byy1384y" path="res://scenes/day_night_cycle.tscn" id="2_4tlql"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://ch3lyfrb4hms3" path="res://crabs/Crab.tscn" id="3_s85qb"]
 [ext_resource type="PackedScene" uid="uid://b530dsmiuti0k" path="res://Morsel.tscn" id="6_2lyxb"]
 [ext_resource type="PackedScene" uid="uid://cx2ye0w0rqf4n" path="res://hud.tscn" id="6_63d84"]
+[ext_resource type="PackedScene" uid="uid://b6v4oumir6yg7" path="res://crabs/AICrab.tscn" id="7_kumyt"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_wmjxi"]
 texture = ExtResource("2_8m5ny")
@@ -142,6 +143,31 @@ mat_type = 1
 [node name="resource5" parent="." instance=ExtResource("6_2lyxb")]
 position = Vector2(3, 787)
 mat_type = 0
+
+[node name="AICrab" parent="." instance=ExtResource("7_kumyt")]
+
+[node name="Crab" parent="AICrab" instance=ExtResource("3_s85qb")]
+position = Vector2(-2111, -899)
+
+[node name="AICrab2" parent="." instance=ExtResource("7_kumyt")]
+
+[node name="Crab" parent="AICrab2" instance=ExtResource("3_s85qb")]
+position = Vector2(2298, -1217)
+
+[node name="AICrab3" parent="." instance=ExtResource("7_kumyt")]
+
+[node name="Crab" parent="AICrab3" instance=ExtResource("3_s85qb")]
+position = Vector2(-2613, 1674)
+
+[node name="AICrab4" parent="." instance=ExtResource("7_kumyt")]
+
+[node name="Crab" parent="AICrab4" instance=ExtResource("3_s85qb")]
+position = Vector2(1611, 1093)
+
+[node name="AICrab5" parent="." instance=ExtResource("7_kumyt")]
+
+[node name="Crab" parent="AICrab5" instance=ExtResource("3_s85qb")]
+position = Vector2(-450, 2380)
 
 [connection signal="battery_charge_changed" from="Player/Crab" to="hud" method="_on_crab_battery_charge_changed"]
 
