@@ -88,7 +88,7 @@ func _ready() -> void:
 func init(body_resources: Dictionary, stats: Dictionary) -> void:
 	_body_resources = body_resources
 	_stats = stats
-	cobaltTarget = _stats.size * material_size_mult
+	cobaltTarget = _stats.size * material_size_mult * 0.05
 	ironTarget = _stats.size * material_size_mult
 	siliconTarget = _stats.size * material_size_mult
 	waterTarget = _stats.size * material_size_mult
@@ -124,6 +124,58 @@ func dash() -> void:
 	Util.one_shot_timer(self, dash_cooldown_seconds, func() -> void:
 		_unset_state(States.DASH_COOLDOWN)
 	)
+
+#func get_nearby_morsels() -> Array:
+	#return ($reach_area.get_overlapping_bodies()
+		#.map(func(body) -> Morsel: return body as Morsel)
+		#.filter(func(body) -> bool: return body != null)
+	#)
+#
+#func get_nearest_morsel() -> Morsel:
+	#var nearest: Morsel
+	#var nearest_distance: float = 1000.0 # arbitrary max float
+	#for morsel: Morsel in get_nearby_morsels():
+		#var distance: float = (morsel.position - position).length()
+		#if distance < nearest_distance:
+			#nearest = morsel
+			#nearest_distance = distance
+	#return nearest
+
+func get_nearby_pickuppables() -> Array:
+	return ($reach_area.get_overlapping_bodies()
+		.map(func(body) -> RigidBody2D: return body as RigidBody2D)
+		.filter(func(body) -> bool: return body != null)
+	)
+
+func get_nearest_pickuppable() -> RigidBody2D:
+	var nearest: RigidBody2D
+	var nearest_distance: float = 1000.0 # arbitrary max float
+	for body: RigidBody2D in get_nearby_pickuppables():
+		var distance: float = (body.position - position).length()
+		if distance < nearest_distance:
+			nearest = body
+			nearest_distance = distance
+	return nearest
+
+func pickup() -> void:
+	if _has_state(States.OUT_OF_BATTERY): return
+	
+	var nearestPickuppable = get_nearest_pickuppable()
+	if nearestPickuppable != null: 
+		var crabItem: Crab
+		crabItem = nearestPickuppable
+		if crabItem != null:
+			pass #crabItem is a crab; TODO: immobilize crab, tack its position to ours
+		else:
+			var morselItem: Morsel
+			morselItem = nearestPickuppable
+			if morselItem != null:
+				pass #morselItem is a morsel; tack its position to ours
+	else:
+		return
+
+func is_holding() -> bool:
+	return false
 
 func harvest(delta: float) -> bool:
 	if _has_state(States.OUT_OF_BATTERY): return false

@@ -7,6 +7,7 @@ func _process(delta: float) -> void:
 	_process_movement()
 	_process_dash()
 	_process_harvest(delta)
+	_process_pickup()
 	_update_camera_position()
 
 
@@ -28,6 +29,14 @@ func _process_harvest(delta) -> void:
 			$Crab.stop_harvest()
 	if Input.is_action_just_released("harvest"):
 		$Crab.stop_harvest()
+
+
+func _process_pickup() -> void:
+	if Input.is_action_pressed("pickup"):
+		if $Crab.is_holding():
+			$Crab.pickup()
+		else:
+			$Crab.drop_held()
 
 
 func _update_camera_position() -> void:
