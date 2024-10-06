@@ -3,11 +3,11 @@ class_name Crab
 extends RigidBody2D
 
 @export var move_battery_usage: float = 0.1
-@export var dodge_battery_usage: float = 0.5
+@export var dash_battery_usage: float = 0.5
 @export var harvest_battery_usage: float = 0.1
-@export var dodge_cooldown_seconds: float = 1.67
-@export var dodge_duration: float = 0.5
-@export var dodge_speed_multiplier: float = 1.0
+@export var dash_cooldown_seconds: float = 1.67
+@export var dash_duration: float = 0.5
+@export var dash_speed_multiplier: float = 1.0
 @export var shutdown_cooldown_seconds: float = 2.0
 @export var foot_step_time_delay: float = 0.1
 
@@ -31,8 +31,8 @@ var _foot_step_timer: Timer
 
 enum States {
 	RUNNING = 0,
-	DODGING = 1,
-	DODGE_COOLDOWN = 2,
+	DASHING = 1,
+	DASH_COOLDOWN = 2,
 	ATTACKING = 3,
 	REPRODUCING = 4,
 	OUT_OF_BATTERY = 5,
@@ -81,7 +81,7 @@ func init(body_resources: Dictionary, stats: Dictionary) -> void:
 func move(movementDirection: Vector2) -> void:
 	_velocity = movementDirection
 	
-	if _has_any_state([States.REPRODUCING, States.OUT_OF_BATTERY, States.DODGING]): return
+	if _has_any_state([States.REPRODUCING, States.OUT_OF_BATTERY, States.DASHING]): return
 	if movementDirection.length() == 0: return
 
 	if !_has_state(States.RUNNING):
@@ -93,20 +93,20 @@ func move(movementDirection: Vector2) -> void:
 	apply_central_force(movementDirection.normalized() * _stats.move_speed)
 
 
-func dodge() -> void:
-	if _has_any_state([States.DODGING, States.DODGE_COOLDOWN, States.OUT_OF_BATTERY, States.REPRODUCING]): return
+func dash() -> void:
+	if _has_any_state([States.DASHING, States.DASH_COOLDOWN, States.OUT_OF_BATTERY, States.REPRODUCING]): return
 
-	_set_state(States.DODGING)
-	_set_state(States.DODGE_COOLDOWN)
+	_set_state(States.DASHING)
+	_set_state(States.DASH_COOLDOWN)
 	var direction: Vector2 = Util.get_vector_from_direction(_direction)
-	apply_central_impulse(direction * _stats.move_speed * dodge_speed_multiplier)
-	_modify_battery_energy(-dodge_battery_usage)
+	apply_central_impulse(direction * _stats.move_speed * dash_speed_multiplier)
+	_modify_battery_energy(-dash_battery_usage)
 	$DashSoundEffect.play()
-	_one_shot_timer(dodge_duration, func() -> void:
-		_unset_state(States.DODGING)
+	_one_shot_timer(dash_duration, func() -> void:
+		_unset_state(States.DASHING)
 	)
-	_one_shot_timer(dodge_cooldown_seconds, func() -> void:
-		_unset_state(States.DODGE_COOLDOWN)
+	_one_shot_timer(dash_cooldown_seconds, func() -> void:
+		_unset_state(States.DASH_COOLDOWN)
 	)
 
 func harvest(delta: float) -> bool:
@@ -234,7 +234,7 @@ func _update_movement_state() -> void:
 		_unset_state(States.RUNNING)
 		return
 
-	if _has_state(States.DODGING): return
+	if _has_state(States.DASHING): return
 
 	if _velocity.length() == 0:
 		_foot_step_timer.stop()
@@ -249,8 +249,8 @@ func _update_animation_from_state() -> void:
 
 	if _has_state(States.OUT_OF_BATTERY):
 		animation = "sleep"
-	elif _has_state(States.DODGING):
-		animation = "dodge"
+	elif _has_state(States.DASHING):
+		animation = "dash"
 	elif _has_state(States.RUNNING):
 		animation = "move"
 	else:

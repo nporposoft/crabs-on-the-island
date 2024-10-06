@@ -5,14 +5,14 @@ extends Node
 
 func _process(delta: float) -> void:
 	_process_movement()
-	_process_dodge()
+	_process_dash()
 	_process_harvest(delta)
 	_update_camera_position()
 
 
-func _process_dodge() -> void:
-	if Input.is_action_just_pressed("dodge"):
-		$Crab.dodge()
+func _process_dash() -> void:
+	if Input.is_action_just_pressed("dash"):
+		$Crab.dash()
 
 
 func _process_movement() -> void:
