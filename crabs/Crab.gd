@@ -175,10 +175,12 @@ func _modify_battery_energy(value: float) -> void:
 	if !_has_state(States.SHUTDOWN_COOLDOWN) && _has_state(States.OUT_OF_BATTERY) && _carried_resources.battery_energy > 0:
 		_unset_state(States.OUT_OF_BATTERY)
 		$PowerOnSoundEffect.play()
+		$Zs.set_emitting(false)
 	elif _carried_resources.battery_energy == 0 && !_has_state(States.OUT_OF_BATTERY):
 		_set_state(States.OUT_OF_BATTERY)
 		_set_state(States.SHUTDOWN_COOLDOWN)
 		$PowerOffSoundEffect.play()
+		$Zs.set_emitting(true)
 		_one_shot_timer(shutdown_cooldown_seconds, func() -> void:
 			_unset_state(States.SHUTDOWN_COOLDOWN)
 		)

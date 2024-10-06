@@ -1,9 +1,10 @@
-[gd_scene load_steps=21 format=3 uid="uid://ch3lyfrb4hms3"]
+[gd_scene load_steps=22 format=3 uid="uid://ch3lyfrb4hms3"]
 
 [ext_resource type="Script" path="res://crabs/Crab.gd" id="1_xe67b"]
 [ext_resource type="Texture2D" uid="uid://dkqevv6a7hwt5" path="res://assets/crab.png" id="2_5n7jq"]
 [ext_resource type="Script" path="res://crabs/CrabStatsDebug.gd" id="3_wxbeg"]
 [ext_resource type="AudioStream" uid="uid://droer2prtggda" path="res://assets/sfx/poweron2.wav" id="4_3pxvx"]
+[ext_resource type="PackedScene" uid="uid://ck3fg10c2vv46" path="res://assets/Zs.tscn" id="4_grhim"]
 [ext_resource type="AudioStream" uid="uid://qh5qcwmukbyf" path="res://assets/sfx/poweroff.wav" id="5_g3tvs"]
 [ext_resource type="AudioStream" uid="uid://bktiyb8rih1f2" path="res://assets/sfx/dash.wav" id="6_s5pfp"]
 [ext_resource type="AudioStream" uid="uid://mmp73kcler03" path="res://assets/sfx/step1.wav" id="7_e6rox"]
@@ -106,6 +107,11 @@ emitting = false
 amount = 10
 scale_amount_min = 0.15
 scale_amount_max = 0.3
+
+[node name="Zs" parent="." instance=ExtResource("4_grhim")]
+position = Vector2(0, -28)
+emitting = false
+amount = 3
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_hx6oy")
