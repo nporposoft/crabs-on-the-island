@@ -113,7 +113,7 @@ func harvest(delta: float) -> bool:
 	var closestDist = 1000.0
 	var closestMorsel: Morsel
 	var pickups_in_reach = $reach_area.get_overlapping_bodies()
-	for item: RigidBody2D in pickups_in_reach:
+	for item in pickups_in_reach:
 		var morselItem = item as Morsel
 		if morselItem == null: continue
 		if (morselItem.position - self.position).length() < closestDist:
