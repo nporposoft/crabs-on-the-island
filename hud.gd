@@ -24,7 +24,7 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	waterBar.value = 100.0 * _crab._carried_resources.water / 100.0 #TODO: set US water_bar maximum to crab target water maximum
-	siliconBar.value = 100.0 * _crab._carried_resources.silicon / 100.0 #TODO: set US silicon_bar maximum to crab target silicon maximum
-	ironBar.value = 100.0 * _crab._carried_resources.iron / 100.0 #TODO: set US iron_bar maximum to crab target iron maximum
+	waterBar.value = 100.0 * _crab._carried_resources.water / _crab.waterTarget
+	siliconBar.value = 100.0 * _crab._carried_resources.silicon / _crab.siliconTarget
+	ironBar.value = 100.0 * _crab._carried_resources.iron / _crab.ironTarget
 	sundial.set_rotation(2.0 * PI * WorldClock.time)

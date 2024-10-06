@@ -1,8 +1,9 @@
-[gd_scene load_steps=15 format=3 uid="uid://ch3lyfrb4hms3"]
+[gd_scene load_steps=16 format=3 uid="uid://ch3lyfrb4hms3"]
 
 [ext_resource type="Script" path="res://crabs/Crab.gd" id="1_xe67b"]
 [ext_resource type="Texture2D" uid="uid://dkqevv6a7hwt5" path="res://assets/crab.png" id="2_5n7jq"]
 [ext_resource type="Script" path="res://crabs/CrabStatsDebug.gd" id="3_wxbeg"]
+[ext_resource type="PackedScene" uid="uid://cigl58gfahcla" path="res://assets/sparks.tscn" id="4_bjkj3"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_0bir5"]
 
@@ -92,6 +93,11 @@ texture_filter = 1
 scale = Vector2(4, 4)
 sprite_frames = SubResource("SpriteFrames_0lpsw")
 animation = &"dodge"
+
+[node name="Sparks" parent="." instance=ExtResource("4_bjkj3")]
+position = Vector2(0, -26)
+scale = Vector2(0.5, 0.5)
+emitting = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_hx6oy")

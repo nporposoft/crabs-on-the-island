@@ -24,7 +24,10 @@ func _process_movement() -> void:
 
 func _process_harvest(delta) -> void:
 	if Input.is_action_pressed("harvest"):
-		$Crab.harvest(delta)
+		if !$Crab.harvest(delta):
+			$Crab.stop_harvest()
+	if Input.is_action_just_released("harvest"):
+		$Crab.stop_harvest()
 
 
 func _update_camera_position() -> void:

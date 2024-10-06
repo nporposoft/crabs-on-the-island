@@ -10,11 +10,11 @@ extends RigidBody2D
 @export var dodge_speed_multiplier: float = 1.0
 
 const movementThreshold: float = 5.0
-const harvestDrain = -2.0
-const cobaltTarget = 100.0
-const ironTarget = 100.0
-const siliconTarget = 100.0
-const waterTarget = 100.0
+const harvestDrain = -1.0
+const cobaltTarget = 10.0
+const ironTarget = 10.0
+const siliconTarget = 10.0
+const waterTarget = 10.0
 
 signal carried_iron_changed
 signal carried_cobalt_changed
@@ -58,7 +58,7 @@ var _stats: Dictionary = {
 	"move_speed": 5000.0,
 	"solar_charge_rate": 0.2,
 	"battery_capacity": 10.0,
-	"harvest_speed": 10.0
+	"harvest_speed": 2.0
 }
 
 
@@ -91,8 +91,8 @@ func dodge() -> void:
 		_unset_state(States.DODGE_COOLDOWN)	
 	)
 
-func harvest(delta: float) -> void:
-	if _has_state(States.OUT_OF_BATTERY): return
+func harvest(delta: float) -> bool:
+	if _has_state(States.OUT_OF_BATTERY): return false
 	
 	var closestDist = 1000.0
 	var closestMorsel: Morsel
@@ -105,16 +105,25 @@ func harvest(delta: float) -> void:
 			closestMorsel = morselItem
 	if closestMorsel != null:
 		var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrain))
-		print(str(partial_harvest))
 		match closestMorsel.mat_type:
 			Morsel.MATERIAL_TYPE.COBALT:
 				if _carried_resources.cobalt < cobaltTarget: _extract_cobalt(partial_harvest * closestMorsel._extract(_stats.harvest_speed * delta), delta)
+				else: return false
 			Morsel.MATERIAL_TYPE.IRON:
 				if _carried_resources.iron < ironTarget: _extract_iron(partial_harvest * closestMorsel._extract(_stats.harvest_speed * delta), delta)
+				else: return false
 			Morsel.MATERIAL_TYPE.SILICON:
 				if _carried_resources.silicon < siliconTarget: _extract_silicon(partial_harvest * closestMorsel._extract(_stats.harvest_speed * delta), delta)
+				else: return false
+		$Sparks.set_emitting(true)
+		$Sparks.global_position = closestMorsel.global_position
+		return true
 	else:
-		pass #TODO: if no morsel in reach, check if on sand or in water
+		return false #TODO: if no morsel in reach, check if on sand or in water
+
+func stop_harvest():
+	$Sparks.set_emitting(false)
+	$Sparks.position = Vector2(self.position.x, self.position.y - 26.0)
 
 
 func get_mutations(num_options: int = 1) -> Array:
