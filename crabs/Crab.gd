@@ -12,7 +12,8 @@ extends RigidBody2D
 @export var foot_step_time_delay: float = 0.1
 
 const movementThreshold: float = 20.0
-const harvestDrain = -0.25
+const harvestDrainMult = -0.25
+const buildDrainMult = -2.0
 const material_size_mult = 10.0
 
 var crab_scene: PackedScene = preload("res://crabs/Crab.tscn")
@@ -24,6 +25,7 @@ signal carried_cobalt_changed
 signal carried_silicon_changed
 signal carried_water_changed
 signal battery_charge_changed
+signal build_progress_changed
 signal cobalt_ready
 signal iron_ready
 signal silicon_ready
@@ -40,6 +42,7 @@ var cobaltTarget: float
 var ironTarget: float
 var siliconTarget: float
 var waterTarget: float
+var buildProgress: float = 0.0
 
 var batteryEnergyTargetPercentage = 50
 
@@ -76,7 +79,8 @@ var _stats: Dictionary = {
 	"move_speed": 5000.0,
 	"solar_charge_rate": 0.2,
 	"battery_capacity": 10.0,
-	"harvest_speed": 10.0 #TODO: set this back to 1.0 when done testing damage
+	"harvest_speed": 2.0, #1.0, TODO: change back after testing
+	"build_speed": 0.25 #TODO: added new dictionary element--find out where else I need to reconcile this change
 }
 
 func _ready() -> void:
@@ -92,6 +96,11 @@ func _ready() -> void:
 	ironTarget = _stats.size * material_size_mult
 	siliconTarget = _stats.size * material_size_mult
 	waterTarget = _stats.size * material_size_mult
+	carried_iron_changed.emit()
+	carried_cobalt_changed.emit()
+	carried_silicon_changed.emit()
+	carried_water_changed.emit()
+	battery_charge_changed.emit()
 	
 	$healthBar/healthNum.set_text(str(_HP))
 	
@@ -115,7 +124,7 @@ func init(body_resources: Dictionary, stats: Dictionary) -> void:
 
 
 func die() -> void:
-	#generate_chunks() #TODO: debug chunk generation (Morsel throws error when instantiated)
+	#generate_chunks(1.0, true) #TODO: debug chunk generation (Morsel throws error when instantiated)
 	get_parent().queue_free()
 
 
@@ -159,33 +168,47 @@ func apply_damage(damage: float) -> void:
 		die()
 	else:
 		$healthBar.set_value(100.0 * _HP / _stats.hit_points)
-		$healthBar/healthNum.set_text(str(_HP))
+		if DebugMode.enabled:
+			$healthBar/healthNum.set_visible(true)
+			$healthBar/healthNum.set_text(str(_HP))
 
-func generate_chunks() -> void:
-	var cobaltMass = _body_resources.cobalt + _carried_resources.cobalt
+func generate_chunks(percent: float, include_body: bool) -> void:
+	var cobaltMass = _carried_resources.cobalt * percent
+	if include_body: cobaltMass += _body_resources.cobalt
 	while cobaltMass > 0.0:
 		var randMass = min(randf_range(_stats.size() * material_size_mult * 0.2, _stats.size() * material_size_mult * 0.5), cobaltMass)
 		cobaltMass -= randMass
-		var new_morsel = morselTemplate.instantiate()
-		$"../..".add_child(new_morsel)
-		new_morsel.set_position(Vector2(position.x, position.y))
-		new_morsel._set_resource(Morsel.MATERIAL_TYPE.COBALT, randMass, true)
-	var ironMass = _body_resources.iron + _carried_resources.iron
+		if percent < 1.0 and _carried_resources.cobalt > 0.0:
+			_carried_resources.cobalt = max(0.0, _carried_resources.cobalt - randMass)
+		#TODO: morsel generation disabled for testing elsewhere: revert later when needed
+		#var new_morsel = morselTemplate.instantiate()
+		#$"../..".add_child(new_morsel)
+		#new_morsel.set_position(Vector2(position.x, position.y))
+		#new_morsel._set_resource(Morsel.MATERIAL_TYPE.COBALT, randMass, true)
+	var ironMass = _carried_resources.iron * percent
+	if include_body: ironMass += _body_resources.iron
 	while ironMass > 0.0:
 		var randMass = min(randf_range(_stats.size() * material_size_mult * 0.2, _stats.size() * material_size_mult * 0.5), ironMass)
 		ironMass -= randMass
-		var new_morsel = morselTemplate.instantiate()
-		new_morsel._set_resource(Morsel.MATERIAL_TYPE.IRON, randMass, true)
-		$"../..".add_child(new_morsel)
-		new_morsel.set_position(Vector2(position.x, position.y))
-	var siliconMass = _body_resources.silicon + _carried_resources.silicon
+		if percent < 1.0 and _carried_resources.iron > 0.0:
+			_carried_resources.iron = max(0.0, _carried_resources.iron - randMass)
+		#TODO: morsel generation disabled for testing elsewhere: revert later when needed
+		#var new_morsel = morselTemplate.instantiate()
+		#new_morsel._set_resource(Morsel.MATERIAL_TYPE.IRON, randMass, true)
+		#$"../..".add_child(new_morsel)
+		#new_morsel.set_position(Vector2(position.x, position.y))
+	var siliconMass = _carried_resources.silicon * percent
+	if include_body: siliconMass += _body_resources.silicon
 	while siliconMass > 0.0:
 		var randMass = min(randf_range(_stats.size() * material_size_mult * 0.2, _stats.size() * material_size_mult * 0.5), siliconMass)
 		siliconMass -= randMass
-		var new_morsel = morselTemplate.instantiate()
-		new_morsel._set_resource(Morsel.MATERIAL_TYPE.SILICON, randMass, true)
-		$"../..".add_child(new_morsel)
-		new_morsel.set_position(Vector2(position.x, position.y))
+		if percent < 1.0 and _carried_resources.silicon > 0.0:
+			_carried_resources.silicon = max(0.0, _carried_resources.silicon - randMass)
+		#TODO: morsel generation disabled for testing elsewhere: revert later when needed
+		#var new_morsel = morselTemplate.instantiate()
+		#new_morsel._set_resource(Morsel.MATERIAL_TYPE.SILICON, randMass, true)
+		#$"../..".add_child(new_morsel)
+		#new_morsel.set_position(Vector2(position.x, position.y))
 
 func get_nearby_pickuppables() -> Array:
 	return ($reach_area.get_overlapping_bodies()
@@ -243,7 +266,7 @@ func harvest(delta: float) -> bool:
 	if _sm.has_state(States.OUT_OF_BATTERY): 
 		stop_harvest()
 		return false
-	if cobalt_ready:
+	if _attacks_enabled:
 		var nearestCrab = get_nearest_crab()
 		if nearestCrab != null:
 			attackCrab(nearestCrab, delta)
@@ -275,7 +298,7 @@ func harvest_sand(delta: float) -> bool:
 		stop_harvest()
 		return false
 	
-	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrain))
+	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrainMult))
 	if _carried_resources.silicon < siliconTarget:
 		_add_silicon(partial_harvest * _stats.harvest_speed * delta, delta)
 		$Vacuum.set_color(Color(0.75, 0.6, 0.0))
@@ -289,7 +312,7 @@ func harvest_water(delta: float) -> bool:
 		stop_harvest()
 		return false
 	
-	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrain))
+	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrainMult))
 	if _carried_resources.water < waterTarget:
 		_add_water(partial_harvest * _stats.harvest_speed * delta, delta)
 		$Vacuum.set_color(Color(0.0, 1.0, 1.0))
@@ -303,7 +326,7 @@ func harvest_morsel(delta: float, morsel: Morsel) -> bool:
 		stop_harvest()
 		return false
 	
-	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrain))
+	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrainMult))
 	match morsel.mat_type:
 		Morsel.MATERIAL_TYPE.COBALT:
 			if _carried_resources.cobalt < cobaltTarget: _add_cobalt(partial_harvest * morsel._extract(_stats.harvest_speed * delta), delta)
@@ -316,7 +339,7 @@ func harvest_morsel(delta: float, morsel: Morsel) -> bool:
 			else: return false
 	
 	$Sparks.set_emitting(true)
-	$Sparks.global_position = morsel.global_position
+	$Sparks.global_position = morsel.global_position + (global_position - morsel.global_position) * 0.5
 	$HarvestSoundEffect.play(randf_range(0, 5.0))
 	return true
 
@@ -349,20 +372,44 @@ func can_reach_morsel(morsel: Morsel) -> bool:
 	return get_nearby_morsels().has(morsel)
 
 
-func auto_reproduce() -> void:
+func auto_reproduce(delta) -> bool:
 	if _sm.has_any_state([States.OUT_OF_BATTERY]):
-		return
+		return false
 	
 	if can_reproduce():
-		var mutation: Dictionary = MutationEngine.get_mutation_options(_stats)
-		reproduce(mutation)
+		buildProgress += _stats.build_speed * delta
+		_modify_battery_energy(_stats.build_speed * delta * buildDrainMult)
+		if buildProgress >= 1.0:
+			var mutation: Dictionary = MutationEngine.get_mutation_options(_stats)
+			reproduce(mutation)
+			carried_cobalt_changed.emit()
+			carried_iron_changed.emit()
+			carried_silicon_changed.emit()
+			carried_water_changed.emit()
+			buildProgress = 0.0
+			build_progress_changed.emit()
+			return false
+		build_progress_changed.emit()
+		return true
+	return false
+
+func stop_reproduce() -> void:
+	if buildProgress > 0.0:
+		generate_chunks(buildProgress, false)
+		_carried_resources.water *= 1.0 - buildProgress #TODO: probably should make a remove_resource function so we don't have to write manually
+		carried_cobalt_changed.emit()
+		carried_iron_changed.emit()
+		carried_silicon_changed.emit()
+		carried_water_changed.emit()
+		buildProgress = 0.0
+		build_progress_changed.emit()
 
 
 func reproduce(mutation: Dictionary) -> void:
 	var new_stats: Dictionary = MutationEngine.apply_mutation(_stats, mutation)
 	var new_crab: Crab = crab_scene.instantiate()
 	var new_body_resources = { "iron": _carried_resources.iron, "cobalt": _carried_resources.cobalt, "silicon": _carried_resources.silicon }
-	_carried_resources = { "iron": 0.0, "cobalt": 0.0, "silicon": 0.0, "water": 0.0}
+	_carried_resources = { "iron": 0.0, "cobalt": 0.0, "silicon": 0.0, "water": 0.0, "battery_energy": 0.0 }
 	new_crab.init(new_body_resources, new_stats)
 	var new_crab_direction: Vector2 = Util.random_direction()
 	new_crab.position = position + (new_crab_direction * 20.0)
@@ -371,7 +418,6 @@ func reproduce(mutation: Dictionary) -> void:
 	# NB: that probably shouldn't be happening inside the crab class, b/c it won't work for AI crabs
 	new_ai_crab.add_child(new_crab)
 	$"../..".add_child(new_ai_crab)
-	_modify_battery_energy(-_stats.battery_capacity)
 
 
 func has_reproduction_resources() -> bool:
@@ -383,7 +429,7 @@ func has_reproduction_resources() -> bool:
 
 func can_reproduce() -> bool:
 	if !has_reproduction_resources(): return false
-	if 100.0 * (_carried_resources.battery_energy / _stats.battery_capacity) < batteryEnergyTargetPercentage: return false
+	#if 100.0 * (_carried_resources.battery_energy / _stats.battery_capacity) < batteryEnergyTargetPercentage: return false
 	return true
 
 
@@ -444,7 +490,7 @@ func _end_sleep() -> void:
 
 func _add_cobalt(value: float, delta: float) -> void:
 	_carried_resources.cobalt = clampf(_carried_resources.cobalt + value, 0, cobaltTarget)
-	_modify_battery_energy(delta * harvestDrain)
+	_modify_battery_energy(delta * harvestDrainMult)
 	carried_cobalt_changed.emit()
 	if _carried_resources.cobalt >= cobaltTarget:
 		cobalt_ready.emit()
@@ -452,21 +498,21 @@ func _add_cobalt(value: float, delta: float) -> void:
 
 func _add_iron(value: float, delta: float) -> void:
 	_carried_resources.iron = clampf(_carried_resources.iron + value, 0, ironTarget)
-	_modify_battery_energy(delta * harvestDrain)
+	_modify_battery_energy(delta * harvestDrainMult)
 	carried_iron_changed.emit()
 	if _carried_resources.iron >= ironTarget:
 		iron_ready.emit()
 
 func _add_silicon(value: float, delta: float) -> void:
 	_carried_resources.silicon = clampf(_carried_resources.silicon + value, 0, siliconTarget)
-	_modify_battery_energy(delta * harvestDrain)
+	_modify_battery_energy(delta * harvestDrainMult)
 	carried_silicon_changed.emit()
 	if _carried_resources.silicon >= siliconTarget:
 		silicon_ready.emit()
 
 func _add_water(value: float, delta: float) -> void:
 	_carried_resources.water = clampf(_carried_resources.water + value, 0, waterTarget)
-	_modify_battery_energy(delta * harvestDrain)
+	_modify_battery_energy(delta * harvestDrainMult)
 	carried_water_changed.emit()
 	if _carried_resources.water >= waterTarget:
 		water_ready.emit()

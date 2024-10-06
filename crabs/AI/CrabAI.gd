@@ -54,7 +54,7 @@ func _physics_process(delta: float) -> void:
 
 		if _crab.can_reproduce():
 			_sm.set_state(States.REPRODUCING)
-			_crab.auto_reproduce()
+			_crab.auto_reproduce(delta)
 		else:
 			_sm.set_state(States.CHARGING_BATTERY)
 		return
