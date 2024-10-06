@@ -26,6 +26,8 @@ func _process(delta: float) -> void:
 			_move_toward_morsel(morsel)
 		return
 	
+	$Crab.stop_harvest()
+	
 	# wander
 
 
