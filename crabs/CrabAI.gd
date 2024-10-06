@@ -2,13 +2,15 @@ extends Node
 
 @export var _vision_distance: float = 2500.0
 
-var _sm: MultiStateMachine
+var _sm: MultiStateMachine = MultiStateMachine.new()
 var _vision_area: Area2D
 
 enum States {
-	HARVESTING = 1,
-	WANDERING = 2
+	WANDERING,
+	WAITING
 }
+
+var _wander_direction: Vector2
 
 func _ready() -> void:
 	_create_vision_area()
@@ -20,6 +22,8 @@ func _process(delta: float) -> void:
 	for morsel: Morsel in visibleMorsels:
 		if !_want_morsel(morsel): continue
 		
+		_sm.unset_state(States.WANDERING)
+		
 		if $Crab.can_reach_morsel(morsel):
 			$Crab.harvest_morsel(delta, morsel)
 		else:
@@ -28,7 +32,11 @@ func _process(delta: float) -> void:
 	
 	$Crab.stop_harvest()
 	
-	# wander
+	if _sm.has_state(States.WANDERING):
+		$Crab.move(_wander_direction)
+		return
+	if _sm.has_state(States.WAITING):
+		return
 
 
 func _move_toward_morsel(morsel: Morsel) -> void:

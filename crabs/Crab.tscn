@@ -4,12 +4,12 @@
 [ext_resource type="Texture2D" uid="uid://dkqevv6a7hwt5" path="res://assets/crab.png" id="2_5n7jq"]
 [ext_resource type="Script" path="res://crabs/CrabStatsDebug.gd" id="3_wxbeg"]
 [ext_resource type="AudioStream" uid="uid://droer2prtggda" path="res://assets/sfx/poweron2.wav" id="4_3pxvx"]
-[ext_resource type="PackedScene" uid="uid://ck3fg10c2vv46" path="res://assets/Zs.tscn" id="4_grhim"]
+[ext_resource type="PackedScene" path="res://assets/Zs.tscn" id="4_grhim"]
 [ext_resource type="AudioStream" uid="uid://qh5qcwmukbyf" path="res://assets/sfx/poweroff.wav" id="5_g3tvs"]
 [ext_resource type="AudioStream" uid="uid://bktiyb8rih1f2" path="res://assets/sfx/dash.wav" id="6_s5pfp"]
 [ext_resource type="AudioStream" uid="uid://mmp73kcler03" path="res://assets/sfx/step1.wav" id="7_e6rox"]
 [ext_resource type="AudioStream" uid="uid://dydsdao7apbh8" path="res://assets/sfx/step2.wav" id="8_gxgl0"]
-[ext_resource type="PackedScene" uid="uid://cigl58gfahcla" path="res://assets/sparks.tscn" id="9_67f86"]
+[ext_resource type="PackedScene" path="res://assets/sparks.tscn" id="9_67f86"]
 [ext_resource type="AudioStream" uid="uid://b5cht8lwr0ltg" path="res://assets/sfx/welder.wav" id="11_cnkh1"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_0bir5"]
@@ -45,7 +45,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_ih6k0")
 }],
 "loop": true,
-"name": &"dodge",
+"name": &"dash",
 "speed": 5.0
 }, {
 "frames": [{
@@ -99,7 +99,7 @@ script = ExtResource("1_xe67b")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 scale = Vector2(4, 4)
 sprite_frames = SubResource("SpriteFrames_0lpsw")
-animation = &"dodge"
+animation = &"dash"
 
 [node name="Sparks" parent="." instance=ExtResource("9_67f86")]
 position = Vector2(0, -20)

@@ -112,10 +112,10 @@ func dash() -> void:
 	apply_central_impulse(direction * _stats.move_speed * dash_speed_multiplier)
 	_modify_battery_energy(-dash_battery_usage)
 	$DashSoundEffect.play()
-	_one_shot_timer(dash_duration, func() -> void:
+	Util.one_shot_timer(self, dash_duration, func() -> void:
 		_unset_state(States.DASHING)
 	)
-	_one_shot_timer(dash_cooldown_seconds, func() -> void:
+	Util.one_shot_timer(self, dash_cooldown_seconds, func() -> void:
 		_unset_state(States.DASH_COOLDOWN)
 	)
 
@@ -247,7 +247,7 @@ func _start_sleep(play_sound: bool = true) -> void:
 	if play_sound: $PowerOffSoundEffect.play()
 	$Zs.set_emitting(true)
 	stop_harvest()
-	_one_shot_timer(shutdown_cooldown_seconds, func() -> void:
+	Util.one_shot_timer(self, shutdown_cooldown_seconds, func() -> void:
 		_unset_state(States.SHUTDOWN_COOLDOWN)
 	)
 
@@ -325,19 +325,6 @@ func _play_random_footstep_sound() -> void:
 	var sound: AudioStreamPlayer2D = _foot_step_sounds[randi_range(0, _foot_step_sounds.size() - 1)]
 	sound.pitch_scale = randf_range(0.8, 1.2)
 	sound.play()
-
-
-func _one_shot_timer(duration: float, callback: Callable) -> void:
-	var timer: Timer = Timer.new()
-	timer.wait_time = duration
-	timer.one_shot = true
-	timer.timeout.connect(func() -> void:
-		callback.call()
-		remove_child(timer)
-		timer.queue_free()
-	)
-	add_child(timer)
-	timer.start()
 
 
 func _has_state(state: States) -> bool:
