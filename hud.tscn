@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://cx2ye0w0rqf4n"]
+[gd_scene load_steps=12 format=3 uid="uid://cx2ye0w0rqf4n"]
 
 [ext_resource type="Script" path="res://hud.gd" id="1_a2y7d"]
 [ext_resource type="Texture2D" uid="uid://c2e3eoxyqgivc" path="res://assets/energy.png" id="1_p7i3m"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://eluu412tp81f" path="res://assets/chunk.png" id="3_acu0v"]
 [ext_resource type="Texture2D" uid="uid://bfaup65ugpegb" path="res://assets/ingot.png" id="4_q7b3k"]
 [ext_resource type="Texture2D" uid="uid://cldjbu75rdvic" path="res://assets/sundial.png" id="6_xtdpf"]
+[ext_resource type="Texture2D" uid="uid://cfwkh7gbpuxwn" path="res://assets/noenergy.png" id="7_mi8p6"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eyiba"]
 bg_color = Color(0.784314, 0.784314, 0, 1)
@@ -112,3 +113,8 @@ vertical_alignment = 1
 autowrap_mode = 2
 justification_flags = 3
 uppercase = true
+
+[node name="no_energy" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(960, 540)
+texture = ExtResource("7_mi8p6")

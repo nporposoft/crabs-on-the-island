@@ -86,11 +86,6 @@ gravity_scale = 0.0
 lock_rotation = true
 linear_damp = 10.0
 script = ExtResource("1_xe67b")
-move_battery_usage = null
-dodge_battery_usage = null
-harvest_battery_usage = null
-dodge_cooldown_seconds = null
-dodge_speed_multiplier = null
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 texture_filter = 1
