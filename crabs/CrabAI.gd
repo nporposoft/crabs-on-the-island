@@ -1,3 +1,5 @@
+class_name CrabAI
+
 extends Node
 
 @export var _vision_distance: float = 2500.0
@@ -5,15 +7,20 @@ extends Node
 var _sm: MultiStateMachine = MultiStateMachine.new()
 var _vision_area: Area2D
 
+var _wander_timer: Timer
+
 enum States {
+	IDLING,
 	WANDERING,
-	WAITING
+	MOVING_TO_RESOURCE,
+	HARVESTING
 }
 
 var _wander_direction: Vector2
 
 func _ready() -> void:
 	_create_vision_area()
+	_create_wander_timer()
 
 func _process(delta: float) -> void:
 	_vision_area.position = $Crab.position
@@ -22,21 +29,60 @@ func _process(delta: float) -> void:
 	for morsel: Morsel in visibleMorsels:
 		if !_want_morsel(morsel): continue
 		
-		_sm.unset_state(States.WANDERING)
+		_sm.unset_all_states()
 		
 		if $Crab.can_reach_morsel(morsel):
+			_sm.set_state(States.HARVESTING)
 			$Crab.harvest_morsel(delta, morsel)
 		else:
+			_sm.set_state(States.MOVING_TO_RESOURCE)
 			_move_toward_morsel(morsel)
 		return
 	
 	$Crab.stop_harvest()
 	
 	if _sm.has_state(States.WANDERING):
-		$Crab.move(_wander_direction)
-		return
-	if _sm.has_state(States.WAITING):
-		return
+		if _time_to_idle():
+			_start_idling()
+		else: 
+			_keep_wandering()
+	else:
+		if _time_to_wander(): 
+			_start_wandering()
+
+
+func _start_wandering() -> void:
+	_wander_direction = Vector2(randf_range(-1, 1), randf_range(-1, 1)).normalized()
+	_sm.set_state(States.WANDERING)
+	_sm.unset_state(States.IDLING)
+	_start_wander_timer()
+
+
+func _start_idling() -> void:
+	_sm.unset_state(States.WANDERING)
+	_sm.set_state(States.IDLING)
+	_start_idle_timer()
+
+
+func _time_to_idle() -> bool:
+	return _wander_timer.is_stopped()
+
+
+func _time_to_wander() -> bool:
+	return _wander_timer.is_stopped()
+
+
+func _start_wander_timer() -> void:
+	_wander_timer.wait_time = randf_range(3.0, 6.0)
+	_wander_timer.start()
+
+
+func _start_idle_timer() -> void:
+	_wander_timer.wait_time = randf_range(1.0, 3.0)
+	_wander_timer.start()
+
+func _keep_wandering() -> void:
+	$Crab.move(_wander_direction)
 
 
 func _move_toward_morsel(morsel: Morsel) -> void:
@@ -88,6 +134,11 @@ func _find_visible_morsels_by_distance() -> Array:
 	)
 	return visible_morsels
 
+
+func _create_wander_timer() -> void:
+	_wander_timer = Timer.new()
+	_wander_timer.one_shot = true
+	add_child(_wander_timer)
 
 func _create_vision_area() -> void:
 	var _vision_area_shape: CollisionShape2D = CollisionShape2D.new()

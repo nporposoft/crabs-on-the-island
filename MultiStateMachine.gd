@@ -40,3 +40,7 @@ func unset_state(state) -> void:
 func unset_states(states: Array) -> void:
 	for state in states:
 		unset_state(state)
+
+
+func unset_all_states() -> void:
+	_state = 0

@@ -99,7 +99,7 @@ script = ExtResource("1_xe67b")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 scale = Vector2(4, 4)
 sprite_frames = SubResource("SpriteFrames_0lpsw")
-animation = &"dash"
+animation = &"idle"
 
 [node name="Sparks" parent="." instance=ExtResource("9_67f86")]
 position = Vector2(0, -20)
