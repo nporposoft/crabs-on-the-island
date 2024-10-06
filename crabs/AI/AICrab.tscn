@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://45h1en3vyrho"]
 
 [ext_resource type="Script" path="res://crabs/AI/CrabAI.gd" id="1_rta7m"]
-[ext_resource type="Script" path="res://crabs/AI/AICrabDebug.gd" id="2_m34bw"]
+[ext_resource type="Script" path="res://crabs/AI/AIStateDebugLabel.gd" id="2_m34bw"]
 [ext_resource type="Script" path="res://crabs/AI/CrabAIVisionDebugLines.gd" id="3_egnp6"]
 
 [sub_resource type="Theme" id="Theme_e4dvg"]
