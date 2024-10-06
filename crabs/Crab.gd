@@ -17,6 +17,7 @@ const material_size_mult = 10.0
 
 var crab_scene: PackedScene = preload("res://crabs/Crab.tscn")
 var crab_ai_scene: PackedScene = preload("res://crabs/AI/AICrab.tscn")
+var morselTemplate := preload("res://resources/Morsel.tscn")
 
 signal carried_iron_changed
 signal carried_cobalt_changed
@@ -28,17 +29,18 @@ signal iron_ready
 signal silicon_ready
 signal water_ready
 
+var _HP: float
 var _direction: Util.Directions = Util.Directions.DOWN
 var _velocity: Vector2
 var _foot_step_sounds: Array[AudioStreamPlayer2D]
 var _foot_step_timer: Timer
 var _attacks_enabled: bool = false
 var _sm: MultiStateMachine = MultiStateMachine.new()
+var cobaltTarget: float
+var ironTarget: float
+var siliconTarget: float
+var waterTarget: float
 
-var cobaltTarget = 10.0
-var ironTarget = 10.0
-var siliconTarget = 10.0
-var waterTarget = 10.0
 var batteryEnergyTargetPercentage = 50
 
 enum States {
@@ -58,8 +60,7 @@ var _current_flip_h: bool
 var _body_resources: Dictionary = {
 	"iron": 0,
 	"cobalt": 0,
-	"silicon": 0,
-	"water": 0,
+	"silicon": 0
 }
 var _carried_resources: Dictionary = {
 	"iron": 0,
@@ -75,7 +76,7 @@ var _stats: Dictionary = {
 	"move_speed": 5000.0,
 	"solar_charge_rate": 0.2,
 	"battery_capacity": 10.0,
-	"harvest_speed": 1.0
+	"harvest_speed": 10.0 #TODO: set this back to 1.0 when done testing damage
 }
 
 func _ready() -> void:
@@ -84,6 +85,15 @@ func _ready() -> void:
 	_foot_step_timer.wait_time = foot_step_time_delay
 	_foot_step_timer.timeout.connect(_play_random_footstep_sound)
 	add_child(_foot_step_timer)
+	#TODO: find out whether to keep the following initialization, or somehow make it work in init() 
+	_body_resources = { "iron": _stats.size * material_size_mult, "cobalt": 0.0, "silicon": _stats.size * material_size_mult }
+	_HP = _stats.hit_points
+	cobaltTarget = _stats.size * material_size_mult * 0.05
+	ironTarget = _stats.size * material_size_mult
+	siliconTarget = _stats.size * material_size_mult
+	waterTarget = _stats.size * material_size_mult
+	
+	$healthBar/healthNum.set_text(str(_HP))
 	
 	# start powered off
 	_start_sleep(false)
@@ -91,11 +101,22 @@ func _ready() -> void:
 
 func init(body_resources: Dictionary, stats: Dictionary) -> void:
 	_body_resources = body_resources
+	if _body_resources.cobalt == 0.0 and _body_resources.iron == 0.0 and _body_resources.silicon:
+		_body_resources = { "iron": _stats.size * material_size_mult, "cobalt": 0.0, "silicon": _stats.size * material_size_mult }
+	else:
+		_body_resources = body_resources
 	_stats = stats
-	cobaltTarget = _stats.size * material_size_mult * 0.05
-	ironTarget = _stats.size * material_size_mult
-	siliconTarget = _stats.size * material_size_mult
-	waterTarget = _stats.size * material_size_mult
+	#TODO: test whether the (re?)initialization of the targets below is necessary, esp. for descendants
+	#_HP = _stats.hit_points
+	#cobaltTarget = _stats.size * material_size_mult * 0.05
+	#ironTarget = _stats.size * material_size_mult
+	#siliconTarget = _stats.size * material_size_mult
+	#waterTarget = _stats.size * material_size_mult
+
+
+func die() -> void:
+	#generate_chunks() #TODO: debug chunk generation (Morsel throws error when instantiated)
+	get_parent().queue_free()
 
 
 func move(movementDirection: Vector2) -> void:
@@ -129,6 +150,42 @@ func dash() -> void:
 		_sm.unset_state(States.DASH_COOLDOWN)
 	)
 
+
+func apply_damage(damage: float) -> void:
+	if _HP == _stats.hit_points:
+		$healthBar.set_visible(true)
+	_HP -= damage
+	if _HP <= 0.0:
+		die()
+	else:
+		$healthBar.set_value(100.0 * _HP / _stats.hit_points)
+		$healthBar/healthNum.set_text(str(_HP))
+
+func generate_chunks() -> void:
+	var cobaltMass = _body_resources.cobalt + _carried_resources.cobalt
+	while cobaltMass > 0.0:
+		var randMass = min(randf_range(_stats.size() * material_size_mult * 0.2, _stats.size() * material_size_mult * 0.5), cobaltMass)
+		cobaltMass -= randMass
+		var new_morsel = morselTemplate.instantiate()
+		$"../..".add_child(new_morsel)
+		new_morsel.set_position(Vector2(position.x, position.y))
+		new_morsel._set_resource(Morsel.MATERIAL_TYPE.COBALT, randMass, true)
+	var ironMass = _body_resources.iron + _carried_resources.iron
+	while ironMass > 0.0:
+		var randMass = min(randf_range(_stats.size() * material_size_mult * 0.2, _stats.size() * material_size_mult * 0.5), ironMass)
+		ironMass -= randMass
+		var new_morsel = morselTemplate.instantiate()
+		new_morsel._set_resource(Morsel.MATERIAL_TYPE.IRON, randMass, true)
+		$"../..".add_child(new_morsel)
+		new_morsel.set_position(Vector2(position.x, position.y))
+	var siliconMass = _body_resources.silicon + _carried_resources.silicon
+	while siliconMass > 0.0:
+		var randMass = min(randf_range(_stats.size() * material_size_mult * 0.2, _stats.size() * material_size_mult * 0.5), siliconMass)
+		siliconMass -= randMass
+		var new_morsel = morselTemplate.instantiate()
+		new_morsel._set_resource(Morsel.MATERIAL_TYPE.SILICON, randMass, true)
+		$"../..".add_child(new_morsel)
+		new_morsel.set_position(Vector2(position.x, position.y))
 
 func get_nearby_pickuppables() -> Array:
 	return ($reach_area.get_overlapping_bodies()
@@ -166,11 +223,31 @@ func pickup() -> void:
 func is_holding() -> bool:
 	return false
 
+func get_nearby_crabs() -> Array:
+	return ($reach_area.get_overlapping_bodies()
+		.map(func(body) -> Crab: return body as Crab)
+		.filter(func(body) -> bool: return body != null)
+	)
+
+func get_nearest_crab() -> RigidBody2D:
+	var nearest: Crab
+	var nearest_distance: float = 1000.0 # arbitrary max float
+	for body: Crab in get_nearby_crabs():
+		var distance: float = (body.position - position).length()
+		if distance < nearest_distance and body.get_rid() != self.get_rid():
+			nearest = body
+			nearest_distance = distance
+	return nearest
+
 func harvest(delta: float) -> bool:
 	if _sm.has_state(States.OUT_OF_BATTERY): 
 		stop_harvest()
 		return false
-	
+	if cobalt_ready:
+		var nearestCrab = get_nearest_crab()
+		if nearestCrab != null:
+			attackCrab(nearestCrab, delta)
+			return true
 	var nearestMorsel = get_nearest_morsel()
 	if nearestMorsel != null: 
 		return harvest_morsel(delta, nearestMorsel)
@@ -183,6 +260,14 @@ func harvest(delta: float) -> bool:
 			if waterBodies.has(self):
 				return harvest_water(delta)
 		return false
+
+
+func attackCrab(target: Crab, delta: float) -> void:
+	var dmg = _stats.harvest_speed * delta
+	target.apply_damage(dmg)
+	$Sparks.set_emitting(true)
+	$Sparks.global_position = target.global_position
+	$HarvestSoundEffect.play(randf_range(0, 5.0))
 
 
 func harvest_sand(delta: float) -> bool:
@@ -276,8 +361,9 @@ func auto_reproduce() -> void:
 func reproduce(mutation: Dictionary) -> void:
 	var new_stats: Dictionary = MutationEngine.apply_mutation(_stats, mutation)
 	var new_crab: Crab = crab_scene.instantiate()
-	# TODO: deduct _carried_resources and pass to new crab for body resources (first arg)
-	new_crab.init({}, new_stats)
+	var new_body_resources = { "iron": _carried_resources.iron, "cobalt": _carried_resources.cobalt, "silicon": _carried_resources.silicon }
+	_carried_resources = { "iron": 0.0, "cobalt": 0.0, "silicon": 0.0, "water": 0.0}
+	new_crab.init(new_body_resources, new_stats)
 	var new_crab_direction: Vector2 = Util.random_direction()
 	new_crab.position = position + (new_crab_direction * 20.0)
 	var new_ai_crab: CrabAI = crab_ai_scene.instantiate()

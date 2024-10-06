@@ -1,15 +1,15 @@
-[gd_scene load_steps=24 format=3 uid="uid://ch3lyfrb4hms3"]
+[gd_scene load_steps=26 format=3 uid="uid://ch3lyfrb4hms3"]
 
 [ext_resource type="Script" path="res://crabs/Crab.gd" id="1_xe67b"]
 [ext_resource type="Texture2D" uid="uid://dkqevv6a7hwt5" path="res://assets/crab.png" id="2_5n7jq"]
 [ext_resource type="Script" path="res://crabs/StateDebugLabel.gd" id="3_wxbeg"]
 [ext_resource type="AudioStream" uid="uid://droer2prtggda" path="res://assets/sfx/poweron2.wav" id="4_3pxvx"]
-[ext_resource type="PackedScene" path="res://assets/Zs.tscn" id="4_grhim"]
+[ext_resource type="PackedScene" uid="uid://ck3fg10c2vv46" path="res://assets/Zs.tscn" id="4_grhim"]
 [ext_resource type="AudioStream" uid="uid://qh5qcwmukbyf" path="res://assets/sfx/poweroff.wav" id="5_g3tvs"]
 [ext_resource type="AudioStream" uid="uid://bktiyb8rih1f2" path="res://assets/sfx/dash.wav" id="6_s5pfp"]
 [ext_resource type="AudioStream" uid="uid://mmp73kcler03" path="res://assets/sfx/step1.wav" id="7_e6rox"]
 [ext_resource type="AudioStream" uid="uid://dydsdao7apbh8" path="res://assets/sfx/step2.wav" id="8_gxgl0"]
-[ext_resource type="PackedScene" path="res://assets/sparks.tscn" id="9_67f86"]
+[ext_resource type="PackedScene" uid="uid://cigl58gfahcla" path="res://assets/sparks.tscn" id="9_67f86"]
 [ext_resource type="AudioStream" uid="uid://b5cht8lwr0ltg" path="res://assets/sfx/welder.wav" id="11_cnkh1"]
 [ext_resource type="PackedScene" uid="uid://cx3wmwc4x4ug0" path="res://assets/vacuum.tscn" id="12_w2bfo"]
 
@@ -89,6 +89,14 @@ default_font_size = 16
 [sub_resource type="CircleShape2D" id="CircleShape2D_t5lib"]
 radius = 64.0
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6qtda"]
+bg_color = Color(0, 1, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_2f6tg"]
+font_size = 24
+outline_size = 4
+outline_color = Color(0, 0, 0, 1)
+
 [node name="Crab" type="RigidBody2D"]
 texture_filter = 1
 physics_material_override = SubResource("PhysicsMaterial_0bir5")
@@ -163,3 +171,22 @@ attenuation = 4.0
 stream = ExtResource("11_cnkh1")
 volume_db = -5.0
 attenuation = 4.0
+
+[node name="healthBar" type="ProgressBar" parent="."]
+visible = false
+offset_left = -32.0
+offset_top = 48.0
+offset_right = 32.0
+offset_bottom = 52.0
+theme_override_styles/fill = SubResource("StyleBoxFlat_6qtda")
+value = 100.0
+show_percentage = false
+
+[node name="healthNum" type="Label" parent="healthBar"]
+layout_mode = 0
+offset_top = 4.0
+offset_right = 64.0
+offset_bottom = 27.0
+text = "100.0"
+label_settings = SubResource("LabelSettings_2f6tg")
+horizontal_alignment = 1

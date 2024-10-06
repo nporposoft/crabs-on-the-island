@@ -2,11 +2,11 @@ class_name Morsel
 
 extends RigidBody2D
 
-@onready var sprite = $Sprite2D
+@onready var sprite: Sprite2D = $morselSprite
 @onready var chunk_collider = $chunk_collider
 @onready var ingot_collider = $ingot_collider
-var chunkTXR := preload("res://assets/chunk.png")
-var ingotTXR := preload("res://assets/ingot.png")
+var chunkTXR: Texture2D = preload("res://assets/chunk.png")
+var ingotTXR: Texture2D = preload("res://assets/ingot.png")
 
 enum MATERIAL_TYPE {COBALT, IRON, SILICON}
 
@@ -19,7 +19,7 @@ func _set_resource (_mat, _amount, _isChunk):
 	mat_type = _mat
 	amount = _amount
 	is_chunk = _isChunk
-
+	
 	if is_chunk:
 		sprite.set_texture(chunkTXR)
 		chunk_collider.set_disabled(false)
