@@ -9,8 +9,9 @@ extends RigidBody2D
 @export var dodge_duration: float = 0.5
 @export var dodge_speed_multiplier: float = 1.0
 @export var shutdown_cooldown_seconds: float = 3.0
+@export var foot_step_time_delay: float = 0.1
 
-const movementThreshold: float = 5.0
+const movementThreshold: float = 20.0
 const harvestDrain = -2.0
 const cobaltTarget = 100.0
 const ironTarget = 100.0
@@ -24,6 +25,9 @@ signal carried_water_changed
 signal battery_charge_changed
 
 var _direction: Util.Directions = Util.Directions.DOWN
+
+var _foot_step_sounds: Array[AudioStreamPlayer2D]
+var _foot_step_timer: Timer
 
 enum States { 
 	RUNNING = 0,
@@ -62,6 +66,12 @@ var _stats: Dictionary = {
 	"harvest_speed": 10.0
 }
 
+func _ready() -> void:
+	_foot_step_sounds = [$FootStepSound1, $FootStepSound2]
+	_foot_step_timer = Timer.new()
+	_foot_step_timer.wait_time = foot_step_time_delay
+	_foot_step_timer.timeout.connect(_play_random_footstep_sound)
+	add_child(_foot_step_timer)
 
 func init(body_resources: Dictionary, stats: Dictionary) -> void:
 	_body_resources = body_resources
@@ -72,7 +82,11 @@ func move(movementDirection: Vector2) -> void:
 	if _has_any_state([States.REPRODUCING, States.OUT_OF_BATTERY, States.DODGING]): return
 	if movementDirection.length() == 0: return
 	
-	_set_state(States.RUNNING)
+	if !_has_state(States.RUNNING):
+		_set_state(States.RUNNING)
+		_play_random_footstep_sound()
+		_foot_step_timer.start()
+	
 	_direction = Util.get_direction_from_vector(movementDirection)
 	apply_central_force(movementDirection.normalized() * _stats.move_speed)
 
@@ -178,9 +192,15 @@ func _extract_silicon(value: float, delta: float) -> void:
 
 
 func _update_movement_state() -> void:
-	if _has_any_state([States.OUT_OF_BATTERY, States.DODGING]): return
+	if _has_state(States.OUT_OF_BATTERY):
+		_foot_step_timer.stop()
+		_unset_state(States.RUNNING)
+		return
+	
+	if _has_state(States.DODGING): return
 	
 	if linear_velocity.length() < movementThreshold:
+		_foot_step_timer.stop()
 		_unset_state(States.RUNNING)
 
 
@@ -204,6 +224,12 @@ func _update_animation_from_state() -> void:
 		_current_flip_h = flip_h
 		$AnimatedSprite2D.play(_current_animation)
 		$AnimatedSprite2D.flip_h = _current_flip_h
+
+
+func _play_random_footstep_sound() -> void:
+	var sound: AudioStreamPlayer2D = _foot_step_sounds[randi_range(0, _foot_step_sounds.size() - 1)]
+	sound.pitch_scale = randf_range(0.8, 1.2)
+	sound.play()
 
 
 func _one_shot_timer(duration: float, callback: Callable) -> void:
