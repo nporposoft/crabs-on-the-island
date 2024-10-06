@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://ch3lyfrb4hms3" path="res://crabs/Crab.tscn" id="3_s85qb"]
 [ext_resource type="PackedScene" uid="uid://b530dsmiuti0k" path="res://Morsel.tscn" id="6_2lyxb"]
 [ext_resource type="PackedScene" uid="uid://cx2ye0w0rqf4n" path="res://hud.tscn" id="6_63d84"]
-[ext_resource type="PackedScene" uid="uid://b6v4oumir6yg7" path="res://crabs/AICrab.tscn" id="7_kumyt"]
+[ext_resource type="PackedScene" uid="uid://45h1en3vyrho" path="res://crabs/AICrab.tscn" id="7_kumyt"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_wmjxi"]
 texture = ExtResource("2_8m5ny")

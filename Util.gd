@@ -4,6 +4,18 @@ enum Directions { UP, UP_LEFT, LEFT, DOWN_LEFT, DOWN, DOWN_RIGHT, RIGHT, UP_RIGH
 const LeftDirections = [Directions.LEFT, Directions.UP_LEFT, Directions.DOWN_LEFT]
 const RightDirections = [Directions.RIGHT, Directions.UP_RIGHT, Directions.DOWN_RIGHT]
 
+func one_shot_timer(object: Node, duration: float, callback: Callable) -> void:
+	var timer: Timer = Timer.new()
+	timer.wait_time = duration
+	timer.one_shot = true
+	timer.timeout.connect(func() -> void:
+		callback.call()
+		object.remove_child(timer)
+		timer.queue_free()
+	)
+	object.add_child(timer)
+	timer.start()
+
 
 func get_direction_from_vector(vector: Vector2) -> Directions:
 	if vector.x > 0 && vector.y < 0:
