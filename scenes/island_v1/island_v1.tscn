@@ -236,7 +236,7 @@ _player = NodePath("../Player")
 [node name="Player" parent="." instance=ExtResource("2_0en58")]
 
 [node name="Crab" parent="Player" instance=ExtResource("3_s85qb")]
-position = Vector2(-1722, -329)
+position = Vector2(-1960, -517)
 
 [node name="resource" parent="." instance=ExtResource("6_2lyxb")]
 position = Vector2(1668, -914)
