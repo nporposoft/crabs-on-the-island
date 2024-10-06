@@ -1,6 +1,6 @@
 [gd_scene load_steps=37 format=3 uid="uid://cx2ye0w0rqf4n"]
 
-[ext_resource type="Script" path="res://hud.gd" id="1_a2y7d"]
+[ext_resource type="Script" path="res://UI/hud.gd" id="1_a2y7d"]
 [ext_resource type="Texture2D" uid="uid://c2e3eoxyqgivc" path="res://assets/energy.png" id="1_p7i3m"]
 [ext_resource type="Texture2D" uid="uid://b4812ywitkgq0" path="res://assets/water.png" id="2_2ik4q"]
 [ext_resource type="Texture2D" uid="uid://eluu412tp81f" path="res://assets/chunk.png" id="3_acu0v"]
@@ -13,7 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://c6qci8pbv05x" path="res://assets/linelight.png" id="11_vefkc"]
 [ext_resource type="Texture2D" uid="uid://c6wsosjwa33v6" path="res://assets/Q.png" id="12_bh64y"]
 [ext_resource type="Texture2D" uid="uid://dscxdahf1xr6y" path="res://assets/W.png" id="13_321fv"]
-[ext_resource type="Script" path="res://w.gd" id="14_kdc53"]
+[ext_resource type="Script" path="res://UI/w.gd" id="14_kdc53"]
 [ext_resource type="Texture2D" uid="uid://c8djgvipetf6n" path="res://assets/A.png" id="14_nhugq"]
 [ext_resource type="Texture2D" uid="uid://pr2ephogtjv2" path="res://assets/S.png" id="15_3kp5x"]
 [ext_resource type="Texture2D" uid="uid://cawgaq3kmdb1k" path="res://assets/D.png" id="16_7x7ja"]
