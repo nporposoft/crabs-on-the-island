@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://ch3lyfrb4hms3"]
+[gd_scene load_steps=24 format=3 uid="uid://ch3lyfrb4hms3"]
 
 [ext_resource type="Script" path="res://crabs/Crab.gd" id="1_xe67b"]
 [ext_resource type="Texture2D" uid="uid://dkqevv6a7hwt5" path="res://assets/crab.png" id="2_5n7jq"]
@@ -11,6 +11,7 @@
 [ext_resource type="AudioStream" uid="uid://dydsdao7apbh8" path="res://assets/sfx/step2.wav" id="8_gxgl0"]
 [ext_resource type="PackedScene" uid="uid://cigl58gfahcla" path="res://assets/sparks.tscn" id="9_67f86"]
 [ext_resource type="AudioStream" uid="uid://b5cht8lwr0ltg" path="res://assets/sfx/welder.wav" id="11_cnkh1"]
+[ext_resource type="PackedScene" uid="uid://cx3wmwc4x4ug0" path="res://assets/vacuum.tscn" id="12_w2bfo"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_0bir5"]
 
@@ -108,6 +109,10 @@ emitting = false
 amount = 10
 scale_amount_min = 0.15
 scale_amount_max = 0.3
+
+[node name="Vacuum" parent="." instance=ExtResource("12_w2bfo")]
+position = Vector2(0, 36)
+scale = Vector2(0.5, 0.5)
 
 [node name="Zs" parent="." instance=ExtResource("4_grhim")]
 position = Vector2(0, -28)

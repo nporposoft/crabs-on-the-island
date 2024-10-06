@@ -146,6 +146,8 @@ func harvest_sand(delta: float) -> bool:
 	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrain))
 	if _carried_resources.silicon < siliconTarget:
 		_add_silicon(partial_harvest * _stats.harvest_speed * delta, delta)
+		$Vacuum.set_color(Color(0.75, 0.6, 0.0))
+		$Vacuum.set_emitting(true)
 		return true
 	return false
 
@@ -154,6 +156,8 @@ func harvest_water(delta: float) -> bool:
 	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrain))
 	if _carried_resources.water < waterTarget:
 		_add_water(partial_harvest * _stats.harvest_speed * delta, delta)
+		$Vacuum.set_color(Color(0.0, 1.0, 1.0))
+		$Vacuum.set_emitting(true)
 		return true
 	return false
 
@@ -182,6 +186,7 @@ func harvest_morsel(delta: float, morsel: Morsel) -> bool:
 
 
 func stop_harvest():
+	$Vacuum.set_emitting(false)
 	$Sparks.set_emitting(false)
 	$HarvestSoundEffect.stop()
 
