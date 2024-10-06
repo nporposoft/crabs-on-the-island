@@ -1,8 +1,8 @@
 [gd_scene load_steps=11 format=4 uid="uid://co582gapcsfm4"]
 
-[ext_resource type="Script" path="res://scenes/island_v1/IslandV1.gd" id="1_8bswg"]
+[ext_resource type="Script" path="res://map/island_v1/IslandV1.gd" id="1_8bswg"]
 [ext_resource type="PackedScene" uid="uid://c0mfa4rplirjk" path="res://crabs/player.tscn" id="2_0en58"]
-[ext_resource type="PackedScene" uid="uid://2uy6byy1384y" path="res://scenes/day_night_cycle.tscn" id="2_4tlql"]
+[ext_resource type="PackedScene" uid="uid://2uy6byy1384y" path="res://map/day_night_cycle.tscn" id="2_4tlql"]
 [ext_resource type="Texture2D" uid="uid://dpnein262wtyt" path="res://assets/tileset2.png" id="2_8m5ny"]
 [ext_resource type="PackedScene" uid="uid://ch3lyfrb4hms3" path="res://crabs/Crab.tscn" id="3_s85qb"]
 [ext_resource type="PackedScene" uid="uid://b530dsmiuti0k" path="res://resources/Morsel.tscn" id="6_2lyxb"]
