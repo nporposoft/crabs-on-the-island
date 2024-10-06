@@ -78,10 +78,6 @@ func _ready() -> void:
 	_foot_step_timer.wait_time = foot_step_time_delay
 	_foot_step_timer.timeout.connect(_play_random_footstep_sound)
 	add_child(_foot_step_timer)
-	
-	# start powered off
-	_start_sleep(false)
-
 
 func init(body_resources: Dictionary, stats: Dictionary) -> void:
 	_body_resources = body_resources
@@ -241,10 +237,10 @@ func _modify_battery_energy(value: float) -> void:
 		_start_sleep()
 	
 
-func _start_sleep(play_sound: bool = true) -> void:
+func _start_sleep() -> void:
 	_set_state(States.OUT_OF_BATTERY)
 	_set_state(States.SHUTDOWN_COOLDOWN)
-	if play_sound: $PowerOffSoundEffect.play()
+	$PowerOffSoundEffect.play()
 	$Zs.set_emitting(true)
 	stop_harvest()
 	_one_shot_timer(shutdown_cooldown_seconds, func() -> void:
