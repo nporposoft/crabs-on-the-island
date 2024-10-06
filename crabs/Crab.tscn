@@ -4,12 +4,12 @@
 [ext_resource type="Texture2D" uid="uid://dkqevv6a7hwt5" path="res://assets/crab.png" id="2_5n7jq"]
 [ext_resource type="Script" path="res://crabs/CrabStatsDebug.gd" id="3_wxbeg"]
 [ext_resource type="AudioStream" uid="uid://droer2prtggda" path="res://assets/sfx/poweron2.wav" id="4_3pxvx"]
-[ext_resource type="PackedScene" uid="uid://ck3fg10c2vv46" path="res://assets/Zs.tscn" id="4_grhim"]
+[ext_resource type="PackedScene" path="res://assets/Zs.tscn" id="4_grhim"]
 [ext_resource type="AudioStream" uid="uid://qh5qcwmukbyf" path="res://assets/sfx/poweroff.wav" id="5_g3tvs"]
 [ext_resource type="AudioStream" uid="uid://bktiyb8rih1f2" path="res://assets/sfx/dash.wav" id="6_s5pfp"]
 [ext_resource type="AudioStream" uid="uid://mmp73kcler03" path="res://assets/sfx/step1.wav" id="7_e6rox"]
 [ext_resource type="AudioStream" uid="uid://dydsdao7apbh8" path="res://assets/sfx/step2.wav" id="8_gxgl0"]
-[ext_resource type="PackedScene" uid="uid://cigl58gfahcla" path="res://assets/sparks.tscn" id="9_67f86"]
+[ext_resource type="PackedScene" path="res://assets/sparks.tscn" id="9_67f86"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_0bir5"]
 
@@ -88,6 +88,7 @@ default_font_size = 16
 radius = 64.0
 
 [node name="Crab" type="RigidBody2D"]
+texture_filter = 1
 physics_material_override = SubResource("PhysicsMaterial_0bir5")
 gravity_scale = 0.0
 lock_rotation = true
@@ -95,7 +96,6 @@ linear_damp = 10.0
 script = ExtResource("1_xe67b")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-texture_filter = 1
 scale = Vector2(4, 4)
 sprite_frames = SubResource("SpriteFrames_0lpsw")
 animation = &"dodge"
