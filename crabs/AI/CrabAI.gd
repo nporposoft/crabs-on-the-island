@@ -7,6 +7,7 @@ var _crab: Crab
 var _island: IslandV1
 
 @export var _vision_distance: float = 500.0
+@export var _vision_check_delay: float = 0.25
 
 var _sm: MultiStateMachine = MultiStateMachine.new()
 var _vision_ray_directions: Array = [
@@ -19,6 +20,8 @@ var _vision_ray_directions: Array = [
 	Vector2.LEFT,
 	Vector2(-1, -1).normalized()
 ]
+var _vision_timer: Timer
+var _visible_resources: Array
 
 var _wander_direction: Vector2
 var _wander_timer: Timer
@@ -38,6 +41,7 @@ func _ready() -> void:
 	_island = get_parent()
 	_crab = $Crab
 	_create_wander_timer()
+	_create_vision_timer()
 
 
 # CrabAI runs in physics process b/c it uses 2D raycasting for obstacle detection
@@ -59,8 +63,12 @@ func _physics_process(delta: float) -> void:
 			_sm.set_state(States.CHARGING_BATTERY)
 		return
 	
-	var visibleResources: Array = _find_visible_resources()
-	for resource: Dictionary in visibleResources:
+	if _vision_timer.is_stopped():
+		_vision_timer.start()
+		_visible_resources = _find_visible_resources()
+	
+	for resource: Dictionary in _visible_resources:
+		if resource.object == null: continue
 		if !_want_resource(resource): continue
 		
 		_sm.unset_all_states()
@@ -260,3 +268,10 @@ func _create_wander_timer() -> void:
 	_wander_timer = Timer.new()
 	_wander_timer.one_shot = true
 	add_child(_wander_timer)
+
+
+func _create_vision_timer() -> void:
+	_vision_timer = Timer.new()
+	_vision_timer.one_shot = true
+	_vision_timer.wait_time = _vision_check_delay
+	add_child(_vision_timer)
