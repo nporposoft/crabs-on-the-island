@@ -35,13 +35,14 @@ var _foot_step_timer: Timer
 var _attacks_enabled: bool = false
 
 enum States {
-	RUNNING = 0,
-	DASHING = 1,
-	DASH_COOLDOWN = 2,
-	ATTACKING = 3,
-	REPRODUCING = 4,
-	OUT_OF_BATTERY = 5,
-	SHUTDOWN_COOLDOWN = 6
+	RUNNING,
+	DASHING,
+	DASH_COOLDOWN,
+	ATTACKING,
+	REPRODUCING,
+	OUT_OF_BATTERY,
+	SHUTDOWN_COOLDOWN,
+	HARVESTING
 }
 var _state: int
 
@@ -116,7 +117,7 @@ func dash() -> void:
 
 func harvest(delta: float) -> bool:
 	if _has_state(States.OUT_OF_BATTERY): return false
-
+	
 	var nearestMorsel = get_nearest_morsel()
 	if nearestMorsel != null: 
 		return harvest_morsel(delta, nearestMorsel)
@@ -148,6 +149,10 @@ func harvest_water(delta: float) -> bool:
 
 
 func harvest_morsel(delta: float, morsel: Morsel) -> bool:
+	if _has_state(States.OUT_OF_BATTERY): 
+		stop_harvest()
+		return false
+	
 	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrain))
 	match morsel.mat_type:
 		Morsel.MATERIAL_TYPE.COBALT:
@@ -159,14 +164,16 @@ func harvest_morsel(delta: float, morsel: Morsel) -> bool:
 		Morsel.MATERIAL_TYPE.SILICON:
 			if _carried_resources.silicon < siliconTarget: _add_silicon(partial_harvest * morsel._extract(_stats.harvest_speed * delta), delta)
 			else: return false
+	
 	$Sparks.set_emitting(true)
 	$Sparks.global_position = morsel.global_position
+	$HarvestSoundEffect.play(randf_range(0, 5.0))
 	return true
 
 
 func stop_harvest():
 	$Sparks.set_emitting(false)
-	$Sparks.position = Vector2(self.position.x, self.position.y - 26.0)
+	$HarvestSoundEffect.stop()
 
 
 func get_nearby_morsels() -> Array:
@@ -185,6 +192,10 @@ func get_nearest_morsel() -> Morsel:
 			nearest = morsel
 			nearest_distance = distance
 	return nearest
+
+
+func can_reach_morsel(morsel: Morsel) -> bool:
+	return get_nearby_morsels().has(morsel)
 
 
 func get_mutations(num_options: int = 1) -> Array:
@@ -231,6 +242,7 @@ func _start_sleep() -> void:
 	_set_state(States.SHUTDOWN_COOLDOWN)
 	$PowerOffSoundEffect.play()
 	$Zs.set_emitting(true)
+	stop_harvest()
 	_one_shot_timer(shutdown_cooldown_seconds, func() -> void:
 		_unset_state(States.SHUTDOWN_COOLDOWN)
 	)
