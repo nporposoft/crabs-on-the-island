@@ -8,7 +8,7 @@ extends RigidBody2D
 @export var dodge_cooldown_seconds: float = 1.67
 @export var dodge_duration: float = 0.5
 @export var dodge_speed_multiplier: float = 1.0
-@export var shutdown_cooldown_seconds: float = 3.0
+@export var shutdown_cooldown_seconds: float = 2.0
 @export var foot_step_time_delay: float = 0.1
 
 const movementThreshold: float = 20.0
@@ -153,6 +153,7 @@ func get_mutations(num_options: int = 1) -> Array:
 
 func _process(delta: float) -> void:
 	_update_movement_state()
+	_update_sleep_state()
 	_harvest_sunlight(delta)
 	_deplete_battery_from_movement(delta)
 	_update_animation_from_state()
@@ -171,22 +172,30 @@ func _deplete_battery_from_movement(delta: float) -> void:
 	var lost_energy: float = move_battery_usage * delta
 	_modify_battery_energy(-lost_energy)
 
+func _update_sleep_state() -> void:
+	if !_has_state(States.SHUTDOWN_COOLDOWN) && _has_state(States.OUT_OF_BATTERY) && _carried_resources.battery_energy > 0:
+		_end_sleep()
 
 func _modify_battery_energy(value: float) -> void:
 	_carried_resources.battery_energy = clampf(_carried_resources.battery_energy + value, 0, _stats.battery_capacity)
-	if !_has_state(States.SHUTDOWN_COOLDOWN) && _has_state(States.OUT_OF_BATTERY) && _carried_resources.battery_energy > 0:
-		_unset_state(States.OUT_OF_BATTERY)
-		$PowerOnSoundEffect.play()
-		$Zs.set_emitting(false)
-	elif _carried_resources.battery_energy == 0 && !_has_state(States.OUT_OF_BATTERY):
-		_set_state(States.OUT_OF_BATTERY)
-		_set_state(States.SHUTDOWN_COOLDOWN)
-		$PowerOffSoundEffect.play()
-		$Zs.set_emitting(true)
-		_one_shot_timer(shutdown_cooldown_seconds, func() -> void:
-			_unset_state(States.SHUTDOWN_COOLDOWN)
-		)
 	battery_charge_changed.emit()
+	if _carried_resources.battery_energy == 0 && !_has_state(States.OUT_OF_BATTERY):
+		_start_sleep()
+	
+
+func _start_sleep() -> void:
+	_set_state(States.OUT_OF_BATTERY)
+	_set_state(States.SHUTDOWN_COOLDOWN)
+	$PowerOffSoundEffect.play()
+	$Zs.set_emitting(true)
+	_one_shot_timer(shutdown_cooldown_seconds, func() -> void:
+		_unset_state(States.SHUTDOWN_COOLDOWN)
+	)
+
+func _end_sleep() -> void:
+	_unset_state(States.OUT_OF_BATTERY)
+	$PowerOnSoundEffect.play()
+	$Zs.set_emitting(false)
 
 func _extract_cobalt(value: float, delta: float) -> void:
 	_carried_resources.cobalt = clampf(_carried_resources.cobalt + value, 0, cobaltTarget)
