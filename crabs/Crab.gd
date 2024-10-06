@@ -95,7 +95,7 @@ func init(body_resources: Dictionary, stats: Dictionary) -> void:
 
 
 func move(movementDirection: Vector2) -> void:
-	_velocity = movementDirection
+	_velocity = movementDirection.normalized()
 	
 	if _sm.has_any_state([States.REPRODUCING, States.OUT_OF_BATTERY, States.DASHING]): return
 	if movementDirection.length() == 0: return
@@ -178,7 +178,9 @@ func is_holding() -> bool:
 	return false
 
 func harvest(delta: float) -> bool:
-	if _sm.has_state(States.OUT_OF_BATTERY): return false
+	if _sm.has_state(States.OUT_OF_BATTERY): 
+		stop_harvest()
+		return false
 	
 	var nearestMorsel = get_nearest_morsel()
 	if nearestMorsel != null: 
@@ -195,6 +197,10 @@ func harvest(delta: float) -> bool:
 
 
 func harvest_sand(delta: float) -> bool:
+	if _sm.has_state(States.OUT_OF_BATTERY): 
+		stop_harvest()
+		return false
+	
 	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrain))
 	if _carried_resources.silicon < siliconTarget:
 		_add_silicon(partial_harvest * _stats.harvest_speed * delta, delta)
@@ -205,6 +211,10 @@ func harvest_sand(delta: float) -> bool:
 
 
 func harvest_water(delta: float) -> bool:
+	if _sm.has_state(States.OUT_OF_BATTERY): 
+		stop_harvest()
+		return false
+	
 	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrain))
 	if _carried_resources.water < waterTarget:
 		_add_water(partial_harvest * _stats.harvest_speed * delta, delta)

@@ -37,19 +37,20 @@ func _ready() -> void:
 	_create_wander_timer()
 
 
+# CrabAI runs in physics process b/c it uses 2D raycasting for obstacle detection
 func _physics_process(delta: float) -> void:
-	var visibleMorsels: Array = _find_visible_morsels_by_distance()
-	for morsel: Morsel in visibleMorsels:
-		if !_want_morsel(morsel): continue
+	var visibleResources: Array = _find_visible_resources()
+	for resource: Dictionary in visibleResources:
+		if !_want_resource(resource): continue
 		
 		_sm.unset_all_states()
-		_crab.move(Vector2.ZERO) # gross
+		_crab.move(Vector2.ZERO) # TODO: would be nice if the Crab state machine handled this
 		
-		if _crab.can_reach_morsel(morsel): _harvest_morsel(delta, morsel)
-		else: _move_toward_morsel(morsel)
+		if _can_reach_resource(resource): _harvest_resource(delta, resource)
+		else: _move_toward_resource(resource)
 		return
 	
-	_stop_harvesting()
+	_stop_harvesting() # TODO: would be nice if the Crab state machine handled this
 	
 	if _sm.has_state(States.WANDERING):
 		if _time_to_idle(): _start_idling()
@@ -68,7 +69,7 @@ func _start_wandering() -> void:
 func _start_idling() -> void:
 	_sm.unset_state(States.WANDERING)
 	_sm.set_state(States.IDLING)
-	_crab.move(Vector2.ZERO) # gross
+	_crab.move(Vector2.ZERO) # TODO: would be nice if the Crab state machine handled this
 	_start_idle_timer()
 
 
@@ -93,10 +94,21 @@ func _keep_wandering() -> void:
 	_crab.move(_wander_direction)
 
 
-func _move_toward_morsel(morsel: Morsel) -> void:
+func _move_toward_resource(resource: Dictionary) -> void:
 	_sm.set_state(States.MOVING_TO_RESOURCE)
-	var direction: Vector2 = morsel.position - _crab.position
+	var direction: Vector2 = resource.position - _crab.position
 	_crab.move(direction)
+
+
+func _harvest_resource(delta: float, resource: Dictionary) -> void:
+	_sm.set_state(States.HARVESTING)
+	var morsel: Morsel = resource.object as Morsel
+	if morsel != null:
+		_crab.harvest_morsel(delta, morsel)
+	elif resource.object == _island.WaterArea:
+		_crab.harvest_water(delta)
+	elif resource.object == _island.SandArea:
+		_crab.harvest_sand(delta)
 
 
 func _harvest_morsel(delta: float, morsel: Morsel) -> void:
@@ -107,6 +119,29 @@ func _harvest_morsel(delta: float, morsel: Morsel) -> void:
 func _stop_harvesting() -> void:
 	_crab.stop_harvest()
 	_sm.unset_state(States.HARVESTING)
+
+
+func _want_resource(resource: Dictionary) -> bool:
+	var morsel: Morsel = resource.object as Morsel
+	if morsel != null:
+		return _want_morsel(morsel)
+	if resource.object == _island.WaterArea:
+		return _want_water()
+	if resource.object == _island.SandArea:
+		return _want_silicon()
+	
+	return false
+
+
+func _can_reach_resource(resource: Dictionary) -> bool:
+	var morsel: Morsel = resource.object as Morsel
+	if morsel != null:
+		return _crab.can_reach_morsel(morsel)
+	if resource.object == _island.WaterArea:
+		return _island.WaterArea.get_overlapping_bodies().has(_crab)
+	if resource.object == _island.SandArea:
+		return _island.SandArea.get_overlapping_bodies().has(_crab)
+	return false
 
 
 func _want_morsel(morsel: Morsel) -> bool:
@@ -136,6 +171,43 @@ func _want_water() -> bool:
 func _want_silicon() -> bool:
 	return _crab._carried_resources.silicon < _crab.siliconTarget
 
+
+# Finds all resources within visible range (_vision_distance) using raycasts in the configured directions (_vision_ray_directions).
+# Returns an array of Dictionaries; one for each visible resource.
+# The dictionary structure is:
+# {
+#   "position": Vector2
+#   "object": Morsel | Area2D
+#   "distance": float
+# }
+# The array is sorted by distance in ascending order
+func _find_visible_resources() -> Array:
+	var hits: Array
+	for direction in _vision_ray_directions:
+		var ray_query = PhysicsRayQueryParameters2D.create(_crab.position, _crab.position + direction * _vision_distance)
+		ray_query.exclude = [_crab]
+		ray_query.collide_with_areas = true
+		var hit = _crab.get_world_2d().direct_space_state.intersect_ray(ray_query)
+		if !hit.is_empty(): hits.push_back(hit)
+	
+	var resources: Array = (hits
+		.map(func(hit) -> Dictionary:
+		return {
+			"position": hit.position,
+			"object": hit.collider,
+			"distance": (hit.position - _crab.position).length()
+		}
+		)
+		.filter(func(hit) -> bool:
+		if hit.object == _island.SandArea: return true
+		if hit.object == _island.WaterArea: return true
+		var morsel: Morsel = hit.object as Morsel
+		if morsel != null: return true
+		return false
+		)
+	)
+	resources.sort_custom(func(a, b) -> bool: return a.distance < b.distance)
+	return resources
 
 func _find_visible_morsels() -> Array:
 	var hits: Array
