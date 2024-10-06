@@ -1,5 +1,6 @@
-[gd_scene load_steps=10 format=4 uid="uid://co582gapcsfm4"]
+[gd_scene load_steps=11 format=4 uid="uid://co582gapcsfm4"]
 
+[ext_resource type="Script" path="res://scenes/island_v1/IslandV1.gd" id="1_8bswg"]
 [ext_resource type="PackedScene" uid="uid://c0mfa4rplirjk" path="res://player.tscn" id="2_0en58"]
 [ext_resource type="PackedScene" uid="uid://2uy6byy1384y" path="res://scenes/day_night_cycle.tscn" id="2_4tlql"]
 [ext_resource type="Texture2D" uid="uid://dpnein262wtyt" path="res://assets/tileset2.png" id="2_8m5ny"]
@@ -223,6 +224,7 @@ custom_data_layer_1/type = 4
 sources/0 = SubResource("TileSetAtlasSource_wmjxi")
 
 [node name="IslandV1" type="Node2D"]
+script = ExtResource("1_8bswg")
 
 [node name="DayNightCycle" parent="." instance=ExtResource("2_4tlql")]
 
