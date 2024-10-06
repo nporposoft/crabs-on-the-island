@@ -1,10 +1,12 @@
+class_name Util
+
 extends Node
 
 enum Directions { UP, UP_LEFT, LEFT, DOWN_LEFT, DOWN, DOWN_RIGHT, RIGHT, UP_RIGHT }
 const LeftDirections = [Directions.LEFT, Directions.UP_LEFT, Directions.DOWN_LEFT]
 const RightDirections = [Directions.RIGHT, Directions.UP_RIGHT, Directions.DOWN_RIGHT]
 
-func one_shot_timer(object: Node, duration: float, callback: Callable) -> void:
+static func one_shot_timer(object: Node, duration: float, callback: Callable) -> void:
 	var timer: Timer = Timer.new()
 	timer.wait_time = duration
 	timer.one_shot = true
@@ -17,7 +19,7 @@ func one_shot_timer(object: Node, duration: float, callback: Callable) -> void:
 	timer.start()
 
 
-func get_direction_from_vector(vector: Vector2) -> Directions:
+static func get_direction_from_vector(vector: Vector2) -> Directions:
 	if vector.x > 0 && vector.y < 0:
 		return Directions.UP_RIGHT
 	if vector.x > 0 && vector.y > 0:
@@ -36,7 +38,7 @@ func get_direction_from_vector(vector: Vector2) -> Directions:
 	return Directions.RIGHT
 
 
-func get_vector_from_direction(direction: Directions) -> Vector2:
+static func get_vector_from_direction(direction: Directions) -> Vector2:
 	# default to right
 	var vector: Vector2 = Vector2.RIGHT
 	match direction:

@@ -1,4 +1,4 @@
-class_name Mutator
+class_name MutationEngine
 
 extends Node
 
@@ -11,13 +11,13 @@ const permutation_matrices = [
 ]
 
 
-func apply_mutation(stats: Dictionary, mutation: Dictionary) -> Dictionary:
+static func apply_mutation(stats: Dictionary, mutation: Dictionary) -> Dictionary:
 	var new_stats: Dictionary = stats.duplicate()
 	for stat in mutation.keys():
 		new_stats[stat] += new_stats[stat] * (mutation[stat] * 0.01)
 	return new_stats
 
-func get_mutation_options(stats: Dictionary) -> Dictionary:
+static func get_mutation_options(stats: Dictionary) -> Dictionary:
 	var permutation: Array = permutation_matrices[randi_range(0, permutation_matrices.size() - 1)]
 	var affected_attributes: Array = _select_random_attributes(stats.keys(), permutation.size())
 	
@@ -27,7 +27,7 @@ func get_mutation_options(stats: Dictionary) -> Dictionary:
 	return mutations
 
 
-func _select_random_attributes(attributes: Array, num_attributes: int) -> Array[String]:
+static func _select_random_attributes(attributes: Array, num_attributes: int) -> Array[String]:
 	if num_attributes > attributes.size():
 		push_error("Mutator error: attempting to mutate more attributes than there are")
 		return []

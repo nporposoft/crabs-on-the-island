@@ -18,9 +18,7 @@ config/icon="res://crab.png"
 [autoload]
 
 WorldClock="*res://util/Clock.gd"
-MutationEngine="*res://crabs/Mutator.gd"
-Debug="*res://util/DebugSettings.gd"
-Util="*res://util/Util.gd"
+DebugMode="*res://util/DebugMode.gd"
 
 [display]
 
