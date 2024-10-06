@@ -30,6 +30,7 @@ var _velocity: Vector2
 var _foot_step_sounds: Array[AudioStreamPlayer2D]
 var _foot_step_timer: Timer
 var _attacks_enabled: bool = false
+var _sm: MultiStateMachine = MultiStateMachine.new()
 
 var cobaltTarget = 10.0
 var ironTarget = 10.0
@@ -46,7 +47,6 @@ enum States {
 	SHUTDOWN_COOLDOWN,
 	HARVESTING
 }
-var _state: int
 
 var _current_animation: String
 var _current_flip_h: bool
@@ -97,11 +97,11 @@ func init(body_resources: Dictionary, stats: Dictionary) -> void:
 func move(movementDirection: Vector2) -> void:
 	_velocity = movementDirection
 	
-	if _has_any_state([States.REPRODUCING, States.OUT_OF_BATTERY, States.DASHING]): return
+	if _sm.has_any_state([States.REPRODUCING, States.OUT_OF_BATTERY, States.DASHING]): return
 	if movementDirection.length() == 0: return
 
-	if !_has_state(States.RUNNING):
-		_set_state(States.RUNNING)
+	if !_sm.has_state(States.RUNNING):
+		_sm.set_state(States.RUNNING)
 		_play_random_footstep_sound()
 		_foot_step_timer.start()
 
@@ -110,19 +110,19 @@ func move(movementDirection: Vector2) -> void:
 
 
 func dash() -> void:
-	if _has_any_state([States.DASHING, States.DASH_COOLDOWN, States.OUT_OF_BATTERY, States.REPRODUCING]): return
+	if _sm.has_any_state([States.DASHING, States.DASH_COOLDOWN, States.OUT_OF_BATTERY, States.REPRODUCING]): return
 
-	_set_state(States.DASHING)
-	_set_state(States.DASH_COOLDOWN)
+	_sm.set_state(States.DASHING)
+	_sm.set_state(States.DASH_COOLDOWN)
 	var direction: Vector2 = Util.get_vector_from_direction(_direction)
 	apply_central_impulse(direction * _stats.move_speed * dash_speed_multiplier)
 	_modify_battery_energy(-dash_battery_usage)
 	$DashSoundEffect.play()
 	Util.one_shot_timer(self, dash_duration, func() -> void:
-		_unset_state(States.DASHING)
+		_sm.unset_state(States.DASHING)
 	)
 	Util.one_shot_timer(self, dash_cooldown_seconds, func() -> void:
-		_unset_state(States.DASH_COOLDOWN)
+		_sm.unset_state(States.DASH_COOLDOWN)
 	)
 
 #func get_nearby_morsels() -> Array:
@@ -158,7 +158,7 @@ func get_nearest_pickuppable() -> RigidBody2D:
 	return nearest
 
 func pickup() -> void:
-	if _has_state(States.OUT_OF_BATTERY): return
+	if _sm.has_state(States.OUT_OF_BATTERY): return
 	
 	var nearestPickuppable = get_nearest_pickuppable()
 	if nearestPickuppable != null: 
@@ -178,7 +178,7 @@ func is_holding() -> bool:
 	return false
 
 func harvest(delta: float) -> bool:
-	if _has_state(States.OUT_OF_BATTERY): return false
+	if _sm.has_state(States.OUT_OF_BATTERY): return false
 	
 	var nearestMorsel = get_nearest_morsel()
 	if nearestMorsel != null: 
@@ -215,7 +215,7 @@ func harvest_water(delta: float) -> bool:
 
 
 func harvest_morsel(delta: float, morsel: Morsel) -> bool:
-	if _has_state(States.OUT_OF_BATTERY): 
+	if _sm.has_state(States.OUT_OF_BATTERY): 
 		stop_harvest()
 		return false
 	
@@ -288,34 +288,34 @@ func _harvest_sunlight(delta: float) -> void:
 
 
 func _deplete_battery_from_movement(delta: float) -> void:
-	if !_has_state(States.RUNNING): return
+	if !_sm.has_state(States.RUNNING): return
 
 	var lost_energy: float = move_battery_usage * delta
 	_modify_battery_energy(-lost_energy)
 
 func _update_sleep_state() -> void:
-	if !_has_state(States.SHUTDOWN_COOLDOWN) && _has_state(States.OUT_OF_BATTERY) && _carried_resources.battery_energy > 0:
+	if !_sm.has_state(States.SHUTDOWN_COOLDOWN) && _sm.has_state(States.OUT_OF_BATTERY) && _carried_resources.battery_energy > 0:
 		_end_sleep()
 
 func _modify_battery_energy(value: float) -> void:
 	_carried_resources.battery_energy = clampf(_carried_resources.battery_energy + value, 0, _stats.battery_capacity)
 	battery_charge_changed.emit()
-	if _carried_resources.battery_energy == 0 && !_has_state(States.OUT_OF_BATTERY):
+	if _carried_resources.battery_energy == 0 && !_sm.has_state(States.OUT_OF_BATTERY):
 		_start_sleep()
 	
 
 func _start_sleep(play_sound: bool = true) -> void:
-	_set_state(States.OUT_OF_BATTERY)
-	_set_state(States.SHUTDOWN_COOLDOWN)
+	_sm.set_state(States.OUT_OF_BATTERY)
+	_sm.set_state(States.SHUTDOWN_COOLDOWN)
 	if play_sound: $PowerOffSoundEffect.play()
 	$Zs.set_emitting(true)
 	stop_harvest()
 	Util.one_shot_timer(self, shutdown_cooldown_seconds, func() -> void:
-		_unset_state(States.SHUTDOWN_COOLDOWN)
+		_sm.unset_state(States.SHUTDOWN_COOLDOWN)
 	)
 
 func _end_sleep() -> void:
-	_unset_state(States.OUT_OF_BATTERY)
+	_sm.unset_state(States.OUT_OF_BATTERY)
 	$PowerOnSoundEffect.play()
 	$Zs.set_emitting(false)
 
@@ -350,16 +350,16 @@ func _add_water(value: float, delta: float) -> void:
 
 
 func _update_movement_state() -> void:
-	if _has_state(States.OUT_OF_BATTERY):
+	if _sm.has_state(States.OUT_OF_BATTERY):
 		_foot_step_timer.stop()
-		_unset_state(States.RUNNING)
+		_sm.unset_state(States.RUNNING)
 		return
 
-	if _has_state(States.DASHING): return
+	if _sm.has_state(States.DASHING): return
 
 	if _velocity.length() == 0:
 		_foot_step_timer.stop()
-		_unset_state(States.RUNNING)
+		_sm.unset_state(States.RUNNING)
 
 
 func _update_animation_from_state() -> void:
@@ -368,11 +368,11 @@ func _update_animation_from_state() -> void:
 
 	if _direction in Util.LeftDirections: flip_h = true
 
-	if _has_state(States.OUT_OF_BATTERY):
+	if _sm.has_state(States.OUT_OF_BATTERY):
 		animation = "sleep"
-	elif _has_state(States.DASHING):
+	elif _sm.has_state(States.DASHING):
 		animation = "dash"
-	elif _has_state(States.RUNNING):
+	elif _sm.has_state(States.RUNNING):
 		animation = "move"
 	else:
 		animation = "idle"
@@ -388,24 +388,3 @@ func _play_random_footstep_sound() -> void:
 	var sound: AudioStreamPlayer2D = _foot_step_sounds[randi_range(0, _foot_step_sounds.size() - 1)]
 	sound.pitch_scale = randf_range(0.8, 1.2)
 	sound.play()
-
-
-func _has_state(state: States) -> bool:
-	var mask: int = 1 << state
-	return _state & mask
-
-
-func _has_any_state(states: Array[States]) -> bool:
-	for state: States in states:
-		if _has_state(state): return true
-	return false
-
-
-func _set_state(state: States) -> void:
-	var mask: int = 1 << state
-	_state = _state | mask
-
-
-func _unset_state(state: States) -> void:
-	var mask: int = 1 << state
-	_state = _state & ~mask
