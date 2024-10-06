@@ -112,36 +112,51 @@ func dodge() -> void:
 func harvest(delta: float) -> bool:
 	if _has_state(States.OUT_OF_BATTERY): return false
 
-	var closestDist = 1000.0
-	var closestMorsel: Morsel
-	var pickups_in_reach = $reach_area.get_overlapping_bodies()
-	for item in pickups_in_reach:
-		var morselItem = item as Morsel
-		if morselItem == null: continue
-		if (morselItem.position - self.position).length() < closestDist:
-			closestDist = (morselItem.position - self.position).length()
-			closestMorsel = morselItem
-	if closestMorsel != null:
-		var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrain))
-		match closestMorsel.mat_type:
-			Morsel.MATERIAL_TYPE.COBALT:
-				if _carried_resources.cobalt < cobaltTarget: _extract_cobalt(partial_harvest * closestMorsel._extract(_stats.harvest_speed * delta), delta)
-				else: return false
-			Morsel.MATERIAL_TYPE.IRON:
-				if _carried_resources.iron < ironTarget: _extract_iron(partial_harvest * closestMorsel._extract(_stats.harvest_speed * delta), delta)
-				else: return false
-			Morsel.MATERIAL_TYPE.SILICON:
-				if _carried_resources.silicon < siliconTarget: _extract_silicon(partial_harvest * closestMorsel._extract(_stats.harvest_speed * delta), delta)
-				else: return false
-		$Sparks.set_emitting(true)
-		$Sparks.global_position = closestMorsel.global_position
-		return true
+	var nearestMorsel = get_nearest_morsel()
+	if nearestMorsel != null: 
+		return harvest_morsel(delta, nearestMorsel)
 	else:
 		return false #TODO: if no morsel in reach, check if on sand or in water
+
+
+func harvest_morsel(delta: float, morsel: Morsel) -> bool:
+	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrain))
+	match morsel.mat_type:
+		Morsel.MATERIAL_TYPE.COBALT:
+			if _carried_resources.cobalt < cobaltTarget: _extract_cobalt(partial_harvest * morsel._extract(_stats.harvest_speed * delta), delta)
+			else: return false
+		Morsel.MATERIAL_TYPE.IRON:
+			if _carried_resources.iron < ironTarget: _extract_iron(partial_harvest * morsel._extract(_stats.harvest_speed * delta), delta)
+			else: return false
+		Morsel.MATERIAL_TYPE.SILICON:
+			if _carried_resources.silicon < siliconTarget: _extract_silicon(partial_harvest * morsel._extract(_stats.harvest_speed * delta), delta)
+			else: return false
+	$Sparks.set_emitting(true)
+	$Sparks.global_position = morsel.global_position
+	return true
+
 
 func stop_harvest():
 	$Sparks.set_emitting(false)
 	$Sparks.position = Vector2(self.position.x, self.position.y - 26.0)
+
+
+func get_nearby_morsels() -> Array:
+	return ($reach_area.get_overlapping_bodies()
+		.map(func(body) -> Morsel: return body as Morsel)
+		.filter(func(body) -> bool: return body != null)
+	)
+
+
+func get_nearest_morsel() -> Morsel:
+	var nearest: Morsel
+	var nearest_distance: float = 1000.0 # arbitrary max float
+	for morsel: Morsel in get_nearby_morsels():
+		var distance: float = (morsel.position - position).length()
+		if distance < nearest_distance:
+			nearest = morsel
+			nearest_distance = distance
+	return nearest
 
 
 func get_mutations(num_options: int = 1) -> Array:
