@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://ch3lyfrb4hms3"]
+[gd_scene load_steps=23 format=3 uid="uid://ch3lyfrb4hms3"]
 
 [ext_resource type="Script" path="res://crabs/Crab.gd" id="1_xe67b"]
 [ext_resource type="Texture2D" uid="uid://dkqevv6a7hwt5" path="res://assets/crab.png" id="2_5n7jq"]
@@ -10,6 +10,7 @@
 [ext_resource type="AudioStream" uid="uid://mmp73kcler03" path="res://assets/sfx/step1.wav" id="7_e6rox"]
 [ext_resource type="AudioStream" uid="uid://dydsdao7apbh8" path="res://assets/sfx/step2.wav" id="8_gxgl0"]
 [ext_resource type="PackedScene" path="res://assets/sparks.tscn" id="9_67f86"]
+[ext_resource type="AudioStream" uid="uid://b5cht8lwr0ltg" path="res://assets/sfx/welder.wav" id="11_cnkh1"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_0bir5"]
 
@@ -133,17 +134,27 @@ shape = SubResource("CircleShape2D_t5lib")
 
 [node name="PowerOnSoundEffect" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("4_3pxvx")
+attenuation = 4.0
 
 [node name="PowerOffSoundEffect" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("5_g3tvs")
+attenuation = 4.0
 
 [node name="DashSoundEffect" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("6_s5pfp")
+attenuation = 4.0
 
 [node name="FootStepSound1" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("7_e6rox")
 volume_db = -15.0
+attenuation = 4.0
 
 [node name="FootStepSound2" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("8_gxgl0")
 volume_db = -15.0
+attenuation = 4.0
+
+[node name="HarvestSoundEffect" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("11_cnkh1")
+volume_db = -5.0
+attenuation = 4.0

@@ -13,6 +13,6 @@ func _process(_delta: float) -> void:
 	var msg: String
 	for state: Crab.States in Crab.States.values():
 		if _crab._has_state(state):
-			msg += Crab.States.keys()[state] + " "
+			msg += Crab.States.keys()[state] + "\n"
 	
 	text = msg
