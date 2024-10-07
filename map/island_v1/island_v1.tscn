@@ -7,7 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://ch3lyfrb4hms3" path="res://crabs/Crab.tscn" id="3_s85qb"]
 [ext_resource type="PackedScene" uid="uid://b530dsmiuti0k" path="res://resources/Morsel.tscn" id="6_2lyxb"]
 [ext_resource type="PackedScene" uid="uid://cx2ye0w0rqf4n" path="res://UI/hud.tscn" id="6_63d84"]
-[ext_resource type="PackedScene" path="res://crabs/AI/CrabAI.tscn" id="8_b2rce"]
+[ext_resource type="PackedScene" uid="uid://2ca0br6l0a2t" path="res://crabs/AI/CrabAI.tscn" id="8_b2rce"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_r1n16"]
 atlas = ExtResource("2_8m5ny")

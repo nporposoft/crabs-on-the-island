@@ -20,6 +20,8 @@ const inactive_color: Color = Color(0.0625, 0.0625, 0.0625)
 func _ready():
 	dayLabel.text = "Day " + str(WorldClock.day_count)
 	WorldClock.new_day_rollover.connect(_new_day)
+	_player.crab_swapped.connect(_update_statblock)
+	_player.disassociation_changed.connect(_toggle_statblock)
 
 
 func _process(delta):
@@ -128,3 +130,20 @@ func _set_clone_light(activate: bool) -> void:
 
 func _crab() -> Crab:
 	return _player._crab
+
+
+func _toggle_statblock() -> void:
+	if _player.is_disassociating:
+		_update_statblock()
+		$statblock.set_visible(true)
+	else:
+		$statblock.set_visible(false)
+	
+
+
+func _update_statblock() -> void:
+	var creb: Crab = _player.get_parent()
+	var lines: Array = []
+	for line in creb._stats:
+		lines.append(line + ":  " + str(creb._stats[line]))
+	$statblock.set_text("\n".join(lines))
