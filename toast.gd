@@ -6,11 +6,15 @@ extends Node2D
 
 var timeLeft: float
 
-func set_stats(statName: String, statValue: float) -> void:
-	if statValue < 0.0:
-		$toast_txt.set_text(str(statValue as int) + " " + statName)
-	else:
-		$toast_txt.set_text("+" + str(statValue as int) + " " + statName)
+func set_stats(stats: Dictionary) -> void:
+	var text: String
+	for stat in stats:
+		if stats[stat] < 0.0:
+			text += str(stats[stat] as int) + " " + stat + "\n"
+			
+		else:
+			text += "+" + str(stats[stat] as int) + " " + stat + "\n"
+	$toast_txt.set_text(text)
 
 
 # Called when the node enters the scene tree for the first time.

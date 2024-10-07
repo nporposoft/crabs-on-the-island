@@ -534,17 +534,9 @@ func _update_animation_from_state() -> void:
 		$AnimatedSprite2D.flip_h = _current_flip_h
 
 func stat_toasts(mutation: Dictionary) -> void:
-	for n in mutation:
-		var statStr = n
-		var statVal = mutation[n]
-		var newToast = toastTemplate.instantiate()
-		$"../..".add_child(newToast)
-		newToast.set_stats(statStr, statVal)
-		newToast.set_position(position)
-		#if statVal < 0.0:
-			#newToast.set_position(to_global(self.position + Vector2(-32.0, 0.0)))
-		#else:
-			#newToast.set_position(to_global(self.position + Vector2(32.0, 0.0)))
+	var newToast = toastTemplate.instantiate()
+	add_child(newToast)
+	newToast.set_stats(mutation)
 
 func _play_random_footstep_sound() -> void:
 	var sound: AudioStreamPlayer2D = _foot_step_sounds[randi_range(0, _foot_step_sounds.size() - 1)]
