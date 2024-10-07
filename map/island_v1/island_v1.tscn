@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=4 uid="uid://co582gapcsfm4"]
+[gd_scene load_steps=12 format=4 uid="uid://co582gapcsfm4"]
 
 [ext_resource type="Script" path="res://map/island_v1/IslandV1.gd" id="1_8bswg"]
 [ext_resource type="PackedScene" uid="uid://c0mfa4rplirjk" path="res://crabs/player.tscn" id="2_0en58"]
@@ -7,7 +7,11 @@
 [ext_resource type="PackedScene" uid="uid://ch3lyfrb4hms3" path="res://crabs/Crab.tscn" id="3_s85qb"]
 [ext_resource type="PackedScene" uid="uid://b530dsmiuti0k" path="res://resources/Morsel.tscn" id="6_2lyxb"]
 [ext_resource type="PackedScene" uid="uid://cx2ye0w0rqf4n" path="res://UI/hud.tscn" id="6_63d84"]
-[ext_resource type="PackedScene" uid="uid://2ca0br6l0a2t" path="res://crabs/AI/CrabAI.tscn" id="8_b2rce"]
+[ext_resource type="PackedScene" path="res://crabs/AI/CrabAI.tscn" id="8_b2rce"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_r1n16"]
+atlas = ExtResource("2_8m5ny")
+region = Rect2(23.2028, 1070.54, 218.793, 181.132)
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_wmjxi"]
 texture = ExtResource("2_8m5ny")
@@ -225,6 +229,11 @@ sources/0 = SubResource("TileSetAtlasSource_wmjxi")
 
 [node name="IslandV1" type="Node2D"]
 script = ExtResource("1_8bswg")
+
+[node name="Background" type="Sprite2D" parent="."]
+scale = Vector2(304.048, 647.828)
+texture = SubResource("AtlasTexture_r1n16")
+metadata/_edit_lock_ = true
 
 [node name="DayNightCycle" parent="." instance=ExtResource("2_4tlql")]
 

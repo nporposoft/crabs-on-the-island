@@ -36,7 +36,7 @@ var ironTarget: float
 var siliconTarget: float
 var waterTarget: float
 var buildProgress: float = 0.0
-@onready var _island: IslandV1 = $"/root/IslandV1"
+@onready var _island: IslandV1 = $"/root/Game/IslandV1"
 
 var batteryEnergyTargetPercentage = 50
 
@@ -92,6 +92,8 @@ func _ready() -> void:
 	
 	$healthBar/healthNum.set_text(str(_HP))
 	
+	set_size(_stats.size)
+	
 	# start powered off
 	_start_sleep(false)
 
@@ -106,6 +108,8 @@ func init(body_resources: Dictionary, stats: Dictionary, playerFam: bool) -> voi
 	else:
 		_body_resources = body_resources
 	_stats = stats
+	set_size(_stats.size)
+	
 	#TODO: test whether the (re?)initialization of the targets below is necessary, esp. for descendants
 	#_HP = _stats.hit_points
 	#cobaltTarget = _stats.size * material_size_mult * 0.05
@@ -119,7 +123,7 @@ func set_color(color: Color):
 
 
 func die() -> void:
-	#generate_chunks(1.0, true) #TODO: debug chunk generation (Morsel throws error when instantiated)
+	generate_chunks(1.0, true) #TODO: debug chunk generation (Morsel throws error when instantiated)
 	queue_free()
 
 func move(movementDirection: Vector2) -> void:
@@ -180,10 +184,10 @@ func generate_chunks(percent: float, include_body: bool) -> void:
 		if percent < 1.0 and _carried_resources.cobalt > 0.0:
 			_carried_resources.cobalt = max(0.0, _carried_resources.cobalt - randMass)
 		#TODO: morsel generation disabled for testing elsewhere: revert later when needed
-		#var new_morsel = morselTemplate.instantiate()
-		#$"../..".add_child(new_morsel)
-		#new_morsel.set_position(Vector2(position.x, position.y))
-		#new_morsel._set_resource(Morsel.MATERIAL_TYPE.COBALT, randMass, true)
+		var new_morsel = morselTemplate.instantiate()
+		_island.add_child(new_morsel)
+		new_morsel.set_position(Vector2(position.x, position.y))
+		new_morsel._set_resource(Morsel.MATERIAL_TYPE.COBALT, randMass, true)
 	var ironMass = _carried_resources.iron * percent
 	if include_body: ironMass += _body_resources.iron
 	while ironMass > 0.0:
@@ -192,10 +196,10 @@ func generate_chunks(percent: float, include_body: bool) -> void:
 		if percent < 1.0 and _carried_resources.iron > 0.0:
 			_carried_resources.iron = max(0.0, _carried_resources.iron - randMass)
 		#TODO: morsel generation disabled for testing elsewhere: revert later when needed
-		#var new_morsel = morselTemplate.instantiate()
-		#new_morsel._set_resource(Morsel.MATERIAL_TYPE.IRON, randMass, true)
-		#$"../..".add_child(new_morsel)
-		#new_morsel.set_position(Vector2(position.x, position.y))
+		var new_morsel = morselTemplate.instantiate()
+		_island.add_child(new_morsel)
+		new_morsel._set_resource(Morsel.MATERIAL_TYPE.IRON, randMass, true)
+		new_morsel.set_position(Vector2(position.x, position.y))
 	var siliconMass = _carried_resources.silicon * percent
 	if include_body: siliconMass += _body_resources.silicon
 	while siliconMass > 0.0:
@@ -204,10 +208,10 @@ func generate_chunks(percent: float, include_body: bool) -> void:
 		if percent < 1.0 and _carried_resources.silicon > 0.0:
 			_carried_resources.silicon = max(0.0, _carried_resources.silicon - randMass)
 		#TODO: morsel generation disabled for testing elsewhere: revert later when needed
-		#var new_morsel = morselTemplate.instantiate()
-		#new_morsel._set_resource(Morsel.MATERIAL_TYPE.SILICON, randMass, true)
-		#$"../..".add_child(new_morsel)
-		#new_morsel.set_position(Vector2(position.x, position.y))
+		var new_morsel = morselTemplate.instantiate()
+		_island.add_child(new_morsel)
+		new_morsel._set_resource(Morsel.MATERIAL_TYPE.SILICON, randMass, true)
+		new_morsel.set_position(Vector2(position.x, position.y))
 
 func get_nearby_pickuppables() -> Array:
 	return ($reach_area.get_overlapping_bodies()
@@ -542,3 +546,8 @@ func _play_random_footstep_sound() -> void:
 	var sound: AudioStreamPlayer2D = _foot_step_sounds[randi_range(0, _foot_step_sounds.size() - 1)]
 	sound.pitch_scale = randf_range(0.8, 1.2)
 	sound.play()
+
+func set_size(scale: float) -> void:
+	for child in find_children("*", "", false):
+		var scalable_child: Node2D = child as Node2D
+		if scalable_child != null: scalable_child.scale *= scale

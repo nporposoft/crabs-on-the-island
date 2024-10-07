@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Crabs on the Island"
-run/main_scene="res://map/island_v1/island_v1.tscn"
+run/main_scene="res://Game.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
 config/icon="res://crab.png"
 

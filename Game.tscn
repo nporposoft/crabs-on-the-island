@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://dh2a4agrr1sr0"]
+
+[ext_resource type="PackedScene" uid="uid://co582gapcsfm4" path="res://map/island_v1/island_v1.tscn" id="1_214ao"]
+[ext_resource type="Script" path="res://Camera.gd" id="2_616yq"]
+
+[node name="Game" type="Node"]
+
+[node name="IslandV1" parent="." instance=ExtResource("1_214ao")]
+
+[node name="Camera" type="Camera2D" parent="." node_paths=PackedStringArray("_player")]
+script = ExtResource("2_616yq")
+_player = NodePath("../IslandV1/Crab/Player")
+
+[editable path="IslandV1"]
+[editable path="IslandV1/DayNightCycle"]

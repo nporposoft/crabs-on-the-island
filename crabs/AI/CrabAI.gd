@@ -4,7 +4,7 @@ extends Node
 
 
 @onready var _crab: Crab = get_parent()
-@onready var _island: IslandV1 = $"/root/IslandV1"
+@onready var _island: IslandV1 = $"/root/Game/IslandV1"
 
 @export var _vision_distance: float = 500.0
 @export var _vision_check_delay: float = 0.25

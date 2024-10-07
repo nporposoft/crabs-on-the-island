@@ -3,8 +3,6 @@ class_name Player
 extends Node
 
 const player_color = Color(1.0, 0.0, 0.0)
-
-var zoom_level: int = 5
 var _crab: Crab
 
 func _ready():
@@ -13,22 +11,11 @@ func _ready():
 	_crab.set_color(player_color)
 
 func _process(delta: float) -> void:
-	if DebugMode.enabled:
-		_process_camera()
 	_process_movement()
 	_process_dash()
 	_process_harvest(delta)
 	_process_pickup()
 	_process_reproduction(delta)
-	_update_camera_position()
-
-
-func _process_camera() -> void:
-	if Input.is_action_just_pressed("zoom_in"):
-		zoom_level = min(zoom_level + 1, 5)
-	elif Input.is_action_just_pressed("zoom_out"):
-		zoom_level = max(zoom_level - 1, 1)
-	$Camera2D.set_zoom(Vector2(zoom_level / 5.0, zoom_level / 5.0))
 
 
 func _process_dash() -> void:
@@ -65,7 +52,3 @@ func _process_reproduction(delta) -> void:
 			_crab.stop_reproduce()
 	if Input.is_action_just_released("reproduce"):
 		_crab.stop_reproduce()
-
-func _update_camera_position() -> void:
-	$Camera2D.position = _crab.position
-	$Camera2D.transform = _crab.transform
