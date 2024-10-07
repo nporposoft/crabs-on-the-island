@@ -46,6 +46,7 @@ var ironTarget: float
 var siliconTarget: float
 var waterTarget: float
 var buildProgress: float = 0.0
+var _island: IslandV1
 
 var batteryEnergyTargetPercentage = 50
 
@@ -87,6 +88,7 @@ var _stats: Dictionary = {
 }
 
 func _ready() -> void:
+	_island = $"/root/IslandV1"
 	_foot_step_sounds = [$FootStepSound1, $FootStepSound2]
 	_foot_step_timer = Timer.new()
 	_foot_step_timer.wait_time = foot_step_time_delay
@@ -130,9 +132,13 @@ func init(body_resources: Dictionary, stats: Dictionary, playerFam: bool) -> voi
 	#waterTarget = _stats.size * material_size_mult
 
 
+func set_color(color: Color):
+	$AnimatedSprite2D.set_self_modulate(color)
+
+
 func die() -> void:
 	#generate_chunks(1.0, true) #TODO: debug chunk generation (Morsel throws error when instantiated)
-	get_parent().queue_free()
+	queue_free()
 
 
 func move(movementDirection: Vector2) -> void:
@@ -282,11 +288,11 @@ func harvest(delta: float) -> bool:
 	if nearestMorsel != null: 
 		return harvest_morsel(delta, nearestMorsel)
 	else:
-		var sandBodies = $"../../sandArea".get_overlapping_bodies()
+		var sandBodies = _island.SandArea.get_overlapping_bodies()
 		if sandBodies.has(self):
 			return harvest_sand(delta)
 		else:
-			var waterBodies = $"../../waterArea".get_overlapping_bodies()
+			var waterBodies = _island.WaterArea.get_overlapping_bodies()
 			if waterBodies.has(self):
 				return harvest_water(delta)
 		return false
@@ -423,7 +429,7 @@ func reproduce(mutation: Dictionary) -> void:
 	# TODO: reparent old crab (this one) to the new AI and parent the new crab to the player
 	# NB: that probably shouldn't be happening inside the crab class, b/c it won't work for AI crabs
 	new_ai_crab.add_child(new_crab)
-	$"../..".add_child(new_ai_crab)
+	_island.add_child(new_ai_crab)
 	new_crab.stat_toasts(mutation)
 
 
