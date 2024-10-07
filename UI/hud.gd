@@ -2,15 +2,15 @@ extends CanvasLayer
 
 
 @export var _player : Player
-@onready var energyBar = $energy_bar
-@onready var waterBar = $water_bar
-@onready var waterCloneBar = $water_bar/water_clone_bar
-@onready var siliconBar = $silicon_bar
-@onready var siliconCloneBar = $silicon_bar/silicon_clone_bar
-@onready var ironBar = $iron_bar
-@onready var ironCloneBar = $iron_bar/iron_clone_bar
-@onready var sundial = $sundial
-@onready var dayLabel = $day_label
+@onready var energyBar = $topleft/energy_bar
+@onready var waterBar = $topleft/water_bar
+@onready var waterCloneBar = $topleft/water_bar/water_clone_bar
+@onready var siliconBar = $topleft/silicon_bar
+@onready var siliconCloneBar = $topleft/silicon_bar/silicon_clone_bar
+@onready var ironBar = $topleft/iron_bar
+@onready var ironCloneBar = $topleft/iron_bar/iron_clone_bar
+@onready var sundial = $topright/sundial
+@onready var dayLabel = $topright/day_label
 
 var tutorial_clone = false
 
@@ -109,29 +109,29 @@ func _update_iron() -> void:
 
 func _set_cobalt_light(activate: bool) -> void:
 	var sizeFloat = 2.0 + 0.5 * sin(WorldClock.time * 240.0)
-	$cobalt_light/cobalt_glow.set_scale(Vector2(sizeFloat, sizeFloat))
-	$cobalt_light.set_self_modulate(active_color if activate else inactive_color)
-	$cobalt_light/cobalt_glow.set_visible(activate)
+	$topleft/cobalt_light/cobalt_glow.set_scale(Vector2(sizeFloat, sizeFloat))
+	$topleft/cobalt_light.set_self_modulate(active_color if activate else inactive_color)
+	$topleft/cobalt_light/cobalt_glow.set_visible(activate)
 
 
 func _set_iron_light(activate: bool) -> void:
-	$clone_light/iron_light.set_self_modulate(active_color if activate else inactive_color)
+	$topleft/clone_light/iron_light.set_self_modulate(active_color if activate else inactive_color)
 
 
 func _set_silicon_light(activate: bool) -> void:
-	$clone_light/silicon_light.set_self_modulate(active_color if activate else inactive_color)
+	$topleft/clone_light/silicon_light.set_self_modulate(active_color if activate else inactive_color)
 
 
 func _set_water_light(activate: bool) -> void:
-	$clone_light/water_light.set_self_modulate(active_color if activate else inactive_color)
+	$topleft/clone_light/water_light.set_self_modulate(active_color if activate else inactive_color)
 
 
 func _set_clone_light(activate: bool) -> void:
-	$clone_light.set_self_modulate(active_color if activate else inactive_color)
+	$topleft/clone_light.set_self_modulate(active_color if activate else inactive_color)
 	if !tutorial_clone and activate:
 		tutorial_clone = true
-		$Q.set_visible(true)
-		$Q.fading = true
+		$topleft/Q.set_visible(true)
+		$topleft/Q.fading = true
 
 
 func _crab() -> Crab:
@@ -156,8 +156,8 @@ func _update_statblock() -> void:
 
 
 func _toggle_defeat() -> void:
-	$defeat.set_visible(true)
+	$center/defeat.set_visible(true)
 
 
 func _toggle_victory() -> void:
-	$victory.set_visible(true)
+	$center/victory.set_visible(true)
