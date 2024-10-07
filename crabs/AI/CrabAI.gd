@@ -185,7 +185,6 @@ func _want_resource(resource: Dictionary) -> bool:
 		return _want_water()
 	if resource.object == _island.SandArea:
 		return _want_silicon()
-	
 	return false
 
 
@@ -264,30 +263,6 @@ func _find_visible_resources() -> Array:
 	)
 	resources.sort_custom(func(a, b) -> bool: return a.distance < b.distance)
 	return resources
-
-func _find_visible_morsels() -> Array:
-	var hits: Array
-	for direction in _vision_ray_directions:
-		var ray_query = PhysicsRayQueryParameters2D.create(_crab.position, _crab.position + direction * _vision_distance)
-		ray_query.exclude = [_crab]
-		var hit = _crab.get_world_2d().direct_space_state.intersect_ray(ray_query)
-		if !hit.is_empty(): hits.push_back(hit)
-	
-	return (hits
-		.map(func(hit) -> Node: return hit.collider)
-		.map(func(body) -> Morsel: return body as Morsel)
-		.filter(func(body) -> bool: return body != null)
-	)
-
-
-func _find_visible_morsels_by_distance() -> Array:
-	var visible_morsels: Array = _find_visible_morsels()
-	visible_morsels.sort_custom(func(a, b) -> bool:
-		var a_distance: float = (a.position - _crab.position).length()
-		var b_distance: float = (b.position - _crab.position).length()
-		return a_distance < b_distance
-	)
-	return visible_morsels
 
 
 func _create_wander_timer() -> void:
