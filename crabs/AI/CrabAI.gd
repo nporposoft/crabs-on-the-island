@@ -3,8 +3,8 @@ class_name CrabAI
 extends Node
 
 
-var _crab: Crab
-var _island: IslandV1
+@onready var _crab: Crab = get_parent()
+@onready var _island: IslandV1 = $"/root/IslandV1"
 
 @export var _vision_distance: float = 500.0
 @export var _vision_check_delay: float = 0.25
@@ -38,8 +38,6 @@ enum States {
 
 
 func _ready() -> void:
-	_island = get_parent()
-	_crab = $Crab
 	_create_wander_timer()
 	_create_vision_timer()
 

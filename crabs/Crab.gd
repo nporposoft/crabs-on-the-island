@@ -17,27 +17,17 @@ const buildDrainMult = -2.0
 const material_size_mult = 10.0
 
 var crab_scene: PackedScene = preload("res://crabs/Crab.tscn")
-var crab_ai_scene: PackedScene = preload("res://crabs/AI/AICrab.tscn")
+var crab_ai_scene: PackedScene = preload("res://crabs/AI/CrabAI.tscn")
 var morselTemplate: PackedScene = preload("res://resources/Morsel.tscn")
 var toastTemplate: PackedScene = preload("res://Toast.tscn")
 
-signal carried_iron_changed
-signal carried_cobalt_changed
-signal carried_silicon_changed
-signal carried_water_changed
-signal battery_charge_changed
-signal build_progress_changed
-signal cobalt_ready
-signal iron_ready
-signal silicon_ready
-signal water_ready
 signal mutations_generated
 
 var isPlayerFamily: bool
 var _HP: float
 var _direction: Util.Directions = Util.Directions.DOWN
 var _velocity: Vector2
-var _foot_step_sounds: Array[AudioStreamPlayer2D]
+@onready var _foot_step_sounds: Array[AudioStreamPlayer2D] = [$FootStepSound1, $FootStepSound2]
 var _foot_step_timer: Timer
 var _attacks_enabled: bool = false
 var _sm: MultiStateMachine = MultiStateMachine.new()
@@ -46,7 +36,7 @@ var ironTarget: float
 var siliconTarget: float
 var waterTarget: float
 var buildProgress: float = 0.0
-var _island: IslandV1
+@onready var _island: IslandV1 = $"/root/IslandV1"
 
 var batteryEnergyTargetPercentage = 50
 
@@ -83,13 +73,11 @@ var _stats: Dictionary = {
 	"move_speed": 5000.0,
 	"solar_charge_rate": 0.5,
 	"battery_capacity": 10.0,
-	"harvest_speed": 2.0, #1.0, TODO: change back after testing
+	"harvest_speed": 10.0, #1.0, TODO: change back after testing
 	"build_speed": 0.25 #TODO: added new dictionary element--find out where else I need to reconcile this change
 }
 
 func _ready() -> void:
-	_island = $"/root/IslandV1"
-	_foot_step_sounds = [$FootStepSound1, $FootStepSound2]
 	_foot_step_timer = Timer.new()
 	_foot_step_timer.wait_time = foot_step_time_delay
 	_foot_step_timer.timeout.connect(_play_random_footstep_sound)
@@ -101,12 +89,6 @@ func _ready() -> void:
 	ironTarget = _stats.size * material_size_mult
 	siliconTarget = _stats.size * material_size_mult
 	waterTarget = _stats.size * material_size_mult
-	carried_iron_changed.emit()
-	carried_cobalt_changed.emit()
-	carried_silicon_changed.emit()
-	carried_water_changed.emit()
-	battery_charge_changed.emit()
-	build_progress_changed.emit()
 	
 	$healthBar/healthNum.set_text(str(_HP))
 	
@@ -139,7 +121,6 @@ func set_color(color: Color):
 func die() -> void:
 	#generate_chunks(1.0, true) #TODO: debug chunk generation (Morsel throws error when instantiated)
 	queue_free()
-
 
 func move(movementDirection: Vector2) -> void:
 	_velocity = movementDirection.normalized()
@@ -394,27 +375,17 @@ func auto_reproduce(delta: float) -> bool:
 		if buildProgress >= 1.0:
 			var mutation: Dictionary = MutationEngine.get_mutation_options(_stats)
 			reproduce(mutation)
-			carried_cobalt_changed.emit()
-			carried_iron_changed.emit()
-			carried_silicon_changed.emit()
-			carried_water_changed.emit()
 			buildProgress = 0.0
-			build_progress_changed.emit()
 			return false
-		build_progress_changed.emit()
 		return true
 	return false
+
 
 func stop_reproduce() -> void:
 	if buildProgress > 0.0:
 		generate_chunks(buildProgress, false)
 		_carried_resources.water *= 1.0 - buildProgress #TODO: probably should make a remove_resource function so we don't have to write manually
-		carried_cobalt_changed.emit()
-		carried_iron_changed.emit()
-		carried_silicon_changed.emit()
-		carried_water_changed.emit()
 		buildProgress = 0.0
-		build_progress_changed.emit()
 
 
 func reproduce(mutation: Dictionary) -> void:
@@ -425,12 +396,11 @@ func reproduce(mutation: Dictionary) -> void:
 	new_crab.init(new_body_resources, new_stats, isPlayerFamily)
 	var new_crab_direction: Vector2 = Util.random_direction()
 	new_crab.position = position + (new_crab_direction * 20.0)
-	var new_ai_crab: CrabAI = crab_ai_scene.instantiate()
-	# TODO: reparent old crab (this one) to the new AI and parent the new crab to the player
-	# NB: that probably shouldn't be happening inside the crab class, b/c it won't work for AI crabs
-	new_ai_crab.add_child(new_crab)
-	_island.add_child(new_ai_crab)
+	var new_crab_ai: CrabAI = crab_ai_scene.instantiate()
+	new_crab.add_child(new_crab_ai)
+	_island.add_child(new_crab)
 	new_crab.stat_toasts(mutation)
+
 
 
 func has_reproduction_resources() -> bool:
@@ -479,7 +449,6 @@ func _update_sleep_state() -> void:
 
 func _modify_battery_energy(value: float) -> void:
 	_carried_resources.battery_energy = clampf(_carried_resources.battery_energy + value, 0, _stats.battery_capacity)
-	battery_charge_changed.emit()
 	if _carried_resources.battery_energy == 0:
 		_start_sleep()
 
@@ -495,39 +464,33 @@ func _start_sleep(play_sound: bool = true) -> void:
 		_sm.unset_state(States.SHUTDOWN_COOLDOWN)
 	)
 
+
 func _end_sleep() -> void:
 	_sm.unset_state(States.OUT_OF_BATTERY)
 	$PowerOnSoundEffect.play()
 	$Zs.set_emitting(false)
 
+
 func _add_cobalt(value: float, delta: float) -> void:
 	_carried_resources.cobalt = clampf(_carried_resources.cobalt + value, 0, cobaltTarget)
 	_modify_battery_energy(delta * harvestDrainMult)
-	carried_cobalt_changed.emit()
 	if _carried_resources.cobalt >= cobaltTarget:
-		cobalt_ready.emit()
 		_attacks_enabled = true
+
 
 func _add_iron(value: float, delta: float) -> void:
 	_carried_resources.iron = clampf(_carried_resources.iron + value, 0, ironTarget)
 	_modify_battery_energy(delta * harvestDrainMult)
-	carried_iron_changed.emit()
-	if _carried_resources.iron >= ironTarget:
-		iron_ready.emit()
+
 
 func _add_silicon(value: float, delta: float) -> void:
 	_carried_resources.silicon = clampf(_carried_resources.silicon + value, 0, siliconTarget)
 	_modify_battery_energy(delta * harvestDrainMult)
-	carried_silicon_changed.emit()
-	if _carried_resources.silicon >= siliconTarget:
-		silicon_ready.emit()
+
 
 func _add_water(value: float, delta: float) -> void:
 	_carried_resources.water = clampf(_carried_resources.water + value, 0, waterTarget)
 	_modify_battery_energy(delta * harvestDrainMult)
-	carried_water_changed.emit()
-	if _carried_resources.water >= waterTarget:
-		water_ready.emit()
 
 
 func _update_movement_state() -> void:

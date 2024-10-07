@@ -7,7 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://ch3lyfrb4hms3" path="res://crabs/Crab.tscn" id="3_s85qb"]
 [ext_resource type="PackedScene" uid="uid://b530dsmiuti0k" path="res://resources/Morsel.tscn" id="6_2lyxb"]
 [ext_resource type="PackedScene" uid="uid://cx2ye0w0rqf4n" path="res://UI/hud.tscn" id="6_63d84"]
-[ext_resource type="PackedScene" uid="uid://45h1en3vyrho" path="res://crabs/AI/AICrab.tscn" id="7_kumyt"]
+[ext_resource type="PackedScene" uid="uid://2ca0br6l0a2t" path="res://crabs/AI/CrabAI.tscn" id="8_b2rce"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_wmjxi"]
 texture = ExtResource("2_8m5ny")
@@ -233,14 +233,6 @@ tile_map_data = PackedByteArray("AAD/////AAAHAAQAAAD//wAAAAAHAAQAAAAAAAAAAAAHAAQ
 tile_set = SubResource("TileSet_lgr6q")
 metadata/_edit_lock_ = true
 
-[node name="hud" parent="." node_paths=PackedStringArray("_player") instance=ExtResource("6_63d84")]
-_player = NodePath("../Player")
-
-[node name="Player" parent="." instance=ExtResource("2_0en58")]
-
-[node name="Crab" parent="Player" instance=ExtResource("3_s85qb")]
-position = Vector2(269, -709)
-
 [node name="resource0" parent="." instance=ExtResource("6_2lyxb")]
 position = Vector2(-656, 830)
 mat_type = 0
@@ -273,31 +265,6 @@ mat_type = 1
 position = Vector2(2340, 780)
 mat_type = 1
 
-[node name="AICrab" parent="." instance=ExtResource("7_kumyt")]
-
-[node name="Crab" parent="AICrab" instance=ExtResource("3_s85qb")]
-position = Vector2(134, -715)
-
-[node name="AICrab2" parent="." instance=ExtResource("7_kumyt")]
-
-[node name="Crab" parent="AICrab2" instance=ExtResource("3_s85qb")]
-position = Vector2(268, -841)
-
-[node name="AICrab3" parent="." instance=ExtResource("7_kumyt")]
-
-[node name="Crab" parent="AICrab3" instance=ExtResource("3_s85qb")]
-position = Vector2(128, -847)
-
-[node name="AICrab4" parent="." instance=ExtResource("7_kumyt")]
-
-[node name="Crab" parent="AICrab4" instance=ExtResource("3_s85qb")]
-position = Vector2(400, -837)
-
-[node name="AICrab5" parent="." instance=ExtResource("7_kumyt")]
-
-[node name="Crab" parent="AICrab5" instance=ExtResource("3_s85qb")]
-position = Vector2(413, -705)
-
 [node name="sandArea" type="Area2D" parent="."]
 metadata/_edit_lock_ = true
 
@@ -312,6 +279,37 @@ metadata/_edit_lock_ = true
 polygon = PackedVector2Array(-119, -2197, -662, -2204, -669, -1999, -1596, -1979, -1628, -2204, -1833, -2253, -1886, -2455, -2470, -2476, -2486, -1234, -2710, -1178, -2762, -983, -2968, -910, -3015, -680, -3476, -664, -3518, -447, -3997, -404, -4026, -173, -4520, -148, -4535, 82, -5029, 112, -5031, 402, -4280, 407, -4277, 1096, -4551, 1110, -4531, 1447, -4289, 1450, -4273, 1685, -3511, 1710, -3476, 1927, -3266, 1977, -3255, 2217, -3002, 2240, -2992, 2445, -2742, 2495, -2739, 2730, -2497, 2733, -2481, 2972, -1367, 2984, -1374, 2735, 329, 2741, 333, 2992, 1972, 2976, 1951, 2196, 2211, 2189, 2205, 1947, 2467, 1940, 2465, 1705, 2734, 1692, 2720, 1438, 2980, 1441, 2972, -671, 2757, -678, 2714, -1958, 1718, -1962, 1684, -2198, 338, -2198, 345, -1878, 598, -1883, 580, -1212, 353, -1173, 338, -952, 180, -960, 148, -1178, -66, -1203, -112, -1429, -329, -1451, -354, -1898, -110, -1898, -143, -3327, 3838, -3317, 3850, 4101, -5888, 4096, -5881, -3329, -149, -3328)
 metadata/_edit_lock_ = true
 
-[connection signal="battery_charge_changed" from="Player/Crab" to="hud" method="_on_crab_battery_charge_changed"]
+[node name="Crab" parent="." instance=ExtResource("3_s85qb")]
+position = Vector2(266, -714)
+
+[node name="Player" parent="Crab" instance=ExtResource("2_0en58")]
+
+[node name="hud" parent="." node_paths=PackedStringArray("_player") instance=ExtResource("6_63d84")]
+_player = NodePath("../Crab/Player")
+
+[node name="Crab2" parent="." instance=ExtResource("3_s85qb")]
+position = Vector2(135, -715)
+
+[node name="CrabAI" parent="Crab2" instance=ExtResource("8_b2rce")]
+
+[node name="Crab3" parent="." instance=ExtResource("3_s85qb")]
+position = Vector2(378, -714)
+
+[node name="CrabAI" parent="Crab3" instance=ExtResource("8_b2rce")]
+
+[node name="Crab4" parent="." instance=ExtResource("3_s85qb")]
+position = Vector2(376, -806)
+
+[node name="CrabAI" parent="Crab4" instance=ExtResource("8_b2rce")]
+
+[node name="Crab5" parent="." instance=ExtResource("3_s85qb")]
+position = Vector2(264, -806)
+
+[node name="CrabAI" parent="Crab5" instance=ExtResource("8_b2rce")]
+
+[node name="Crab6" parent="." instance=ExtResource("3_s85qb")]
+position = Vector2(135, -802)
+
+[node name="CrabAI" parent="Crab6" instance=ExtResource("8_b2rce")]
 
 [editable path="DayNightCycle"]

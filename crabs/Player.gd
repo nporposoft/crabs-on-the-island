@@ -8,7 +8,7 @@ var zoom_level: int = 5
 var _crab: Crab
 
 func _ready():
-	_crab = $Crab
+	_crab = get_parent()
 	_crab.isPlayerFamily = true
 	_crab.set_color(player_color)
 
