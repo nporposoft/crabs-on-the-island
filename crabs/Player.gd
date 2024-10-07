@@ -102,6 +102,7 @@ func _process_harvest(delta) -> void:
 
 
 func _process_pickup() -> void:
+	return #TODO: implement pickup
 	if Input.is_action_pressed("pickup"):
 		if _crab.is_holding():
 			_crab.pickup()

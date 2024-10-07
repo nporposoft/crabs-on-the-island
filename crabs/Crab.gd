@@ -248,12 +248,12 @@ func pickup() -> void:
 			var morselItem: Morsel
 			morselItem = nearestPickuppable
 			if morselItem != null:
-				pass #morselItem is a morsel; tack its position to ours
+				pass #morselItem is a morsel; TODO: tack its position to ours
 	else:
 		return
 
 func is_holding() -> bool:
-	return false
+	return false #TODO
 
 func get_nearby_crabs() -> Array:
 	return ($reach_area.get_overlapping_bodies()
