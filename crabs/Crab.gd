@@ -82,16 +82,16 @@ func _ready() -> void:
 	_foot_step_timer.wait_time = foot_step_time_delay
 	_foot_step_timer.timeout.connect(_play_random_footstep_sound)
 	add_child(_foot_step_timer)
-	#TODO: find out whether to keep the following initialization, or somehow make it work in init() 
+	#TODO: find out whether to keep the following initialization, or somehow make it work in init()
 	_body_resources = { "iron": _stats.size * material_size_mult, "cobalt": 0.0, "silicon": _stats.size * material_size_mult }
 	_HP = _stats.hit_points
 	cobaltTarget = _stats.size * material_size_mult * 0.05
 	ironTarget = _stats.size * material_size_mult
 	siliconTarget = _stats.size * material_size_mult
 	waterTarget = _stats.size * material_size_mult
-	
+
 	$healthBar/healthNum.set_text(str(_HP))
-	
+
 	# start powered off
 	_start_sleep(false)
 
@@ -124,7 +124,7 @@ func die() -> void:
 
 func move(movementDirection: Vector2) -> void:
 	_velocity = movementDirection.normalized()
-	
+
 	if _sm.has_any_state([States.REPRODUCING, States.OUT_OF_BATTERY, States.DASHING]): return
 	if movementDirection.length() == 0: return
 
@@ -227,9 +227,9 @@ func get_nearest_pickuppable() -> RigidBody2D:
 
 func pickup() -> void:
 	if _sm.has_state(States.OUT_OF_BATTERY): return
-	
+
 	var nearestPickuppable = get_nearest_pickuppable()
-	if nearestPickuppable != null: 
+	if nearestPickuppable != null:
 		var crabItem: Crab
 		crabItem = nearestPickuppable
 		if crabItem != null:
@@ -262,7 +262,7 @@ func get_nearest_crab() -> RigidBody2D:
 	return nearest
 
 func harvest(delta: float) -> bool:
-	if _sm.has_state(States.OUT_OF_BATTERY): 
+	if _sm.has_state(States.OUT_OF_BATTERY):
 		stop_harvest()
 		return false
 	if _attacks_enabled:
@@ -271,7 +271,7 @@ func harvest(delta: float) -> bool:
 			attackCrab(nearestCrab, delta)
 			return true
 	var nearestMorsel = get_nearest_morsel()
-	if nearestMorsel != null: 
+	if nearestMorsel != null:
 		return harvest_morsel(delta, nearestMorsel)
 	else:
 		var sandBodies = _island.SandArea.get_overlapping_bodies()
@@ -293,10 +293,10 @@ func attackCrab(target: Crab, delta: float) -> void:
 
 
 func harvest_sand(delta: float) -> bool:
-	if _sm.has_state(States.OUT_OF_BATTERY): 
+	if _sm.has_state(States.OUT_OF_BATTERY):
 		stop_harvest()
 		return false
-	
+
 	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrainMult))
 	if _carried_resources.silicon < siliconTarget:
 		_add_silicon(partial_harvest * _stats.harvest_speed * delta, delta)
@@ -307,10 +307,10 @@ func harvest_sand(delta: float) -> bool:
 
 
 func harvest_water(delta: float) -> bool:
-	if _sm.has_state(States.OUT_OF_BATTERY): 
+	if _sm.has_state(States.OUT_OF_BATTERY):
 		stop_harvest()
 		return false
-	
+
 	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrainMult))
 	if _carried_resources.water < waterTarget:
 		_add_water(partial_harvest * _stats.harvest_speed * delta, delta)
@@ -321,10 +321,10 @@ func harvest_water(delta: float) -> bool:
 
 
 func harvest_morsel(delta: float, morsel: Morsel) -> bool:
-	if _sm.has_state(States.OUT_OF_BATTERY): 
+	if _sm.has_state(States.OUT_OF_BATTERY):
 		stop_harvest()
 		return false
-	
+
 	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrainMult))
 	match morsel.mat_type:
 		Morsel.MATERIAL_TYPE.COBALT:
@@ -336,7 +336,7 @@ func harvest_morsel(delta: float, morsel: Morsel) -> bool:
 		Morsel.MATERIAL_TYPE.SILICON:
 			if _carried_resources.silicon < siliconTarget: _add_silicon(partial_harvest * morsel._extract(_stats.harvest_speed * delta), delta)
 			else: return false
-	
+
 	$Sparks.set_emitting(true)
 	$Sparks.global_position = morsel.global_position + (global_position - morsel.global_position) * 0.67
 	$HarvestSoundEffect.play(randf_range(0, 5.0))
@@ -444,7 +444,7 @@ func _harvest_sunlight(delta: float) -> void:
 
 func _deplete_battery_from_movement(delta: float) -> void:
 	if !_sm.has_state(States.RUNNING): return
-	
+
 	var batteryPercent = _carried_resources.battery_energy / _stats.battery_capacity
 	var lost_energy: float = min(move_battery_usage * delta * (1.6 * batteryPercent + 0.2), 1.0) # usage scales to match speed ramp at low battery
 	_modify_battery_energy(-lost_energy)
@@ -461,7 +461,7 @@ func _modify_battery_energy(value: float) -> void:
 
 func _start_sleep(play_sound: bool = true) -> void:
 	if _sm.has_state(States.OUT_OF_BATTERY): return
-	
+
 	_sm.set_states([States.OUT_OF_BATTERY, States.SHUTDOWN_COOLDOWN])
 	if play_sound: $PowerOffSoundEffect.play()
 	$Zs.set_emitting(true)
@@ -534,17 +534,9 @@ func _update_animation_from_state() -> void:
 		$AnimatedSprite2D.flip_h = _current_flip_h
 
 func stat_toasts(mutation: Dictionary) -> void:
-	for n in mutation:
-		var statStr = n
-		var statVal = mutation[n]
-		var newToast = toastTemplate.instantiate()
-		$"../..".add_child(newToast)
-		newToast.set_stats(statStr, statVal)
-		newToast.set_position(self.get_position())
-		#if statVal < 0.0:
-			#newToast.set_position(to_global(self.position + Vector2(-32.0, 0.0)))
-		#else:
-			#newToast.set_position(to_global(self.position + Vector2(32.0, 0.0)))
+	var newToast = toastTemplate.instantiate()
+	add_child(newToast)
+	newToast.set_stats(mutation)
 
 func _play_random_footstep_sound() -> void:
 	var sound: AudioStreamPlayer2D = _foot_step_sounds[randi_range(0, _foot_step_sounds.size() - 1)]
