@@ -70,12 +70,12 @@ var _carried_resources: Dictionary = {
 }
 var _stats: Dictionary = {
 	"size": 1.0,
-	"hit_points": 10.0,
+	"hit_points": 20.0,
 	"strength": 10.0,
 	"move_speed": 5000.0,
 	"solar_charge_rate": 0.3,
 	"battery_capacity": 10.0,
-	"harvest_speed": 4.0,
+	"harvest_speed": 2.0,
 	"build_speed": 0.2
 }
 
@@ -87,7 +87,7 @@ func _ready() -> void:
 	#TODO: find out whether to keep the following initialization, or somehow make it work in init()
 	_body_resources = { "iron": _stats.size * material_size_mult, "cobalt": 0.0, "silicon": _stats.size * material_size_mult }
 	_HP = _stats.hit_points
-	cobaltTarget = _stats.size * material_size_mult * 0.05
+	cobaltTarget = _stats.size * material_size_mult * 0.5
 	ironTarget = _stats.size * material_size_mult
 	siliconTarget = _stats.size * material_size_mult
 	waterTarget = _stats.size * material_size_mult
@@ -295,7 +295,7 @@ func harvest(delta: float) -> bool:
 
 
 func attackCrab(target: Crab, delta: float) -> void:
-	var dmg = _stats.harvest_speed * delta
+	var dmg = _stats.strength * delta
 	target.apply_damage(dmg)
 	$Sparks.set_emitting(true)
 	$Sparks.global_position = target.global_position

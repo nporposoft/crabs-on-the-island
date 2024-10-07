@@ -11,10 +11,12 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	if DebugMode.enabled:
-		_debug_zoom_override()
-	else:
-		_update_zoom()
+	#if DebugMode.enabled:
+		#_debug_zoom_override()
+	#else:
+		#_update_zoom()
+	#_update_position()
+	_debug_zoom_override()
 	_update_position()
 
 
