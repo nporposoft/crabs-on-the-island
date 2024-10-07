@@ -82,18 +82,18 @@ func _ready() -> void:
 	_foot_step_timer.wait_time = foot_step_time_delay
 	_foot_step_timer.timeout.connect(_play_random_footstep_sound)
 	add_child(_foot_step_timer)
-	#TODO: find out whether to keep the following initialization, or somehow make it work in init() 
+	#TODO: find out whether to keep the following initialization, or somehow make it work in init()
 	_body_resources = { "iron": _stats.size * material_size_mult, "cobalt": 0.0, "silicon": _stats.size * material_size_mult }
 	_HP = _stats.hit_points
 	cobaltTarget = _stats.size * material_size_mult * 0.05
 	ironTarget = _stats.size * material_size_mult
 	siliconTarget = _stats.size * material_size_mult
 	waterTarget = _stats.size * material_size_mult
-	
+
 	$healthBar/healthNum.set_text(str(_HP))
 	
 	set_size(_stats.size)
-	
+
 	# start powered off
 	_start_sleep(false)
 
@@ -123,12 +123,12 @@ func set_color(color: Color):
 
 
 func die() -> void:
-	generate_chunks(1.0, true) #TODO: debug chunk generation (Morsel throws error when instantiated)
+	generate_chunks(1.0, true)
 	queue_free()
 
 func move(movementDirection: Vector2) -> void:
 	_velocity = movementDirection.normalized()
-	
+
 	if _sm.has_any_state([States.REPRODUCING, States.OUT_OF_BATTERY, States.DASHING]): return
 	if movementDirection.length() == 0: return
 
@@ -139,10 +139,7 @@ func move(movementDirection: Vector2) -> void:
 
 	_direction = Util.get_direction_from_vector(movementDirection)
 	var batteryPercent = _carried_resources.battery_energy / _stats.battery_capacity
-	#apply_central_force(movementDirection.normalized() * _stats.move_speed * clampf(1.6 * batteryPercent + 0.2, 0.0, 1.0)) # linear ramp from 20% speed at empty battery to 100% speed at half battery
 	apply_central_force(movementDirection.normalized() * _stats.move_speed * clampf(3 * batteryPercent, 0.0, 1.0)) # linear ramp from 0% speed at empty battery to 100% speed at 1/3 battery
-	#apply_central_force(movementDirection.normalized() * _stats.move_speed * clampf(1.4 * sqrt(batteryPercent), 0.0, 1.0)) # log ramp from 0% speed at empty battery to 100% speed at half battery
-	#apply_central_force(movementDirection.normalized() * _stats.move_speed * clampf(1.73 * sqrt(batteryPercent), 0.0, 1.0)) # log ramp from 0% speed at empty battery to 100% speed at 1/3 battery
 
 
 func dash() -> void:
@@ -185,7 +182,8 @@ func generate_chunks(percent: float, include_body: bool) -> void:
 			_carried_resources.cobalt = max(0.0, _carried_resources.cobalt - randMass)
 		#TODO: morsel generation disabled for testing elsewhere: revert later when needed
 		var new_morsel = morselTemplate.instantiate()
-		_island.add_child(new_morsel)
+		$"../..".add_child(new_morsel)
+		new_morsel.set_children_scale(sqrt(randMass) / 2.0)
 		new_morsel.set_position(Vector2(position.x, position.y))
 		new_morsel._set_resource(Morsel.MATERIAL_TYPE.COBALT, randMass, true)
 	var ironMass = _carried_resources.iron * percent
@@ -197,7 +195,8 @@ func generate_chunks(percent: float, include_body: bool) -> void:
 			_carried_resources.iron = max(0.0, _carried_resources.iron - randMass)
 		#TODO: morsel generation disabled for testing elsewhere: revert later when needed
 		var new_morsel = morselTemplate.instantiate()
-		_island.add_child(new_morsel)
+		$"../..".add_child(new_morsel)
+		new_morsel.set_children_scale(sqrt(randMass) / 2.0)
 		new_morsel._set_resource(Morsel.MATERIAL_TYPE.IRON, randMass, true)
 		new_morsel.set_position(Vector2(position.x, position.y))
 	var siliconMass = _carried_resources.silicon * percent
@@ -209,7 +208,8 @@ func generate_chunks(percent: float, include_body: bool) -> void:
 			_carried_resources.silicon = max(0.0, _carried_resources.silicon - randMass)
 		#TODO: morsel generation disabled for testing elsewhere: revert later when needed
 		var new_morsel = morselTemplate.instantiate()
-		_island.add_child(new_morsel)
+		$"../..".add_child(new_morsel)
+		new_morsel.set_children_scale(sqrt(randMass) / 2.0)
 		new_morsel._set_resource(Morsel.MATERIAL_TYPE.SILICON, randMass, true)
 		new_morsel.set_position(Vector2(position.x, position.y))
 
@@ -231,9 +231,9 @@ func get_nearest_pickuppable() -> RigidBody2D:
 
 func pickup() -> void:
 	if _sm.has_state(States.OUT_OF_BATTERY): return
-	
+
 	var nearestPickuppable = get_nearest_pickuppable()
-	if nearestPickuppable != null: 
+	if nearestPickuppable != null:
 		var crabItem: Crab
 		crabItem = nearestPickuppable
 		if crabItem != null:
@@ -266,7 +266,7 @@ func get_nearest_crab() -> RigidBody2D:
 	return nearest
 
 func harvest(delta: float) -> bool:
-	if _sm.has_state(States.OUT_OF_BATTERY): 
+	if _sm.has_state(States.OUT_OF_BATTERY):
 		stop_harvest()
 		return false
 	if _attacks_enabled:
@@ -275,7 +275,7 @@ func harvest(delta: float) -> bool:
 			attackCrab(nearestCrab, delta)
 			return true
 	var nearestMorsel = get_nearest_morsel()
-	if nearestMorsel != null: 
+	if nearestMorsel != null:
 		return harvest_morsel(delta, nearestMorsel)
 	else:
 		var sandBodies = _island.SandArea.get_overlapping_bodies()
@@ -297,10 +297,10 @@ func attackCrab(target: Crab, delta: float) -> void:
 
 
 func harvest_sand(delta: float) -> bool:
-	if _sm.has_state(States.OUT_OF_BATTERY): 
+	if _sm.has_state(States.OUT_OF_BATTERY):
 		stop_harvest()
 		return false
-	
+
 	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrainMult))
 	if _carried_resources.silicon < siliconTarget:
 		_add_silicon(partial_harvest * _stats.harvest_speed * delta, delta)
@@ -311,10 +311,10 @@ func harvest_sand(delta: float) -> bool:
 
 
 func harvest_water(delta: float) -> bool:
-	if _sm.has_state(States.OUT_OF_BATTERY): 
+	if _sm.has_state(States.OUT_OF_BATTERY):
 		stop_harvest()
 		return false
-	
+
 	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrainMult))
 	if _carried_resources.water < waterTarget:
 		_add_water(partial_harvest * _stats.harvest_speed * delta, delta)
@@ -325,10 +325,10 @@ func harvest_water(delta: float) -> bool:
 
 
 func harvest_morsel(delta: float, morsel: Morsel) -> bool:
-	if _sm.has_state(States.OUT_OF_BATTERY): 
+	if _sm.has_state(States.OUT_OF_BATTERY):
 		stop_harvest()
 		return false
-	
+
 	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrainMult))
 	match morsel.mat_type:
 		Morsel.MATERIAL_TYPE.COBALT:
@@ -340,7 +340,7 @@ func harvest_morsel(delta: float, morsel: Morsel) -> bool:
 		Morsel.MATERIAL_TYPE.SILICON:
 			if _carried_resources.silicon < siliconTarget: _add_silicon(partial_harvest * morsel._extract(_stats.harvest_speed * delta), delta)
 			else: return false
-	
+
 	$Sparks.set_emitting(true)
 	$Sparks.global_position = morsel.global_position + (global_position - morsel.global_position) * 0.67
 	$HarvestSoundEffect.play(randf_range(0, 5.0))
@@ -448,7 +448,7 @@ func _harvest_sunlight(delta: float) -> void:
 
 func _deplete_battery_from_movement(delta: float) -> void:
 	if !_sm.has_state(States.RUNNING): return
-	
+
 	var batteryPercent = _carried_resources.battery_energy / _stats.battery_capacity
 	var lost_energy: float = min(move_battery_usage * delta * (1.6 * batteryPercent + 0.2), 1.0) # usage scales to match speed ramp at low battery
 	_modify_battery_energy(-lost_energy)
@@ -465,7 +465,7 @@ func _modify_battery_energy(value: float) -> void:
 
 func _start_sleep(play_sound: bool = true) -> void:
 	if _sm.has_state(States.OUT_OF_BATTERY): return
-	
+
 	_sm.set_states([States.OUT_OF_BATTERY, States.SHUTDOWN_COOLDOWN])
 	if play_sound: $PowerOffSoundEffect.play()
 	$Zs.set_emitting(true)
