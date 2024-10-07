@@ -130,7 +130,7 @@ func die() -> void:
 		var player = get_node("Player")
 		remove_child(player)
 		player.is_disassociating = true
-		player._process_swap()
+		player._get_new_crab()
 	queue_free()
 
 func move(movementDirection: Vector2) -> void:

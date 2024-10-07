@@ -23,16 +23,18 @@ func _ready():
 	WorldClock.new_day_rollover.connect(_new_day)
 	_player.crab_swapped.connect(_update_statblock)
 	_player.disassociation_changed.connect(_toggle_statblock)
-	_player.defeat.connect(_toggle_defeat)
+	_player.defeat.connect(_trigger_defeat)
+	_player.victory.connect(_trigger_victory)
 
 
 func _process(delta):
 	_update_sundial()
-	_update_battery()
-	_update_resources()
-	_update_cobalt_light()
-	_update_ready_to_clone()
-	_update_build_progress()
+	if _crab() != null:
+		_update_battery()
+		_update_resources()
+		_update_cobalt_light()
+		_update_ready_to_clone()
+		_update_build_progress()
 
 
 func _update_sundial() -> void:
@@ -155,9 +157,11 @@ func _update_statblock() -> void:
 	$statblock.set_text("\n".join(lines))
 
 
-func _toggle_defeat() -> void:
+func _trigger_defeat() -> void:
 	$center/defeat.set_visible(true)
+	_player.game_running = false
 
 
-func _toggle_victory() -> void:
+func _trigger_victory() -> void:
 	$center/victory.set_visible(true)
+	_player.game_running = false

@@ -17,7 +17,8 @@ func _process(delta: float) -> void:
 		#_update_zoom()
 	#_update_position()
 	_debug_zoom_override()
-	_update_position()
+	if _player._crab != null:
+		_update_position()
 
 
 func _debug_zoom_override() -> void:
