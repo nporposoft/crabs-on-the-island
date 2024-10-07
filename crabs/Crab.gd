@@ -481,6 +481,18 @@ func _end_sleep() -> void:
 	$Zs.set_emitting(false)
 
 
+func has_cobalt_target() -> bool:
+	return _carried_resources.cobalt >= cobaltTarget
+
+
+func will_drop_iron() -> bool:
+	return _carried_resources.iron > 0 || _body_resources.iron > 0
+
+
+func will_drop_silicon() -> bool:
+	return _carried_resources.silicon > 0 || _body_resources.silicon > 0
+
+
 func _add_cobalt(value: float, delta: float) -> void:
 	_carried_resources.cobalt = clampf(_carried_resources.cobalt + value, 0, cobaltTarget)
 	_modify_battery_energy(delta * harvestDrainMult)

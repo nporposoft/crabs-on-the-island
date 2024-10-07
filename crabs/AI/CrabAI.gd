@@ -26,6 +26,8 @@ var _visible_resources: Array
 var _wander_direction: Vector2
 var _wander_timer: Timer
 
+var _attack_target: Crab
+
 enum States {
 	IDLING,
 	WANDERING,
@@ -33,7 +35,8 @@ enum States {
 	HARVESTING,
 	REPRODUCING,
 	CHARGING_BATTERY,
-	SLEEPING
+	SLEEPING,
+	ATTACKING
 }
 
 
@@ -45,8 +48,10 @@ func _ready() -> void:
 # CrabAI runs in physics process b/c it uses 2D raycasting for vision
 func _physics_process(delta: float) -> void:
 	if _sleep_routine(): return
+	if _continue_attack_routine(delta): return
 	if _reproduce_routine(delta): return
 	if _harvest_routine(delta): return
+	if _crab_harvest_routine(delta): return
 	_wander_routine()
 
 
@@ -55,6 +60,13 @@ func _sleep_routine() -> bool:
 		_sleep()
 		return true
 	return false
+
+
+func _continue_attack_routine(delta: float) -> bool:
+	if _attack_target == null: return false
+	
+	_attack_crab(delta, _attack_target)
+	return true
 
 
 func _reproduce_routine(delta: float) -> bool:
@@ -84,6 +96,18 @@ func _harvest_routine(delta: float) -> bool:
 			_move_toward_resource(resource)
 		return true
 	
+	return false
+
+
+func _crab_harvest_routine(delta: float) -> bool:
+	if _crab.has_reproduction_resources(): return false
+	if !_crab.has_cobalt_target(): return false
+	
+	var nearby_crabs: Array = _get_nearby_crabs()
+	for crab in nearby_crabs:
+		if _want_to_attack_crab(crab):
+			_attack_crab(delta, crab)
+			return true
 	return false
 
 
@@ -152,7 +176,11 @@ func _keep_wandering() -> void:
 
 func _move_toward_resource(resource: Dictionary) -> void:
 	_sm.set_state(States.MOVING_TO_RESOURCE)
-	var direction: Vector2 = resource.position - _crab.position
+	_move_toward_point(resource.position)
+
+
+func _move_toward_point(point: Vector2) -> void:
+	var direction: Vector2 = point - _crab.position
 	_crab.move(direction)
 
 
@@ -170,6 +198,32 @@ func _harvest_resource(delta: float, resource: Dictionary) -> void:
 func _harvest_morsel(delta: float, morsel: Morsel) -> void:
 	_sm.set_state(States.HARVESTING)
 	_crab.harvest_morsel(delta, morsel)
+
+
+func _want_to_attack_crab(crab: Crab) -> bool:
+	return (
+		(crab.will_drop_iron() && _want_iron()) ||
+		(crab.will_drop_silicon() && _want_silicon())
+	)
+
+
+func _get_nearby_crabs() -> Array:
+	return (
+		_crab.get_nearby_crabs()
+		.filter(func(crab: Crab) -> bool: return crab != _crab)
+	)
+
+
+func _can_reach_crab(crab: Crab) -> bool:
+	return _crab.get_nearby_crabs().has(crab)
+
+
+func _attack_crab(delta: float, crab: Crab) -> void:
+	_sm.set_state(States.ATTACKING)
+	if _can_reach_crab(crab):
+		_crab.attackCrab(crab, delta)
+	else:
+		_move_toward_point(crab.position)
 
 
 func _stop_harvesting() -> void:
@@ -237,15 +291,8 @@ func _want_silicon() -> bool:
 # }
 # The array is sorted by distance in ascending order
 func _find_visible_resources() -> Array:
-	var hits: Array
-	for direction in _vision_ray_directions:
-		var ray_query = PhysicsRayQueryParameters2D.create(_crab.position, _crab.position + direction * _vision_distance)
-		ray_query.exclude = [_crab]
-		ray_query.collide_with_areas = true
-		var hit = _crab.get_world_2d().direct_space_state.intersect_ray(ray_query)
-		if !hit.is_empty(): hits.push_back(hit)
-	
-	var resources: Array = (hits
+	var resources: Array = (
+		_detect_objects_with_rays()
 		.map(func(hit) -> Dictionary:
 		return {
 			"position": hit.position,
@@ -263,6 +310,17 @@ func _find_visible_resources() -> Array:
 	)
 	resources.sort_custom(func(a, b) -> bool: return a.distance < b.distance)
 	return resources
+
+
+func _detect_objects_with_rays() -> Array:
+	var hits: Array
+	for direction in _vision_ray_directions:
+		var ray_query = PhysicsRayQueryParameters2D.create(_crab.position, _crab.position + direction * _vision_distance)
+		ray_query.exclude = [_crab]
+		ray_query.collide_with_areas = true
+		var hit = _crab.get_world_2d().direct_space_state.intersect_ray(ray_query)
+		if !hit.is_empty(): hits.push_back(hit)
+	return hits
 
 
 func _create_wander_timer() -> void:
