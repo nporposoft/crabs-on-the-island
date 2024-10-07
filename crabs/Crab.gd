@@ -119,7 +119,7 @@ func set_color(color: Color):
 
 
 func die() -> void:
-	#generate_chunks(1.0, true) #TODO: debug chunk generation (Morsel throws error when instantiated)
+	generate_chunks(1.0, true)
 	queue_free()
 
 func move(movementDirection: Vector2) -> void:
@@ -135,10 +135,7 @@ func move(movementDirection: Vector2) -> void:
 
 	_direction = Util.get_direction_from_vector(movementDirection)
 	var batteryPercent = _carried_resources.battery_energy / _stats.battery_capacity
-	#apply_central_force(movementDirection.normalized() * _stats.move_speed * clampf(1.6 * batteryPercent + 0.2, 0.0, 1.0)) # linear ramp from 20% speed at empty battery to 100% speed at half battery
 	apply_central_force(movementDirection.normalized() * _stats.move_speed * clampf(3 * batteryPercent, 0.0, 1.0)) # linear ramp from 0% speed at empty battery to 100% speed at 1/3 battery
-	#apply_central_force(movementDirection.normalized() * _stats.move_speed * clampf(1.4 * sqrt(batteryPercent), 0.0, 1.0)) # log ramp from 0% speed at empty battery to 100% speed at half battery
-	#apply_central_force(movementDirection.normalized() * _stats.move_speed * clampf(1.73 * sqrt(batteryPercent), 0.0, 1.0)) # log ramp from 0% speed at empty battery to 100% speed at 1/3 battery
 
 
 func dash() -> void:
@@ -180,10 +177,11 @@ func generate_chunks(percent: float, include_body: bool) -> void:
 		if percent < 1.0 and _carried_resources.cobalt > 0.0:
 			_carried_resources.cobalt = max(0.0, _carried_resources.cobalt - randMass)
 		#TODO: morsel generation disabled for testing elsewhere: revert later when needed
-		#var new_morsel = morselTemplate.instantiate()
-		#$"../..".add_child(new_morsel)
-		#new_morsel.set_position(Vector2(position.x, position.y))
-		#new_morsel._set_resource(Morsel.MATERIAL_TYPE.COBALT, randMass, true)
+		var new_morsel = morselTemplate.instantiate()
+		$"../..".add_child(new_morsel)
+		new_morsel.set_children_scale(sqrt(randMass) / 2.0)
+		new_morsel.set_position(Vector2(position.x, position.y))
+		new_morsel._set_resource(Morsel.MATERIAL_TYPE.COBALT, randMass, true)
 	var ironMass = _carried_resources.iron * percent
 	if include_body: ironMass += _body_resources.iron
 	while ironMass > 0.0:
@@ -192,10 +190,11 @@ func generate_chunks(percent: float, include_body: bool) -> void:
 		if percent < 1.0 and _carried_resources.iron > 0.0:
 			_carried_resources.iron = max(0.0, _carried_resources.iron - randMass)
 		#TODO: morsel generation disabled for testing elsewhere: revert later when needed
-		#var new_morsel = morselTemplate.instantiate()
-		#new_morsel._set_resource(Morsel.MATERIAL_TYPE.IRON, randMass, true)
-		#$"../..".add_child(new_morsel)
-		#new_morsel.set_position(Vector2(position.x, position.y))
+		var new_morsel = morselTemplate.instantiate()
+		$"../..".add_child(new_morsel)
+		new_morsel.set_children_scale(sqrt(randMass) / 2.0)
+		new_morsel._set_resource(Morsel.MATERIAL_TYPE.IRON, randMass, true)
+		new_morsel.set_position(Vector2(position.x, position.y))
 	var siliconMass = _carried_resources.silicon * percent
 	if include_body: siliconMass += _body_resources.silicon
 	while siliconMass > 0.0:
@@ -204,10 +203,11 @@ func generate_chunks(percent: float, include_body: bool) -> void:
 		if percent < 1.0 and _carried_resources.silicon > 0.0:
 			_carried_resources.silicon = max(0.0, _carried_resources.silicon - randMass)
 		#TODO: morsel generation disabled for testing elsewhere: revert later when needed
-		#var new_morsel = morselTemplate.instantiate()
-		#new_morsel._set_resource(Morsel.MATERIAL_TYPE.SILICON, randMass, true)
-		#$"../..".add_child(new_morsel)
-		#new_morsel.set_position(Vector2(position.x, position.y))
+		var new_morsel = morselTemplate.instantiate()
+		$"../..".add_child(new_morsel)
+		new_morsel.set_children_scale(sqrt(randMass) / 2.0)
+		new_morsel._set_resource(Morsel.MATERIAL_TYPE.SILICON, randMass, true)
+		new_morsel.set_position(Vector2(position.x, position.y))
 
 func get_nearby_pickuppables() -> Array:
 	return ($reach_area.get_overlapping_bodies()
@@ -540,7 +540,7 @@ func stat_toasts(mutation: Dictionary) -> void:
 		var newToast = toastTemplate.instantiate()
 		$"../..".add_child(newToast)
 		newToast.set_stats(statStr, statVal)
-		newToast.set_position(position)
+		newToast.set_position(self.get_position())
 		#if statVal < 0.0:
 			#newToast.set_position(to_global(self.position + Vector2(-32.0, 0.0)))
 		#else:

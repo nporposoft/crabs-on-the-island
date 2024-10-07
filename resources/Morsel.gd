@@ -15,6 +15,16 @@ enum MATERIAL_TYPE {COBALT, IRON, SILICON}
 @export var is_chunk = false
 
 
+func set_children_scale(factor: float) -> void:
+	var children = get_children()
+	for n in children:
+		n.set_scale(Vector2(factor, factor))
+		
+func apply_children_scale(factor: float) -> void:
+	var children = get_children()
+	for n in children:
+		n.apply_scale(Vector2(factor, factor))
+
 func _set_resource (_mat, _amount, _isChunk):
 	mat_type = _mat
 	amount = _amount
