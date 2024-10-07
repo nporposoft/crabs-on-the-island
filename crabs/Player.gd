@@ -10,6 +10,7 @@ var disassociated: bool = false
 var familyCrabs: Array = []
 var crabIndex: int = 0
 var _crab: Crab
+var _inputMovement: Vector2
 
 
 func _ready():
@@ -58,10 +59,12 @@ func _process_dash() -> void:
 
 
 func _process_movement() -> void:
-	var moveInput: Vector2
-	moveInput.x = Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
-	moveInput.y = Input.get_action_strength("move_down") - Input.get_action_strength("move_up")
-	_crab.move(moveInput)
+	_inputMovement.x = Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
+	_inputMovement.y = Input.get_action_strength("move_down") - Input.get_action_strength("move_up")
+	
+
+func _physics_process(delta: float) -> void:
+	_crab.move(_inputMovement)
 
 
 func _process_harvest(delta) -> void:
