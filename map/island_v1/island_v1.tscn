@@ -243,7 +243,7 @@ tile_set = SubResource("TileSet_lgr6q")
 metadata/_edit_lock_ = true
 
 [node name="resource0" parent="." instance=ExtResource("6_2lyxb")]
-position = Vector2(-1155, 827)
+position = Vector2(-1252, 578)
 mat_type = 0
 amount = 100.0
 

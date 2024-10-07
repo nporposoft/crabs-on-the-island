@@ -126,10 +126,11 @@ func set_color(color: Color):
 
 func die() -> void:
 	generate_chunks(1.0, true)
-	#if  get_node("Player") != null:
-		#var player = get_node("Player")
-		#player.is_disassociating = true
-	#call_deferred("queue_free()")
+	if  get_node("Player") != null:
+		var player = get_node("Player")
+		remove_child(player)
+		player.is_disassociating = true
+		player._process_swap()
 	queue_free()
 
 func move(movementDirection: Vector2) -> void:
@@ -186,7 +187,6 @@ func generate_chunks(percent: float, include_body: bool) -> void:
 		cobaltMass -= randMass
 		if percent < 1.0 and _carried_resources.cobalt > 0.0:
 			_carried_resources.cobalt = max(0.0, _carried_resources.cobalt - randMass)
-		#TODO: morsel generation disabled for testing elsewhere: revert later when needed
 		var new_morsel = morselTemplate.instantiate()
 		$"../..".add_child(new_morsel)
 		new_morsel.set_children_scale(sqrt(randMass) / 2.0)
@@ -199,7 +199,6 @@ func generate_chunks(percent: float, include_body: bool) -> void:
 		ironMass -= randMass
 		if percent < 1.0 and _carried_resources.iron > 0.0:
 			_carried_resources.iron = max(0.0, _carried_resources.iron - randMass)
-		#TODO: morsel generation disabled for testing elsewhere: revert later when needed
 		var new_morsel = morselTemplate.instantiate()
 		$"../..".add_child(new_morsel)
 		new_morsel.set_children_scale(sqrt(randMass) / 2.0)
@@ -212,12 +211,12 @@ func generate_chunks(percent: float, include_body: bool) -> void:
 		siliconMass -= randMass
 		if percent < 1.0 and _carried_resources.silicon > 0.0:
 			_carried_resources.silicon = max(0.0, _carried_resources.silicon - randMass)
-		#TODO: morsel generation disabled for testing elsewhere: revert later when needed
-		var new_morsel = morselTemplate.instantiate()
-		$"../..".add_child(new_morsel)
-		new_morsel.set_children_scale(sqrt(randMass) / 2.0)
-		new_morsel._set_resource(Morsel.MATERIAL_TYPE.SILICON, randMass, true)
-		new_morsel.set_position(Vector2(position.x, position.y))
+		# DISABLED SILICON CHUNK GENERATION FOR PERFORMANCE/VISUAL CLUTTER
+		#var new_morsel = morselTemplate.instantiate()
+		#$"../..".add_child(new_morsel)
+		#new_morsel.set_children_scale(sqrt(randMass) / 2.0)
+		#new_morsel._set_resource(Morsel.MATERIAL_TYPE.SILICON, randMass, true)
+		#new_morsel.set_position(Vector2(position.x, position.y))
 
 func get_nearby_pickuppables() -> Array:
 	return ($reach_area.get_overlapping_bodies()
