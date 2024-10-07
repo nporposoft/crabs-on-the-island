@@ -143,18 +143,36 @@ func _crab() -> Crab:
 func _toggle_statblock() -> void:
 	if _player.is_disassociating:
 		_update_statblock()
-		$statblock.set_visible(true)
+		$center/statblock.set_visible(true)
 	else:
-		$statblock.set_visible(false)
+		$center/statblock.set_visible(false)
 	
 
 
 func _update_statblock() -> void:
-	var creb: Crab = _player.get_parent()
+	var creb: Crab = _crab()
 	var lines: Array = []
+	var percent: float
 	for line in creb._stats:
-		lines.append(line + ":  " + str(creb._stats[line]))
-	$statblock.set_text("\n".join(lines))
+		match line:
+			"size":
+				percent = 100.0 * creb._stats[line] / creb.stat_init_size
+			"hit_points":
+				percent = 100.0 * creb._stats[line] / creb.stat_init_hit_points
+			"strength":
+				percent = 100.0 * creb._stats[line] / creb.stat_init_strength
+			"move_speed":
+				percent = 100.0 * creb._stats[line] / creb.stat_init_move_speed
+			"solar_charge_rate":
+				percent = 100.0 * creb._stats[line] / creb.stat_init_solar_charge_rate
+			"battery_capacity":
+				percent = 100.0 * creb._stats[line] / creb.stat_init_battery_capacity
+			"harvest_speed":
+				percent = 100.0 * creb._stats[line] / creb.stat_init_harvest_speed
+			"build_speed":
+				percent = 100.0 * creb._stats[line] / creb.stat_init_build_speed
+		lines.append(line + ":  " + str(percent) + "%")
+	$center/statblock.set_text("\n".join(lines).replace("_", " "))
 
 
 func _trigger_defeat() -> void:

@@ -15,6 +15,14 @@ const movementThreshold: float = 20.0
 const harvestDrainMult = -0.25
 const buildDrainMult = -2.0
 const material_size_mult = 10.0
+const stat_init_size = 1.0
+const stat_init_hit_points = 20.0
+const stat_init_strength = 10.0
+const stat_init_move_speed = 5000.0
+const stat_init_solar_charge_rate = 0.3
+const stat_init_battery_capacity = 10.0
+const stat_init_harvest_speed = 2.0
+const stat_init_build_speed = 0.2
 
 var crab_scene: PackedScene = preload("res://crabs/Crab.tscn")
 var crab_ai_scene: PackedScene = preload("res://crabs/AI/CrabAI.tscn")
@@ -69,14 +77,14 @@ var _carried_resources: Dictionary = {
 	"battery_energy": 0.0,
 }
 var _stats: Dictionary = {
-	"size": 1.0,
-	"hit_points": 20.0,
-	"strength": 10.0,
-	"move_speed": 5000.0,
-	"solar_charge_rate": 0.3,
-	"battery_capacity": 10.0,
-	"harvest_speed": 2.0,
-	"build_speed": 0.2
+	"size": stat_init_size,
+	"hit_points": stat_init_hit_points,
+	"strength": stat_init_strength,
+	"move_speed": stat_init_move_speed,
+	"solar_charge_rate": stat_init_solar_charge_rate,
+	"battery_capacity": stat_init_battery_capacity,
+	"harvest_speed": stat_init_harvest_speed,
+	"build_speed": stat_init_build_speed
 }
 
 func _ready() -> void:
