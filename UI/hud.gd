@@ -152,8 +152,8 @@ func _toggle_statblock() -> void:
 func _update_statblock() -> void:
 	var creb: Crab = _player.get_parent()
 	var lines: Array = []
-	for line in creb._stats:
-		lines.append(line + ":  " + str(creb._stats[line]))
+	for stat in creb._stats:
+		lines.append(Translator.g(stat) + ":  " + str(creb._stats[stat]))
 	$statblock.set_text("\n".join(lines))
 
 
