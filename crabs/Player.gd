@@ -2,13 +2,19 @@ class_name Player
 
 extends Node
 
+
 const player_color = Color(1.0, 0.0, 0.0)
 
 @onready var island = $"../.."
+var crab_ai_scene: PackedScene = preload("res://crabs/AI/CrabAI.tscn")
 
-var disassociated: bool = false
+signal disassociation_changed
+signal crab_swapped
+
+var is_disassociating: bool = false
 var familyCrabs: Array = []
 var crabIndex: int = 0
+var familySize: int = 1
 var _crab: Crab
 var _inputMovement: Vector2
 
@@ -20,30 +26,44 @@ func _ready():
 
 
 func _process(delta: float) -> void:
-	if disassociated:
-		_process_swap()
-	_process_movement()
-	_process_dash()
-	_process_harvest(delta)
-	_process_pickup()
-	_process_reproduction(delta)
+	_process_swap()
+	if !is_disassociating:
+		_process_movement()
+		_process_dash()
+		_process_harvest(delta)
+		_process_pickup()
+		_process_reproduction(delta)
 
 
 func _process_swap() -> void:
 	if Input.is_action_just_pressed("swap"):
-		print("unswapping!")
-		disassociated = false
-		return
-	for crab: Crab in get_all_crabs():
-		if crab.isPlayerFamily and !familyCrabs.has(crab):
-			familyCrabs.append(crab)
-	_crab = familyCrabs[crabIndex]
-	
-		#var distance: float = (morsel.position - position).length()
-		#if distance < nearest_distance:
-			#nearest = morsel
-			#nearest_distance = distance
-	#return nearest
+		if is_disassociating:
+			is_disassociating = false
+			disassociation_changed.emit()
+			print("No longer disassociating!")
+		else:
+			is_disassociating = true
+			disassociation_changed.emit()
+			print("I'm disassociating!")
+			crab_swapped.emit()
+	if is_disassociating:
+		familyCrabs.clear()
+		for crab: Crab in get_all_crabs():
+			if crab.isPlayerFamily and !familyCrabs.has(crab):
+				familyCrabs.append(crab)
+		var LR = 0
+		if Input.is_action_just_pressed("move_left"): LR = -1
+		elif Input.is_action_just_pressed("move_right"): LR = 1
+		if LR != 0:
+			var new_crab_ai: CrabAI = crab_ai_scene.instantiate()
+			_crab.add_child(new_crab_ai)
+			_crab.remove_child(self)
+			crabIndex = ((crabIndex + LR) as int) % familyCrabs.size()
+			_crab = familyCrabs[crabIndex]
+			_crab.get_node("CrabAI").queue_free()
+			_crab.add_child(self)
+			crab_swapped.emit()
+		
 
 
 func get_all_crabs() -> Array:

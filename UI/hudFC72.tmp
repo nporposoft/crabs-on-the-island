@@ -376,7 +376,6 @@ wait_time = 4.0
 autostart = true
 
 [node name="statblock" type="Label" parent="."]
-visible = false
 offset_left = 710.0
 offset_top = 750.0
 offset_right = 1210.0
