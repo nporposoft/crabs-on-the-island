@@ -4,6 +4,11 @@ extends Node
 
 const player_color = Color(1.0, 0.0, 0.0)
 
+@onready var island = $"../.."
+
+var disassociated: bool = false
+var familyCrabs: Array = []
+var crabIndex: int = 0
 var zoom_level: int = 5
 var _crab: Crab
 
@@ -13,6 +18,8 @@ func _ready():
 	_crab.set_color(player_color)
 
 func _process(delta: float) -> void:
+	if disassociated:
+		_process_swap()
 	if DebugMode.enabled:
 		_process_camera()
 	_process_movement()
@@ -21,6 +28,30 @@ func _process(delta: float) -> void:
 	_process_pickup()
 	_process_reproduction(delta)
 	_update_camera_position()
+
+
+func _process_swap() -> void:
+	if Input.is_action_just_pressed("swap"):
+		print("unswapping!")
+		disassociated = false
+		return
+	for crab: Crab in get_all_crabs():
+		if crab.isPlayerFamily and !familyCrabs.has(crab):
+			familyCrabs.append(crab)
+	_crab = familyCrabs[crabIndex]
+	
+		#var distance: float = (morsel.position - position).length()
+		#if distance < nearest_distance:
+			#nearest = morsel
+			#nearest_distance = distance
+	#return nearest
+
+
+func get_all_crabs() -> Array:
+	return (island.get_children()
+		.map(func(child) -> Crab: return child as Crab)
+		.filter(func(child) -> bool: return child != null)
+	)
 
 
 func _process_camera() -> void:
@@ -37,6 +68,10 @@ func _process_dash() -> void:
 
 
 func _process_movement() -> void:
+	if Input.is_action_just_pressed("swap"):
+		print("swapping!")
+		disassociated = true
+		return
 	var moveInput: Vector2
 	moveInput.x = Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
 	moveInput.y = Input.get_action_strength("move_down") - Input.get_action_strength("move_up")
