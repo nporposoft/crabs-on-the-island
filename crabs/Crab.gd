@@ -30,6 +30,7 @@ signal cobalt_ready
 signal iron_ready
 signal silicon_ready
 signal water_ready
+signal mutations_generated
 
 var isPlayerFamily: bool
 var _HP: float
@@ -344,7 +345,7 @@ func harvest_morsel(delta: float, morsel: Morsel) -> bool:
 			else: return false
 	
 	$Sparks.set_emitting(true)
-	$Sparks.global_position = morsel.global_position + (global_position - morsel.global_position) * 0.5
+	$Sparks.global_position = morsel.global_position + (global_position - morsel.global_position) * 0.67
 	$HarvestSoundEffect.play(randf_range(0, 5.0))
 	return true
 
@@ -378,9 +379,6 @@ func can_reach_morsel(morsel: Morsel) -> bool:
 
 
 func auto_reproduce(delta: float) -> bool:
-	#if _sm.has_any_state([States.OUT_OF_BATTERY]):
-		#return false
-	#
 	if can_reproduce():
 		if _sm.has_any_state([States.OUT_OF_BATTERY]):
 			return true

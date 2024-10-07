@@ -2,17 +2,29 @@ class_name Player
 
 extends Node
 
+var zoom_level: int = 5
+
 func _ready():
 	$Crab.isPlayerFamily = true
 	$Crab/AnimatedSprite2D.set_self_modulate(Color(1.0, 0.0, 0.0))
 
 func _process(delta: float) -> void:
+	if DebugMode.enabled:
+		_process_camera()
 	_process_movement()
 	_process_dash()
 	_process_harvest(delta)
 	_process_pickup()
 	_process_reproduction(delta)
 	_update_camera_position()
+
+
+func _process_camera() -> void:
+	if Input.is_action_just_pressed("zoom_in"):
+		zoom_level = min(zoom_level + 1, 5)
+	elif Input.is_action_just_pressed("zoom_out"):
+		zoom_level = max(zoom_level - 1, 1)
+	$Camera2D.set_zoom(Vector2(zoom_level / 5.0, zoom_level / 5.0))
 
 
 func _process_dash() -> void:

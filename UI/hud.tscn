@@ -372,4 +372,31 @@ frame_progress = 0.969204
 wait_time = 4.0
 autostart = true
 
+[node name="Choice0" type="Button" parent="."]
+visible = false
+offset_left = 420.0
+offset_top = 720.0
+offset_right = 740.0
+offset_bottom = 800.0
+disabled = true
+text = "Option 0"
+
+[node name="Choice1" type="Button" parent="."]
+visible = false
+offset_left = 760.0
+offset_top = 720.0
+offset_right = 1080.0
+offset_bottom = 800.0
+disabled = true
+text = "Option 1"
+
+[node name="Choice2" type="Button" parent="."]
+visible = false
+offset_left = 1100.0
+offset_top = 720.0
+offset_right = 1420.0
+offset_bottom = 800.0
+disabled = true
+text = "Option 2"
+
 [connection signal="timeout" from="W/Timer" to="W" method="_on_timer_timeout"]
