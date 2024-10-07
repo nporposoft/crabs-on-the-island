@@ -1,4 +1,4 @@
-[gd_scene load_steps=39 format=3 uid="uid://cx2ye0w0rqf4n"]
+[gd_scene load_steps=64 format=3 uid="uid://cx2ye0w0rqf4n"]
 
 [ext_resource type="Script" path="res://UI/hud.gd" id="1_a2y7d"]
 [ext_resource type="Texture2D" uid="uid://c2e3eoxyqgivc" path="res://assets/energy.png" id="1_p7i3m"]
@@ -11,11 +11,18 @@
 [ext_resource type="Texture2D" uid="uid://gm8f1tim2xoe" path="res://assets/clone.png" id="9_bb551"]
 [ext_resource type="Texture2D" uid="uid://w0vkk10ewy2j" path="res://assets/spark.png" id="9_fjlsm"]
 [ext_resource type="Texture2D" uid="uid://c6qci8pbv05x" path="res://assets/linelight.png" id="11_vefkc"]
+[ext_resource type="Texture2D" uid="uid://c6wsosjwa33v6" path="res://assets/Q.png" id="12_bh64y"]
 [ext_resource type="Texture2D" uid="uid://dscxdahf1xr6y" path="res://assets/W.png" id="13_321fv"]
 [ext_resource type="Script" path="res://UI/w.gd" id="14_kdc53"]
 [ext_resource type="Texture2D" uid="uid://c8djgvipetf6n" path="res://assets/A.png" id="14_nhugq"]
 [ext_resource type="Texture2D" uid="uid://pr2ephogtjv2" path="res://assets/S.png" id="15_3kp5x"]
 [ext_resource type="Texture2D" uid="uid://cawgaq3kmdb1k" path="res://assets/D.png" id="16_7x7ja"]
+[ext_resource type="Texture2D" uid="uid://coamgkw6lycjy" path="res://assets/SHIFT.png" id="17_gm33g"]
+[ext_resource type="Texture2D" uid="uid://d158qgjvpubo0" path="res://assets/SPACE.png" id="17_nusjc"]
+[ext_resource type="Script" path="res://UI/shift.gd" id="18_1mbtt"]
+[ext_resource type="Script" path="res://UI/q.gd" id="20_7vvya"]
+[ext_resource type="Texture2D" uid="uid://dx4415nhnngyh" path="res://assets/TAB.png" id="22_3qq0m"]
+[ext_resource type="Script" path="res://UI/tab.gd" id="23_6cqp6"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eyiba"]
 bg_color = Color(0.784314, 0.784314, 0, 1)
@@ -157,6 +164,138 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_w8s7m")
+}],
+"loop": true,
+"name": &"default",
+"speed": 2.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cvo5h"]
+atlas = ExtResource("17_nusjc")
+region = Rect2(0, 0, 64, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e7xtv"]
+atlas = ExtResource("17_nusjc")
+region = Rect2(0, 32, 64, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ffr6w"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cvo5h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e7xtv")
+}],
+"loop": true,
+"name": &"default",
+"speed": 2.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q0pmw"]
+atlas = ExtResource("17_gm33g")
+region = Rect2(0, 0, 64, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_m28y5"]
+atlas = ExtResource("17_gm33g")
+region = Rect2(0, 32, 64, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_jgk8f"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q0pmw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_m28y5")
+}],
+"loop": true,
+"name": &"default",
+"speed": 2.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c5r8c"]
+atlas = ExtResource("12_bh64y")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_60tmx"]
+atlas = ExtResource("12_bh64y")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_qo3m1"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c5r8c")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_60tmx")
+}],
+"loop": true,
+"name": &"default",
+"speed": 2.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2cuno"]
+atlas = ExtResource("22_3qq0m")
+region = Rect2(0, 0, 64, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lnmtv"]
+atlas = ExtResource("22_3qq0m")
+region = Rect2(0, 32, 64, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_otkw5"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2cuno")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lnmtv")
+}],
+"loop": true,
+"name": &"default",
+"speed": 2.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qteo1"]
+atlas = ExtResource("14_nhugq")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6rdsk"]
+atlas = ExtResource("14_nhugq")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_uwhbw"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qteo1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6rdsk")
+}],
+"loop": true,
+"name": &"default",
+"speed": 2.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ydn3q"]
+atlas = ExtResource("16_7x7ja")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kqm86"]
+atlas = ExtResource("16_7x7ja")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_tuspw"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ydn3q")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kqm86")
 }],
 "loop": true,
 "name": &"default",
@@ -342,9 +481,61 @@ sprite_frames = SubResource("SpriteFrames_fix3k")
 autoplay = "default"
 frame_progress = 0.969204
 
-[node name="Timer" type="Timer" parent="W"]
+[node name="SPACE" type="AnimatedSprite2D" parent="W"]
+position = Vector2(0, 160)
+sprite_frames = SubResource("SpriteFrames_ffr6w")
+autoplay = "default"
+
+[node name="WASDTimer" type="Timer" parent="W"]
 wait_time = 4.0
 autostart = true
+
+[node name="SHIFT" type="AnimatedSprite2D" parent="."]
+visible = false
+position = Vector2(750, 480)
+sprite_frames = SubResource("SpriteFrames_jgk8f")
+autoplay = "default"
+script = ExtResource("18_1mbtt")
+
+[node name="shiftTimer" type="Timer" parent="SHIFT"]
+wait_time = 4.0
+one_shot = true
+
+[node name="Q" type="AnimatedSprite2D" parent="."]
+visible = false
+position = Vector2(480, 144)
+sprite_frames = SubResource("SpriteFrames_qo3m1")
+autoplay = "default"
+script = ExtResource("20_7vvya")
+
+[node name="HOLD" type="Label" parent="Q"]
+offset_left = -38.0
+offset_top = 20.0
+offset_right = 37.0
+offset_bottom = 54.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 24
+text = "HOLD"
+horizontal_alignment = 1
+
+[node name="TAB" type="AnimatedSprite2D" parent="."]
+visible = false
+position = Vector2(750, 250)
+sprite_frames = SubResource("SpriteFrames_otkw5")
+autoplay = "default"
+script = ExtResource("23_6cqp6")
+
+[node name="A2" type="AnimatedSprite2D" parent="TAB"]
+position = Vector2(-64, 0)
+sprite_frames = SubResource("SpriteFrames_uwhbw")
+autoplay = "default"
+
+[node name="D2" type="AnimatedSprite2D" parent="TAB"]
+position = Vector2(64, 0)
+sprite_frames = SubResource("SpriteFrames_tuspw")
+autoplay = "default"
 
 [node name="statblock" type="Label" parent="."]
 visible = false
@@ -359,4 +550,35 @@ theme_override_font_sizes/font_size = 24
 text = "test text"
 vertical_alignment = 2
 
-[connection signal="timeout" from="W/Timer" to="W" method="_on_timer_timeout"]
+[node name="victory" type="Label" parent="."]
+visible = false
+offset_left = 570.0
+offset_top = 360.0
+offset_right = 930.0
+offset_bottom = 460.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 72
+text = "VICTORY!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="defeat" type="Label" parent="."]
+visible = false
+offset_left = 570.0
+offset_top = 360.0
+offset_right = 930.0
+offset_bottom = 460.0
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 72
+text = "DEFEAT"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="WASDdone" from="W" to="SHIFT" method="_on_w_was_ddone"]
+[connection signal="timeout" from="W/WASDTimer" to="W" method="_on_timer_timeout"]
+[connection signal="timeout" from="SHIFT/shiftTimer" to="W" method="_on_timer_timeout"]
+[connection signal="timeout" from="SHIFT/shiftTimer" to="SHIFT" method="_on_shift_timer_timeout"]

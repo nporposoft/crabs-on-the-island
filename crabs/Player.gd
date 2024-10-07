@@ -10,7 +10,9 @@ var crab_ai_scene: PackedScene = preload("res://crabs/AI/CrabAI.tscn")
 
 signal disassociation_changed
 signal crab_swapped
+signal defeat
 
+var game_running = true
 var is_disassociating: bool = false
 var familyCrabs: Array = []
 var crabIndex: int = 0
@@ -26,13 +28,14 @@ func _ready():
 
 
 func _process(delta: float) -> void:
-	_process_swap()
-	if !is_disassociating:
-		_process_movement()
-		_process_dash()
-		_process_harvest(delta)
-		_process_pickup()
-		_process_reproduction(delta)
+	if game_running:
+		_process_swap()
+		if !is_disassociating:
+			_process_movement()
+			_process_dash()
+			_process_harvest(delta)
+			_process_pickup()
+			_process_reproduction(delta)
 
 
 func _process_swap() -> void:
@@ -40,17 +43,20 @@ func _process_swap() -> void:
 		if is_disassociating:
 			is_disassociating = false
 			disassociation_changed.emit()
-			print("No longer disassociating!")
+			#print("No longer disassociating!")
 		else:
 			is_disassociating = true
 			disassociation_changed.emit()
-			print("I'm disassociating!")
+			#print("I'm disassociating!")
 			crab_swapped.emit()
 	if is_disassociating:
 		familyCrabs.clear()
 		for crab: Crab in get_all_crabs():
 			if crab.isPlayerFamily and !familyCrabs.has(crab):
 				familyCrabs.append(crab)
+		if familyCrabs.size() == 0:
+			game_running = true
+			defeat.emit()
 		var LR = 0
 		if Input.is_action_just_pressed("move_left"): LR = -1
 		elif Input.is_action_just_pressed("move_right"): LR = 1

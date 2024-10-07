@@ -2,7 +2,6 @@ extends AnimatedSprite2D
 
 var fading = false
 var fadeOut = 1.0
-signal WASDdone
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -15,12 +14,16 @@ func _process(delta):
 		fadeOut -= delta
 		self.set_modulate(Color(1.0, 1.0, 1.0, fadeOut))
 	if fadeOut <= 0:
-		WASDdone.emit()
 		queue_free()
 
 
-func _on_timer_timeout():
+func _on_shift_timer_timeout():
 	if !self.is_visible():
 		self.set_visible(true)
 	else:
 		fading = true
+
+
+func _on_w_was_ddone():
+	set_visible(true)
+	$shiftTimer.start()

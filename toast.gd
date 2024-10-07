@@ -10,10 +10,10 @@ func set_stats(stats: Dictionary) -> void:
 	var text: String
 	for stat in stats:
 		if stats[stat] < 0.0:
-			text += str(stats[stat] as int) + " " + stat + "\n"
+			text += str(stats[stat] as int) + "% " + stat.replace("_", " ") + "\n"
 			
 		else:
-			text += "+" + str(stats[stat] as int) + " " + stat + "\n"
+			text += "+" + str(stats[stat] as int) + "% " + stat.replace("_", " ") + "\n"
 	$toast_txt.set_text(text)
 
 

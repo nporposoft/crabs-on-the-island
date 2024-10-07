@@ -20,9 +20,11 @@ var crab_scene: PackedScene = preload("res://crabs/Crab.tscn")
 var crab_ai_scene: PackedScene = preload("res://crabs/AI/CrabAI.tscn")
 var morselTemplate: PackedScene = preload("res://resources/Morsel.tscn")
 var toastTemplate: PackedScene = preload("res://Toast.tscn")
+@onready var tabForTrigger: AnimatedSprite2D = $"../hud/TAB"
 
 signal mutations_generated
 
+var tutorial_swap = false
 var isPlayerFamily: bool
 var _HP: float
 var _direction: Util.Directions = Util.Directions.DOWN
@@ -71,10 +73,10 @@ var _stats: Dictionary = {
 	"hit_points": 10.0,
 	"strength": 10.0,
 	"move_speed": 5000.0,
-	"solar_charge_rate": 0.2, #0.1, TODO: change back after testing
+	"solar_charge_rate": 0.3,
 	"battery_capacity": 10.0,
-	"harvest_speed": 10.0, #1.0, TODO: change back after testing
-	"build_speed": 0.25 #TODO: added new dictionary element--find out where else I need to reconcile this change
+	"harvest_speed": 4.0,
+	"build_speed": 0.2
 }
 
 func _ready() -> void:
@@ -124,6 +126,10 @@ func set_color(color: Color):
 
 func die() -> void:
 	generate_chunks(1.0, true)
+	#if  get_node("Player") != null:
+		#var player = get_node("Player")
+		#player.is_disassociating = true
+	#call_deferred("queue_free()")
 	queue_free()
 
 func move(movementDirection: Vector2) -> void:
@@ -139,7 +145,7 @@ func move(movementDirection: Vector2) -> void:
 
 	_direction = Util.get_direction_from_vector(movementDirection)
 	var batteryPercent = _carried_resources.battery_energy / _stats.battery_capacity
-	apply_central_force(movementDirection.normalized() * _stats.move_speed * clampf(3 * batteryPercent, 0.0, 1.0)) # linear ramp from 0% speed at empty battery to 100% speed at 1/3 battery
+	apply_central_force(movementDirection.normalized() * _stats.move_speed * clampf(2.7 * batteryPercent + 0.1, 0.0, 1.0)) # linear ramp from 10% speed at empty battery to 100% speed at 1/3 battery
 
 
 func dash() -> void:
@@ -401,7 +407,7 @@ func reproduce(mutation: Dictionary) -> void:
 	var new_stats: Dictionary = MutationEngine.apply_mutation(_stats, mutation)
 	var new_crab: Crab = crab_scene.instantiate()
 	var new_body_resources = { "iron": _carried_resources.iron, "cobalt": _carried_resources.cobalt, "silicon": _carried_resources.silicon }
-	_carried_resources = { "iron": 0.0, "cobalt": 0.0, "silicon": 0.0, "water": 0.0, "battery_energy": 0.0 }
+	_carried_resources = { "iron": 0.0, "cobalt": _carried_resources.cobalt, "silicon": 0.0, "water": 0.0, "battery_energy": _carried_resources.battery_energy }
 	new_crab.init(new_body_resources, new_stats, isPlayerFamily)
 	var new_crab_direction: Vector2 = Util.random_direction()
 	new_crab.position = position + (new_crab_direction * 20.0)
@@ -409,6 +415,10 @@ func reproduce(mutation: Dictionary) -> void:
 	new_crab.add_child(new_crab_ai)
 	_island.add_child(new_crab)
 	new_crab.stat_toasts(mutation)
+	if !(_island.tutorial_swap) and new_crab.isPlayerFamily:
+		_island.tutorial_swap = true
+		tabForTrigger.set_visible(true)
+		tabForTrigger.fading = true
 
 
 

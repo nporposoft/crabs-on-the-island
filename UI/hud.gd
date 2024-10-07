@@ -12,16 +12,18 @@ extends CanvasLayer
 @onready var sundial = $sundial
 @onready var dayLabel = $day_label
 
+var tutorial_clone = false
 
 const active_color: Color = Color(1.0, 1.0, 1.0)
 const inactive_color: Color = Color(0.0625, 0.0625, 0.0625)
 
 
 func _ready():
-	dayLabel.text = "Day " + str(WorldClock.day_count)
+	dayLabel.text = "Day " + str(WorldClock.day_count + 1)
 	WorldClock.new_day_rollover.connect(_new_day)
 	_player.crab_swapped.connect(_update_statblock)
 	_player.disassociation_changed.connect(_toggle_statblock)
+	_player.defeat.connect(_toggle_defeat)
 
 
 func _process(delta):
@@ -60,7 +62,7 @@ func _update_ready_to_clone() -> void:
 
 
 func _new_day():
-	dayLabel.text = "Day " + str(WorldClock.day_count)
+	dayLabel.text = "Day " + str(WorldClock.day_count + 1)
 
 
 func _update_build_progress() -> void:
@@ -126,6 +128,10 @@ func _set_water_light(activate: bool) -> void:
 
 func _set_clone_light(activate: bool) -> void:
 	$clone_light.set_self_modulate(active_color if activate else inactive_color)
+	if !tutorial_clone and activate:
+		tutorial_clone = true
+		$Q.set_visible(true)
+		$Q.fading = true
 
 
 func _crab() -> Crab:
@@ -147,3 +153,11 @@ func _update_statblock() -> void:
 	for line in creb._stats:
 		lines.append(line + ":  " + str(creb._stats[line]))
 	$statblock.set_text("\n".join(lines))
+
+
+func _toggle_defeat() -> void:
+	$defeat.set_visible(true)
+
+
+func _toggle_victory() -> void:
+	$victory.set_visible(true)
