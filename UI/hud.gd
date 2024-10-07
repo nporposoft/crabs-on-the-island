@@ -146,7 +146,7 @@ func _toggle_statblock() -> void:
 		$center/statblock.set_visible(true)
 	else:
 		$center/statblock.set_visible(false)
-	
+
 
 
 func _update_statblock() -> void:
