@@ -20,7 +20,7 @@ var crab_scene: PackedScene = preload("res://crabs/Crab.tscn")
 var crab_ai_scene: PackedScene = preload("res://crabs/AI/CrabAI.tscn")
 var morselTemplate: PackedScene = preload("res://resources/Morsel.tscn")
 var toastTemplate: PackedScene = preload("res://Toast.tscn")
-@onready var tabForTrigger: AnimatedSprite2D = $"../hud/TAB"
+@onready var tabForTrigger: AnimatedSprite2D = $"../hud/center/TAB"
 
 signal mutations_generated
 
