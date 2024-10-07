@@ -5,8 +5,8 @@ extends RigidBody2D
 @export var move_battery_usage: float = 0.1
 @export var dash_battery_usage: float = 0.5
 @export var harvest_battery_usage: float = 0.1
-@export var dash_cooldown_seconds: float = 1.67
-@export var dash_duration: float = 0.5
+@export var dash_cooldown_seconds: float = 1.0
+@export var dash_duration: float = 0.4
 @export var dash_speed_multiplier: float = 1.0
 @export var shutdown_cooldown_seconds: float = 2.0
 @export var foot_step_time_delay: float = 0.1
@@ -71,7 +71,7 @@ var _stats: Dictionary = {
 	"hit_points": 10.0,
 	"strength": 10.0,
 	"move_speed": 5000.0,
-	"solar_charge_rate": 0.5,
+	"solar_charge_rate": 0.2, #0.1, TODO: change back after testing
 	"battery_capacity": 10.0,
 	"harvest_speed": 10.0, #1.0, TODO: change back after testing
 	"build_speed": 0.25 #TODO: added new dictionary element--find out where else I need to reconcile this change
@@ -134,7 +134,11 @@ func move(movementDirection: Vector2) -> void:
 		_foot_step_timer.start()
 
 	_direction = Util.get_direction_from_vector(movementDirection)
-	apply_central_force(movementDirection.normalized() * _stats.move_speed)
+	var batteryPercent = _carried_resources.battery_energy / _stats.battery_capacity
+	#apply_central_force(movementDirection.normalized() * _stats.move_speed * clampf(1.6 * batteryPercent + 0.2, 0.0, 1.0)) # linear ramp from 20% speed at empty battery to 100% speed at half battery
+	apply_central_force(movementDirection.normalized() * _stats.move_speed * clampf(3 * batteryPercent, 0.0, 1.0)) # linear ramp from 0% speed at empty battery to 100% speed at 1/3 battery
+	#apply_central_force(movementDirection.normalized() * _stats.move_speed * clampf(1.4 * sqrt(batteryPercent), 0.0, 1.0)) # log ramp from 0% speed at empty battery to 100% speed at half battery
+	#apply_central_force(movementDirection.normalized() * _stats.move_speed * clampf(1.73 * sqrt(batteryPercent), 0.0, 1.0)) # log ramp from 0% speed at empty battery to 100% speed at 1/3 battery
 
 
 func dash() -> void:
@@ -143,7 +147,8 @@ func dash() -> void:
 	_sm.set_state(States.DASHING)
 	_sm.set_state(States.DASH_COOLDOWN)
 	var direction: Vector2 = Util.get_vector_from_direction(_direction)
-	apply_central_impulse(direction * _stats.move_speed * dash_speed_multiplier)
+	var batteryPercent = min(_carried_resources.battery_energy / dash_battery_usage, 1.0)
+	apply_central_impulse(direction * _stats.move_speed * dash_speed_multiplier * batteryPercent)
 	_modify_battery_energy(-dash_battery_usage)
 	$DashSoundEffect.play()
 	Util.one_shot_timer(self, dash_duration, func() -> void:
@@ -439,8 +444,9 @@ func _harvest_sunlight(delta: float) -> void:
 
 func _deplete_battery_from_movement(delta: float) -> void:
 	if !_sm.has_state(States.RUNNING): return
-
-	var lost_energy: float = move_battery_usage * delta
+	
+	var batteryPercent = _carried_resources.battery_energy / _stats.battery_capacity
+	var lost_energy: float = min(move_battery_usage * delta * (1.6 * batteryPercent + 0.2), 1.0) # usage scales to match speed ramp at low battery
 	_modify_battery_energy(-lost_energy)
 
 func _update_sleep_state() -> void:

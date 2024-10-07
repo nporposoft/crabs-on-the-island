@@ -36,7 +36,11 @@ func _update_sundial() -> void:
 
 
 func _update_battery() -> void:
-	energyBar.value = 100.0 * _crab()._carried_resources.battery_energy / _crab()._stats.battery_capacity
+	var batteryPercent = _crab()._carried_resources.battery_energy / _crab()._stats.battery_capacity
+	energyBar.value = 100.0 * batteryPercent
+	var redVal = max(1.0 - 3.0 * batteryPercent, 0.0)
+	var greenVal = min(3 * batteryPercent, 1.0)
+	energyBar.get_theme_stylebox("fill").set_bg_color(Color(redVal, greenVal, 0.0))
 
 
 func _update_resources() -> void:

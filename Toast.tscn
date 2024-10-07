@@ -11,6 +11,7 @@ outline_color = Color(0, 0, 0, 1)
 script = ExtResource("1_3ypda")
 
 [node name="toast_txt" type="Label" parent="."]
+z_index = 5
 offset_right = 40.0
 offset_bottom = 23.0
 text = "test"

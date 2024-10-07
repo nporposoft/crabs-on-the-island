@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://UI/hud.gd" id="1_a2y7d"]
 [ext_resource type="Texture2D" uid="uid://c2e3eoxyqgivc" path="res://assets/energy.png" id="1_p7i3m"]
 [ext_resource type="Texture2D" uid="uid://b4812ywitkgq0" path="res://assets/water.png" id="2_2ik4q"]
-[ext_resource type="Texture2D" uid="uid://eluu412tp81f" path="res://assets/chunk.png" id="3_acu0v"]
+[ext_resource type="Texture2D" uid="uid://crwfnyltk1xxa" path="res://assets/sand.png" id="4_5x7w6"]
 [ext_resource type="Texture2D" uid="uid://bfaup65ugpegb" path="res://assets/ingot.png" id="4_q7b3k"]
 [ext_resource type="Texture2D" uid="uid://db5h2n8wc1b1q" path="res://assets/sundial2.png" id="6_60k4m"]
 [ext_resource type="Texture2D" uid="uid://cmvlebmq2gpxo" path="res://assets/pointer.png" id="7_2ohxd"]
@@ -199,6 +199,7 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_eyiba")
 value = 50.0
 
 [node name="energy_label" type="Sprite2D" parent="."]
+texture_filter = 1
 position = Vector2(32, 48)
 texture = ExtResource("1_p7i3m")
 
@@ -222,6 +223,7 @@ value = 25.0
 show_percentage = false
 
 [node name="water_label" type="Sprite2D" parent="."]
+texture_filter = 1
 position = Vector2(32, 96)
 texture = ExtResource("2_2ik4q")
 
@@ -245,9 +247,9 @@ value = 25.0
 show_percentage = false
 
 [node name="silicon_label" type="Sprite2D" parent="."]
-modulate = Color(0.6, 1, 1, 1)
+texture_filter = 1
 position = Vector2(32, 144)
-texture = ExtResource("3_acu0v")
+texture = ExtResource("4_5x7w6")
 
 [node name="iron_bar" type="ProgressBar" parent="."]
 offset_left = 64.0
@@ -270,6 +272,7 @@ show_percentage = false
 
 [node name="iron_label" type="Sprite2D" parent="."]
 modulate = Color(0.4, 0.4, 0.4, 1)
+texture_filter = 1
 position = Vector2(32, 192)
 texture = ExtResource("4_q7b3k")
 
