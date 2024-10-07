@@ -42,25 +42,32 @@ func _ready() -> void:
 	_create_vision_timer()
 
 
-# CrabAI runs in physics process b/c it uses 2D raycasting for obstacle detection
+# CrabAI runs in physics process b/c it uses 2D raycasting for vision
 func _physics_process(delta: float) -> void:
-	if _crab._sm.has_state(Crab.States.OUT_OF_BATTERY):
-		_sm.unset_all_states()
-		_stop_harvesting() # TODO: would be nice if the Crab state machine handled this
-		_sm.set_state(States.SLEEPING)
-		return
-	
-	if _crab.has_reproduction_resources():
-		_sm.unset_all_states()
-		_stop_harvesting() # TODO: would be nice if the Crab state machine handled this
+	if _sleep_routine(): return
+	if _reproduce_routine(delta): return
+	if _harvest_routine(delta): return
+	_wander_routine()
 
-		if _crab.can_reproduce():
-			_sm.set_state(States.REPRODUCING)
-			_crab.auto_reproduce(delta)
-		else:
-			_sm.set_state(States.CHARGING_BATTERY)
-		return
-	
+
+func _sleep_routine() -> bool:
+	if _out_of_battery():
+		_sleep()
+		return true
+	return false
+
+
+func _reproduce_routine(delta: float) -> bool:
+	if _crab.has_reproduction_resources():
+		_clear_states()
+
+		if _crab.can_reproduce(): _reproduce(delta)
+		else: _sm.set_state(States.CHARGING_BATTERY)
+		return true
+	return false
+
+
+func _harvest_routine(delta: float) -> bool:
 	if _vision_timer.is_stopped():
 		_vision_timer.start()
 		_visible_resources = _find_visible_resources()
@@ -69,22 +76,38 @@ func _physics_process(delta: float) -> void:
 		if resource.object == null: continue
 		if !_want_resource(resource): continue
 		
-		_sm.unset_all_states()
-		_crab.move(Vector2.ZERO) # TODO: would be nice if the Crab state machine handled this
+		_clear_states()
 		
 		if _can_reach_resource(resource): _harvest_resource(delta, resource)
 		else:
-			_stop_harvesting() # TODO: would be nice if the Crab state machine handled this 
+			_clear_states()
 			_move_toward_resource(resource)
-		return
+		return true
 	
+	return false
+
+
+func _wander_routine() -> void:
 	_stop_harvesting() # TODO: would be nice if the Crab state machine handled this
-	
 	if _sm.has_state(States.WANDERING):
 		if _time_to_idle(): _start_idling()
 		else: _keep_wandering()
 	else:
 		if _time_to_wander(): _start_wandering()
+
+
+func _sleep() -> void:
+	_clear_states()
+	_sm.set_state(States.SLEEPING)
+
+
+func _out_of_battery() -> bool:
+	return _crab._sm.has_state(Crab.States.OUT_OF_BATTERY)
+
+
+func _clear_states() -> void:
+	_sm.unset_all_states()
+	_stop_harvesting() # TODO: would be nice if the Crab state machine handled this
 
 
 func _start_wandering() -> void:
@@ -99,6 +122,11 @@ func _start_idling() -> void:
 	_sm.set_state(States.IDLING)
 	_crab.move(Vector2.ZERO) # TODO: would be nice if the Crab state machine handled this
 	_start_idle_timer()
+
+
+func _reproduce(delta: float) -> void:
+	_sm.set_state(States.REPRODUCING)
+	_crab.auto_reproduce(delta)
 
 
 func _time_to_idle() -> bool:
