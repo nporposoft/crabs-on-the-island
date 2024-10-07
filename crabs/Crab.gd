@@ -18,7 +18,8 @@ const material_size_mult = 10.0
 
 var crab_scene: PackedScene = preload("res://crabs/Crab.tscn")
 var crab_ai_scene: PackedScene = preload("res://crabs/AI/AICrab.tscn")
-var morselTemplate := preload("res://resources/Morsel.tscn")
+var morselTemplate: PackedScene = preload("res://resources/Morsel.tscn")
+var toastTemplate: PackedScene = preload("res://Toast.tscn")
 
 signal carried_iron_changed
 signal carried_cobalt_changed
@@ -79,7 +80,7 @@ var _stats: Dictionary = {
 	"hit_points": 10.0,
 	"strength": 10.0,
 	"move_speed": 5000.0,
-	"solar_charge_rate": 0.2,
+	"solar_charge_rate": 0.5,
 	"battery_capacity": 10.0,
 	"harvest_speed": 2.0, #1.0, TODO: change back after testing
 	"build_speed": 0.25 #TODO: added new dictionary element--find out where else I need to reconcile this change
@@ -423,6 +424,7 @@ func reproduce(mutation: Dictionary) -> void:
 	# NB: that probably shouldn't be happening inside the crab class, b/c it won't work for AI crabs
 	new_ai_crab.add_child(new_crab)
 	$"../..".add_child(new_ai_crab)
+	new_crab.stat_toasts(mutation)
 
 
 func has_reproduction_resources() -> bool:
@@ -556,6 +558,18 @@ func _update_animation_from_state() -> void:
 		$AnimatedSprite2D.play(_current_animation)
 		$AnimatedSprite2D.flip_h = _current_flip_h
 
+func stat_toasts(mutation: Dictionary) -> void:
+	for n in mutation:
+		var statStr = n
+		var statVal = mutation[n]
+		var newToast = toastTemplate.instantiate()
+		$"../..".add_child(newToast)
+		newToast.set_stats(statStr, statVal)
+		newToast.set_position(position)
+		#if statVal < 0.0:
+			#newToast.set_position(to_global(self.position + Vector2(-32.0, 0.0)))
+		#else:
+			#newToast.set_position(to_global(self.position + Vector2(32.0, 0.0)))
 
 func _play_random_footstep_sound() -> void:
 	var sound: AudioStreamPlayer2D = _foot_step_sounds[randi_range(0, _foot_step_sounds.size() - 1)]
