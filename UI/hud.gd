@@ -135,10 +135,11 @@ func _set_clone_light(activate: bool) -> void:
 		$topleft/Q.set_visible(true)
 		$topleft/Q.fading = true
 
-func _set_tab_menu(activate: bool) -> void:
-	_update_statblock()
-	$center/TAB.set_visible(true if activate else false)
-	$center/statblock.set_visible(true if activate else false)
+func _set_tab_menu() -> void:
+	if _player.is_disassociating:
+		_update_statblock()
+	$center/TAB.set_visible(true if _player.is_disassociating else false)
+	$center/statblock.set_visible(true if _player.is_disassociating else false)
 
 
 func _crab() -> Crab:
@@ -147,28 +148,29 @@ func _crab() -> Crab:
 
 func _update_statblock() -> void:
 	var creb: Crab = _crab()
-	var lines: Array = []
-	var percent: float
-	for line in creb._stats:
-		match line:
-			"size":
-				percent = 100.0 * creb._stats[line] / creb.stat_init_size
-			"hit_points":
-				percent = 100.0 * creb._stats[line] / creb.stat_init_hit_points
-			"strength":
-				percent = 100.0 * creb._stats[line] / creb.stat_init_strength
-			"move_speed":
-				percent = 100.0 * creb._stats[line] / creb.stat_init_move_speed
-			"solar_charge_rate":
-				percent = 100.0 * creb._stats[line] / creb.stat_init_solar_charge_rate
-			"battery_capacity":
-				percent = 100.0 * creb._stats[line] / creb.stat_init_battery_capacity
-			"harvest_speed":
-				percent = 100.0 * creb._stats[line] / creb.stat_init_harvest_speed
-			"build_speed":
-				percent = 100.0 * creb._stats[line] / creb.stat_init_build_speed
-		lines.append(line + ":  " + str(percent) + "%")
-	$center/statblock.set_text("\n".join(lines).replace("_", " "))
+	if creb != null:
+		var lines: Array = []
+		var percent: float
+		for line in creb._stats:
+			match line:
+				"size":
+					percent = 100.0 * creb._stats[line] / creb.stat_init_size
+				"hit_points":
+					percent = 100.0 * creb._stats[line] / creb.stat_init_hit_points
+				"strength":
+					percent = 100.0 * creb._stats[line] / creb.stat_init_strength
+				"move_speed":
+					percent = 100.0 * creb._stats[line] / creb.stat_init_move_speed
+				"solar_charge_rate":
+					percent = 100.0 * creb._stats[line] / creb.stat_init_solar_charge_rate
+				"battery_capacity":
+					percent = 100.0 * creb._stats[line] / creb.stat_init_battery_capacity
+				"harvest_speed":
+					percent = 100.0 * creb._stats[line] / creb.stat_init_harvest_speed
+				"build_speed":
+					percent = 100.0 * creb._stats[line] / creb.stat_init_build_speed
+			lines.append(line + ":  " + str(percent) + "%")
+		$center/statblock.set_text("\n".join(lines).replace("_", " "))
 
 
 func _trigger_defeat() -> void:

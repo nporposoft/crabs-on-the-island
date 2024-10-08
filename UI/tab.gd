@@ -16,4 +16,5 @@ func _process(delta):
 			self.set_modulate(Color(1.0, 1.0, 1.0, fadeOut))
 	if fadeOut <= 0:
 		fading = false
+		self.set_visible(false)
 		self.set_modulate(Color(1.0, 1.0, 1.0, 1.0))

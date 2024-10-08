@@ -185,7 +185,7 @@ func die() -> void:
 		self.isPlayerFamily = false #MUST be set before getting new crabs for defeat condition to trigger
 		_player._crab = null
 		_player.is_disassociating = true
-		_player.disassociation_changed.emit(true)
+		_player.disassociation_changed.emit()
 		_player._get_new_crab()
 	queue_free()
 

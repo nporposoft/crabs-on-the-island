@@ -47,11 +47,11 @@ func _process_swap() -> void:
 	if Input.is_action_just_pressed("swap"):
 		if is_disassociating:
 			is_disassociating = false
-			disassociation_changed.emit(false)
+			disassociation_changed.emit()
 			#print("No longer disassociating!")
 		else:
 			is_disassociating = true
-			disassociation_changed.emit(true)
+			disassociation_changed.emit()
 			#print("I'm disassociating!")
 			crab_swapped.emit()
 
