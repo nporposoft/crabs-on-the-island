@@ -134,11 +134,14 @@ func set_color(color: Color):
 
 func die() -> void:
 	generate_chunks(1.0, true)
-	if  get_node("Player") != null:
-		var player = get_node("Player")
-		remove_child(player)
-		player.is_disassociating = true
-		player._get_new_crab()
+	if isPlayerFamily and $Player._crab == self:
+		#print("player crab died!")
+		var _player = $Player
+		remove_child(_player)
+		self.isPlayerFamily = false #MUST be set before getting new crabs for defeat condition to trigger
+		_player._crab = null
+		_player.is_disassociating = true
+		_player._get_new_crab()
 	queue_free()
 
 func move(movementDirection: Vector2) -> void:
