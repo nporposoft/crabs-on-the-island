@@ -34,13 +34,14 @@ signal mutations_generated
 
 var tutorial_swap = false
 var isPlayerFamily: bool
-var _HP: float
 var _direction: Util.Directions = Util.Directions.DOWN
 var _velocity: Vector2
 @onready var _foot_step_sounds: Array[AudioStreamPlayer2D] = [$FootStepSound1, $FootStepSound2]
 var _foot_step_timer: Timer
 var _attacks_enabled: bool = false
 var _sm: MultiStateMachine = MultiStateMachine.new()
+var _HP: float
+var _effectiveSpeed: float
 var cobaltTarget: float
 var ironTarget: float
 var siliconTarget: float
@@ -86,6 +87,26 @@ var _stats: Dictionary = {
 	"harvest_speed": stat_init_harvest_speed,
 	"build_speed": stat_init_build_speed
 }
+#var _stats_base: Dictionary = { # future update stuff...
+	#"size": stat_init_size,
+	#"hit_points": stat_init_hit_points,
+	#"strength": stat_init_strength,
+	#"move_speed": stat_init_move_speed,
+	#"solar_charge_rate": stat_init_solar_charge_rate,
+	#"battery_capacity": stat_init_battery_capacity,
+	#"harvest_speed": stat_init_harvest_speed,
+	#"build_speed": stat_init_build_speed
+#}
+#var _stats_effective: Dictionary = {
+	#"size": stat_init_size,
+	#"hit_points": stat_init_hit_points,
+	#"strength": stat_init_strength,
+	#"move_speed": stat_init_move_speed,
+	#"solar_charge_rate": stat_init_solar_charge_rate,
+	#"battery_capacity": stat_init_battery_capacity,
+	#"harvest_speed": stat_init_harvest_speed,
+	#"build_speed": stat_init_build_speed
+#}
 
 func _ready() -> void:
 	_foot_step_timer = Timer.new()
@@ -93,12 +114,13 @@ func _ready() -> void:
 	_foot_step_timer.timeout.connect(_play_random_footstep_sound)
 	add_child(_foot_step_timer)
 	#TODO: find out whether to keep the following initialization, or somehow make it work in init()
-	_body_resources = { "iron": _stats.size * material_size_mult, "cobalt": 0.0, "silicon": _stats.size * material_size_mult }
+	_body_resources = { "iron": _stats.size * material_size_mult, "cobalt": _stats.size * material_size_mult / 2.0, "silicon": _stats.size * material_size_mult }
 	_HP = _stats.hit_points
 	cobaltTarget = _stats.size * material_size_mult * 0.5
 	ironTarget = _stats.size * material_size_mult
 	siliconTarget = _stats.size * material_size_mult
 	waterTarget = _stats.size * material_size_mult
+	#apply_size_bonuses()
 
 	$healthBar/healthNum.set_text(str(_HP))
 	
@@ -107,13 +129,35 @@ func _ready() -> void:
 	# start powered off
 	_start_sleep(false)
 
+#func apply_size_bonuses() -> void:
+	##const stat_init_size = 1.0
+	##const stat_init_hit_points = 20.0
+	##const stat_init_strength = 10.0
+	##const stat_init_move_speed = 5000.0
+	##const stat_init_solar_charge_rate = 0.3
+	##const stat_init_battery_capacity = 10.0
+	##const stat_init_harvest_speed = 2.0
+	##const stat_init_build_speed = 0.2
+	#_body_resources = { "iron": _stats_base.size * material_size_mult, "cobalt": _body_resources.cobalt, "silicon": _stats_base.size * material_size_mult }
+	#_stats_effective.size = _stats_base.size
+	#_stats_effective.hit_points = _stats_base.hit_points + _stats_base.size * 0.25 * stat_init_hit_points
+	##const stat_init_strength = 10.0
+	#_stats_effective.move_speed = _stats_base.move_speed + _stats_base.size() ** 2
+	#_stats_effective.solar_charge_rate = 0.3 * _stats_base ** 2
+	#_stats_effective.battery_capacity = 10.0
+	#_stats_effective.harvest_speed = 2.0
+	#_stats_effective.build_speed = 0.2
+	#cobaltTarget = (_stats_base.size ** 3) * 0.5
+	#ironTarget = _stats_base.size ** 3
+	#siliconTarget = _stats_base.size ** 3
+	#waterTarget = _stats_base.size ** 3
 
 func init(body_resources: Dictionary, stats: Dictionary, playerFam: bool) -> void:
 	isPlayerFamily = playerFam
 	if isPlayerFamily:
 		$AnimatedSprite2D.set_self_modulate(Color(1.0, 0.0, 0.0))
 	_body_resources = body_resources
-	if _body_resources.cobalt == 0.0 and _body_resources.iron == 0.0 and _body_resources.silicon:
+	if _body_resources.cobalt == 0.0 and _body_resources.iron == 0.0 and _body_resources.silicon == 0.0:
 		_body_resources = { "iron": _stats.size * material_size_mult, "cobalt": 0.0, "silicon": _stats.size * material_size_mult }
 	else:
 		_body_resources = body_resources
@@ -134,13 +178,14 @@ func set_color(color: Color):
 
 func die() -> void:
 	generate_chunks(1.0, true)
-	if isPlayerFamily and $Player._crab == self:
+	if isPlayerFamily and $Player != null and $Player._crab == self:
 		#print("player crab died!")
 		var _player = $Player
 		remove_child(_player)
 		self.isPlayerFamily = false #MUST be set before getting new crabs for defeat condition to trigger
 		_player._crab = null
 		_player.is_disassociating = true
+		_player.disassociation_changed.emit(true)
 		_player._get_new_crab()
 	queue_free()
 
@@ -416,11 +461,11 @@ func stop_reproduce() -> void:
 func reproduce(mutation: Dictionary) -> void:
 	var new_stats: Dictionary = MutationEngine.apply_mutation(_stats, mutation)
 	var new_crab: Crab = crab_scene.instantiate()
-	var new_body_resources = { "iron": _carried_resources.iron, "cobalt": _carried_resources.cobalt, "silicon": _carried_resources.silicon }
-	_carried_resources = { "iron": 0.0, "cobalt": _carried_resources.cobalt, "silicon": 0.0, "water": 0.0, "battery_energy": _carried_resources.battery_energy }
+	var new_body_resources = { "iron": _carried_resources.iron, "cobalt": _carried_resources.cobalt / 2.0, "silicon": _carried_resources.silicon }
+	_carried_resources = { "iron": 0.0, "cobalt": _carried_resources.cobalt / 2.0, "silicon": 0.0, "water": 0.0, "battery_energy": _carried_resources.battery_energy }
 	new_crab.init(new_body_resources, new_stats, isPlayerFamily)
 	var new_crab_direction: Vector2 = Util.random_direction()
-	new_crab.position = position + (new_crab_direction * 20.0)
+	new_crab.position = position + (new_crab_direction * new_crab._stats.size * 32.0)
 	var new_crab_ai: CrabAI = crab_ai_scene.instantiate()
 	new_crab.add_child(new_crab_ai)
 	_island.add_child(new_crab)
@@ -516,7 +561,7 @@ func will_drop_silicon() -> bool:
 func _add_cobalt(value: float, delta: float) -> void:
 	_carried_resources.cobalt = clampf(_carried_resources.cobalt + value, 0, cobaltTarget)
 	_modify_battery_energy(delta * harvestDrainMult)
-	if _carried_resources.cobalt >= cobaltTarget:
+	if _carried_resources.cobalt >= cobaltTarget / 10.0:
 		_attacks_enabled = true
 
 

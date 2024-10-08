@@ -47,11 +47,11 @@ func _process_swap() -> void:
 	if Input.is_action_just_pressed("swap"):
 		if is_disassociating:
 			is_disassociating = false
-			disassociation_changed.emit()
+			disassociation_changed.emit(false)
 			#print("No longer disassociating!")
 		else:
 			is_disassociating = true
-			disassociation_changed.emit()
+			disassociation_changed.emit(true)
 			#print("I'm disassociating!")
 			crab_swapped.emit()
 
@@ -72,7 +72,8 @@ func _get_new_crab() -> void:
 			_crab.remove_child(self)
 			crabIndex = ((crabIndex + LR) as int) % crabFamily.size()
 			_crab = crabFamily[crabIndex]
-			_crab.get_node("CrabAI").queue_free()
+			if _crab.get_node("CrabAI"):
+				_crab.get_node("CrabAI").queue_free()
 			_crab.add_child(self)
 			crab_swapped.emit()
 

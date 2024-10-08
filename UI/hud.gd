@@ -22,9 +22,9 @@ func _ready():
 	dayLabel.text = "Day " + str(WorldClock.day_count + 1)
 	WorldClock.new_day_rollover.connect(_new_day)
 	_player.crab_swapped.connect(_update_statblock)
-	_player.disassociation_changed.connect(_toggle_statblock)
 	_player.defeat.connect(_trigger_defeat)
 	_player.victory.connect(_trigger_victory)
+	_player.disassociation_changed.connect(_set_tab_menu)
 
 
 func _process(delta):
@@ -135,18 +135,14 @@ func _set_clone_light(activate: bool) -> void:
 		$topleft/Q.set_visible(true)
 		$topleft/Q.fading = true
 
+func _set_tab_menu(activate: bool) -> void:
+	_update_statblock()
+	$center/TAB.set_visible(true if activate else false)
+	$center/statblock.set_visible(true if activate else false)
+
 
 func _crab() -> Crab:
 	return _player._crab
-
-
-func _toggle_statblock() -> void:
-	if _player.is_disassociating:
-		_update_statblock()
-		$center/statblock.set_visible(true)
-	else:
-		$center/statblock.set_visible(false)
-
 
 
 func _update_statblock() -> void:
