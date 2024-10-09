@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=4 uid="uid://co582gapcsfm4"]
 
-[ext_resource type="Script" path="res://map/island_v1/IslandV1.gd" id="1_8bswg"]
+[ext_resource type="Script" path="res://map/Map.gd" id="1_8bswg"]
 [ext_resource type="PackedScene" uid="uid://2uy6byy1384y" path="res://map/day_night_cycle.tscn" id="2_4tlql"]
 [ext_resource type="Texture2D" uid="uid://dpnein262wtyt" path="res://assets/tileset2.png" id="2_8m5ny"]
 [ext_resource type="PackedScene" uid="uid://ch3lyfrb4hms3" path="res://crabs/Crab.tscn" id="3_s85qb"]
@@ -298,26 +298,6 @@ metadata/_edit_lock_ = true
 position = Vector2(130, -720)
 
 [node name="CrabAI" parent="Crab2" instance=ExtResource("8_b2rce")]
-
-[node name="Crab3" parent="." instance=ExtResource("3_s85qb")]
-position = Vector2(370, -720)
-
-[node name="CrabAI" parent="Crab3" instance=ExtResource("8_b2rce")]
-
-[node name="Crab4" parent="." instance=ExtResource("3_s85qb")]
-position = Vector2(370, -840)
-
-[node name="CrabAI" parent="Crab4" instance=ExtResource("8_b2rce")]
-
-[node name="Crab5" parent="." instance=ExtResource("3_s85qb")]
-position = Vector2(250, -840)
-
-[node name="CrabAI" parent="Crab5" instance=ExtResource("8_b2rce")]
-
-[node name="Crab6" parent="." instance=ExtResource("3_s85qb")]
-position = Vector2(130, -840)
-
-[node name="CrabAI" parent="Crab6" instance=ExtResource("8_b2rce")]
 
 [node name="PlayerSpawnPoint" type="Node2D" parent="."]
 position = Vector2(250, -720)

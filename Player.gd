@@ -4,13 +4,11 @@ extends Node
 
 
 @onready var _game: Game = get_parent()
-@onready var _map: IslandV1
+@onready var _map: Map
 var crab_ai_scene: PackedScene = preload("res://crabs/AI/CrabAI.tscn")
 
 signal disassociation_changed
 signal crab_swapped
-signal defeat
-signal victory
 
 @export var color: Color = Color(1.0, 0.0, 0.0)
 
@@ -24,6 +22,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if !is_instance_valid(_crab): return
 	_process_swap()
 	
 	if is_disassociating: return
@@ -43,9 +42,7 @@ func _physics_process(delta: float) -> void:
 
 func _on_crab_die() -> void:
 	var new_crab: Crab = find_living_family_member()
-	if new_crab == null:
-		defeat.emit()
-		return
+	if new_crab == null: return
 	
 	_shift_crab()
 	_disassociate()
@@ -108,8 +105,7 @@ func find_living_family_member() -> Crab:
 
 
 func get_family_crabs() -> Array:
-	return (_map.get_children()
-		.map(func(child: Node) -> Crab: return child as Crab)
+	return (_map.get_all_crabs()
 		.filter(func(crab: Crab) -> bool:
 		return (is_instance_valid(crab) && 
 		crab._family == Crab.Family.PLAYER && 

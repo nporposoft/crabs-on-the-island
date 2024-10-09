@@ -28,7 +28,7 @@ var crab_scene: PackedScene = preload("res://crabs/Crab.tscn")
 var crab_ai_scene: PackedScene = preload("res://crabs/AI/CrabAI.tscn")
 var morselTemplate: PackedScene = preload("res://resources/Morsel.tscn")
 var toastTemplate: PackedScene = preload("res://Toast.tscn")
-@onready var tabForTrigger: AnimatedSprite2D = $"../hud/center/TAB"
+@onready var tabForTrigger: AnimatedSprite2D = $"/root/Game/hud/center/TAB"
 
 signal on_death
 
@@ -47,7 +47,7 @@ var ironTarget: float
 var siliconTarget: float
 var waterTarget: float
 var buildProgress: float = 0.0
-@onready var _island: IslandV1 = $"/root/Game/IslandV1"
+@onready var _island: Map = $"/root/Game/IslandV1"
 var default_color: Color = Color(1, 1, 1, 1)
 var _color: Color = default_color
 var _family: Family
@@ -495,7 +495,7 @@ func stop_reproduce() -> void:
 
 func reproduce(mutation: Dictionary) -> void:
 	var new_stats: Dictionary = MutationEngine.apply_mutation(_stats, mutation)
-	var new_crab: Crab = crab_scene.instantiate()
+	var new_crab: Crab = _island.create_new_crab()
 	var new_body_resources = { "iron": _carried_resources.iron, "cobalt": _carried_resources.cobalt / 2.0, "silicon": _carried_resources.silicon }
 	_carried_resources = { "iron": 0.0, "cobalt": _carried_resources.cobalt / 2.0, "silicon": 0.0, "water": 0.0, "battery_energy": _carried_resources.battery_energy }
 	new_crab.init(new_body_resources, new_stats, _color, _family)
@@ -503,7 +503,6 @@ func reproduce(mutation: Dictionary) -> void:
 	new_crab.position = position + (new_crab_direction * new_crab._stats.size * 32.0)
 	var new_crab_ai: CrabAI = crab_ai_scene.instantiate()
 	new_crab.add_child(new_crab_ai)
-	_island.add_child(new_crab)
 	new_crab.stat_toasts(mutation)
 	if !(_island.tutorial_swap) and new_crab.isPlayerFamily:
 		_island.tutorial_swap = true

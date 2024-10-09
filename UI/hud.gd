@@ -28,8 +28,6 @@ func _ready():
 func init(player: Player) -> void:
 	_player = player
 	_player.crab_swapped.connect(_update_statblock)
-	_player.defeat.connect(_trigger_defeat)
-	_player.victory.connect(_trigger_victory)
 	_player.disassociation_changed.connect(_set_tab_menu)
 
 
