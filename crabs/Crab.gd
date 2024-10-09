@@ -30,7 +30,7 @@ var morselTemplate: PackedScene = preload("res://resources/Morsel.tscn")
 var toastTemplate: PackedScene = preload("res://Toast.tscn")
 @onready var tabForTrigger: AnimatedSprite2D = $"../hud/center/TAB"
 
-signal mutations_generated
+signal on_death
 
 var tutorial_swap = false
 var isPlayerFamily: bool
@@ -48,7 +48,9 @@ var siliconTarget: float
 var waterTarget: float
 var buildProgress: float = 0.0
 @onready var _island: IslandV1 = $"/root/Game/IslandV1"
-
+var default_color: Color = Color(1, 1, 1, 1)
+var _color: Color = default_color
+var _family: Family
 var batteryEnergyTargetPercentage = 50
 
 enum States {
@@ -59,7 +61,13 @@ enum States {
 	REPRODUCING,
 	OUT_OF_BATTERY,
 	SHUTDOWN_COOLDOWN,
-	HARVESTING
+	HARVESTING,
+	DEAD
+}
+
+enum Family {
+	AI,
+	PLAYER
 }
 
 var _current_animation: String
@@ -76,6 +84,16 @@ var _carried_resources: Dictionary = {
 	"silicon": 0,
 	"water": 0,
 	"battery_energy": 0.0,
+}
+var _default_stats: Dictionary = {
+	"size": stat_init_size,
+	"hit_points": stat_init_hit_points,
+	"strength": stat_init_strength,
+	"move_speed": stat_init_move_speed,
+	"solar_charge_rate": stat_init_solar_charge_rate,
+	"battery_capacity": stat_init_battery_capacity,
+	"harvest_speed": stat_init_harvest_speed,
+	"build_speed": stat_init_build_speed
 }
 var _stats: Dictionary = {
 	"size": stat_init_size,
@@ -152,16 +170,22 @@ func _ready() -> void:
 	#siliconTarget = _stats_base.size ** 3
 	#waterTarget = _stats_base.size ** 3
 
-func init(body_resources: Dictionary, stats: Dictionary, playerFam: bool) -> void:
-	isPlayerFamily = playerFam
-	if isPlayerFamily:
-		$AnimatedSprite2D.set_self_modulate(Color(1.0, 0.0, 0.0))
-	_body_resources = body_resources
-	if _body_resources.cobalt == 0.0 and _body_resources.iron == 0.0 and _body_resources.silicon == 0.0:
+func init(
+	body_resources: Dictionary,
+	stats: Dictionary,
+	color: Color,
+	family: Family = Family.AI
+	) -> void:
+	
+	set_color(color)
+	set_family(family)
+	
+	if body_resources.is_empty():
 		_body_resources = { "iron": _stats.size * material_size_mult, "cobalt": 0.0, "silicon": _stats.size * material_size_mult }
 	else:
 		_body_resources = body_resources
-	_stats = stats
+	
+	if !stats.is_empty(): _stats = stats
 	set_size(_stats.size)
 	
 	#TODO: test whether the (re?)initialization of the targets below is necessary, esp. for descendants
@@ -172,22 +196,25 @@ func init(body_resources: Dictionary, stats: Dictionary, playerFam: bool) -> voi
 	#waterTarget = _stats.size * material_size_mult
 
 
+func set_family(family: Family):
+	_family = family
+
+
 func set_color(color: Color):
+	_color = color
 	$AnimatedSprite2D.set_self_modulate(color)
 
 
 func die() -> void:
 	generate_chunks(1.0, true)
-	if isPlayerFamily and $Player != null and $Player._crab == self:
-		#print("player crab died!")
-		var _player = $Player
-		remove_child(_player)
-		self.isPlayerFamily = false #MUST be set before getting new crabs for defeat condition to trigger
-		_player._crab = null
-		_player.is_disassociating = true
-		_player.disassociation_changed.emit()
-		_player._get_new_crab()
+	_sm.set_state(States.DEAD)
 	queue_free()
+	on_death.emit()
+
+
+func is_dead() -> bool:
+	return _sm.has_state(States.DEAD)
+
 
 func move(movementDirection: Vector2) -> void:
 	_velocity = movementDirection.normalized()
@@ -235,6 +262,7 @@ func apply_damage(damage: float) -> void:
 			$healthBar/healthNum.set_visible(true)
 			$healthBar/healthNum.set_text(str(_HP))
 
+
 func generate_chunks(percent: float, include_body: bool) -> void:
 	var cobaltMass = _carried_resources.cobalt * percent
 	if include_body: cobaltMass += _body_resources.cobalt
@@ -274,11 +302,13 @@ func generate_chunks(percent: float, include_body: bool) -> void:
 		#new_morsel._set_resource(Morsel.MATERIAL_TYPE.SILICON, randMass, true)
 		#new_morsel.set_position(Vector2(position.x, position.y))
 
+
 func get_nearby_pickuppables() -> Array:
 	return ($reach_area.get_overlapping_bodies()
 		.map(func(body) -> RigidBody2D: return body as RigidBody2D)
 		.filter(func(body) -> bool: return body != null)
 	)
+
 
 func get_nearest_pickuppable() -> RigidBody2D:
 	var nearest: RigidBody2D
@@ -289,6 +319,7 @@ func get_nearest_pickuppable() -> RigidBody2D:
 			nearest = body
 			nearest_distance = distance
 	return nearest
+
 
 func pickup() -> void:
 	if _sm.has_state(States.OUT_OF_BATTERY): return
@@ -307,14 +338,17 @@ func pickup() -> void:
 	else:
 		return
 
+
 func is_holding() -> bool:
 	return false #TODO
+
 
 func get_nearby_crabs() -> Array:
 	return ($reach_area.get_overlapping_bodies()
 		.map(func(body) -> Crab: return body as Crab)
 		.filter(func(body) -> bool: return body != null)
 	)
+
 
 func get_nearest_crab() -> RigidBody2D:
 	var nearest: Crab
@@ -325,6 +359,7 @@ func get_nearest_crab() -> RigidBody2D:
 			nearest = body
 			nearest_distance = distance
 	return nearest
+
 
 func harvest(delta: float) -> bool:
 	if _sm.has_state(States.OUT_OF_BATTERY):
@@ -463,7 +498,7 @@ func reproduce(mutation: Dictionary) -> void:
 	var new_crab: Crab = crab_scene.instantiate()
 	var new_body_resources = { "iron": _carried_resources.iron, "cobalt": _carried_resources.cobalt / 2.0, "silicon": _carried_resources.silicon }
 	_carried_resources = { "iron": 0.0, "cobalt": _carried_resources.cobalt / 2.0, "silicon": 0.0, "water": 0.0, "battery_energy": _carried_resources.battery_energy }
-	new_crab.init(new_body_resources, new_stats, isPlayerFamily)
+	new_crab.init(new_body_resources, new_stats, _color, _family)
 	var new_crab_direction: Vector2 = Util.random_direction()
 	new_crab.position = position + (new_crab_direction * new_crab._stats.size * 32.0)
 	var new_crab_ai: CrabAI = crab_ai_scene.instantiate()

@@ -1,15 +1,22 @@
-[gd_scene load_steps=3 format=3 uid="uid://dh2a4agrr1sr0"]
+[gd_scene load_steps=6 format=3 uid="uid://dh2a4agrr1sr0"]
 
 [ext_resource type="PackedScene" uid="uid://co582gapcsfm4" path="res://map/island_v1/island_v1.tscn" id="1_214ao"]
+[ext_resource type="Script" path="res://Game.gd" id="1_umy7e"]
 [ext_resource type="Script" path="res://Camera.gd" id="2_616yq"]
+[ext_resource type="PackedScene" uid="uid://c0mfa4rplirjk" path="res://player.tscn" id="4_2bewm"]
+[ext_resource type="PackedScene" uid="uid://cx2ye0w0rqf4n" path="res://UI/hud.tscn" id="5_mmxbx"]
 
 [node name="Game" type="Node"]
+script = ExtResource("1_umy7e")
 
 [node name="IslandV1" parent="." instance=ExtResource("1_214ao")]
 
-[node name="Camera" type="Camera2D" parent="." node_paths=PackedStringArray("_player")]
+[node name="Camera" type="Camera2D" parent="."]
 script = ExtResource("2_616yq")
-_player = NodePath("../IslandV1/Crab/Player")
+
+[node name="Player" parent="." instance=ExtResource("4_2bewm")]
+
+[node name="hud" parent="." instance=ExtResource("5_mmxbx")]
 
 [editable path="IslandV1"]
 [editable path="IslandV1/DayNightCycle"]

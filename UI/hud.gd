@@ -1,3 +1,5 @@
+class_name Hud
+
 extends CanvasLayer
 
 
@@ -21,6 +23,10 @@ const inactive_color: Color = Color(0.0625, 0.0625, 0.0625)
 func _ready():
 	dayLabel.text = "Day " + str(WorldClock.day_count + 1)
 	WorldClock.new_day_rollover.connect(_new_day)
+
+
+func init(player: Player) -> void:
+	_player = player
 	_player.crab_swapped.connect(_update_statblock)
 	_player.defeat.connect(_trigger_defeat)
 	_player.victory.connect(_trigger_victory)
@@ -29,12 +35,14 @@ func _ready():
 
 func _process(delta):
 	_update_sundial()
-	if _crab() != null:
-		_update_battery()
-		_update_resources()
-		_update_cobalt_light()
-		_update_ready_to_clone()
-		_update_build_progress()
+	if !is_instance_valid(_crab()): return
+
+	_update_battery()
+	_update_resources()
+	_update_cobalt_light()
+	_update_ready_to_clone()
+	_update_build_progress()
+	_update_statblock()
 
 
 func _update_sundial() -> void:
@@ -135,6 +143,7 @@ func _set_clone_light(activate: bool) -> void:
 		$topleft/Q.set_visible(true)
 		$topleft/Q.fading = true
 
+
 func _set_tab_menu() -> void:
 	if _player.is_disassociating:
 		_update_statblock()
@@ -142,42 +151,25 @@ func _set_tab_menu() -> void:
 	$center/statblock.set_visible(true if _player.is_disassociating else false)
 
 
-func _crab() -> Crab:
-	return _player._crab
-
-
 func _update_statblock() -> void:
-	var creb: Crab = _crab()
-	if creb != null:
-		var lines: Array = []
-		var percent: float
-		for line in creb._stats:
-			match line:
-				"size":
-					percent = 100.0 * creb._stats[line] / creb.stat_init_size
-				"hit_points":
-					percent = 100.0 * creb._stats[line] / creb.stat_init_hit_points
-				"strength":
-					percent = 100.0 * creb._stats[line] / creb.stat_init_strength
-				"move_speed":
-					percent = 100.0 * creb._stats[line] / creb.stat_init_move_speed
-				"solar_charge_rate":
-					percent = 100.0 * creb._stats[line] / creb.stat_init_solar_charge_rate
-				"battery_capacity":
-					percent = 100.0 * creb._stats[line] / creb.stat_init_battery_capacity
-				"harvest_speed":
-					percent = 100.0 * creb._stats[line] / creb.stat_init_harvest_speed
-				"build_speed":
-					percent = 100.0 * creb._stats[line] / creb.stat_init_build_speed
-			lines.append(line + ":  " + str(percent) + "%")
-		$center/statblock.set_text("\n".join(lines).replace("_", " "))
+	if !_player.is_disassociating: return
+	if !is_instance_valid(_crab()): return
+
+	var lines: Array = []
+	for stat in _crab()._stats:
+		var value: int = floor(100.0 * _crab()._stats[stat] / _crab()._default_stats[stat])
+		var name: String = Translator.g(stat)
+		lines.append(name + ":\t\t" + str(value) + "%")
+	$center/statblock.set_text("\n".join(lines))
 
 
 func _trigger_defeat() -> void:
 	$center/defeat.set_visible(true)
-	_player.game_running = false
 
 
 func _trigger_victory() -> void:
 	$center/victory.set_visible(true)
-	_player.game_running = false
+
+
+func _crab() -> Crab:
+	return _player._crab

@@ -6,10 +6,10 @@ const _stat_to_human_readable: Dictionary = {
 	"size": "Size",
 	"hit_points": "Hit points",
 	"strength": "Strength",
-	"move_speed": "Move",
-	"solar_charge_rate": "Solar charging",
+	"move_speed": "Movement speed",
+	"solar_charge_rate": "Solar charge rate",
 	"battery_capacity": "Battery",
-	"harvest_speed": "Harvest",
+	"harvest_speed": "Harvest speed",
 	"build_speed": "Build speed"
 }
 
