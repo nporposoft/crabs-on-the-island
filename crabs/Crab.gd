@@ -41,7 +41,6 @@ var _foot_step_timer: Timer
 var _attacks_enabled: bool = false
 var _sm: MultiStateMachine = MultiStateMachine.new()
 var _HP: float
-var _effectiveSpeed: float
 var cobaltTarget: float
 var ironTarget: float
 var siliconTarget: float
@@ -95,16 +94,7 @@ var _default_stats: Dictionary = {
 	"harvest_speed": stat_init_harvest_speed,
 	"build_speed": stat_init_build_speed
 }
-var _stats: Dictionary = {
-	"size": stat_init_size,
-	"hit_points": stat_init_hit_points,
-	"strength": stat_init_strength,
-	"move_speed": stat_init_move_speed,
-	"solar_charge_rate": stat_init_solar_charge_rate,
-	"battery_capacity": stat_init_battery_capacity,
-	"harvest_speed": stat_init_harvest_speed,
-	"build_speed": stat_init_build_speed
-}
+var _stats: Dictionary = _default_stats
 #var _stats_base: Dictionary = { # future update stuff...
 	#"size": stat_init_size,
 	#"hit_points": stat_init_hit_points,
@@ -658,7 +648,7 @@ func _play_random_footstep_sound() -> void:
 	sound.pitch_scale = randf_range(0.8, 1.2)
 	sound.play()
 
-func set_size(scale: float) -> void:
+func set_size(new_scale: float) -> void:
 	for child in find_children("*", "", false):
 		var scalable_child: Node2D = child as Node2D
-		if scalable_child != null: scalable_child.scale *= scale
+		if scalable_child != null: scalable_child.scale *= new_scale

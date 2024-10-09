@@ -31,7 +31,7 @@ func init(player: Player) -> void:
 	_player.disassociation_changed.connect(_set_tab_menu)
 
 
-func _process(delta):
+func _process(_delta):
 	_update_sundial()
 	if !is_instance_valid(_crab()): return
 
@@ -155,9 +155,9 @@ func _update_statblock() -> void:
 
 	var lines: Array = []
 	for stat in _crab()._stats:
-		var value: int = floor(100.0 * _crab()._stats[stat] / _crab()._default_stats[stat])
-		var name: String = Translator.g(stat)
-		lines.append(name + ":\t\t" + str(value) + "%")
+		var stat_value: int = floor(100.0 * _crab()._stats[stat] / _crab()._default_stats[stat])
+		var stat_name: String = Translator.g(stat)
+		lines.append(stat_name + ":\t\t" + str(stat_value) + "%")
 	$center/statblock.set_text("\n".join(lines))
 
 

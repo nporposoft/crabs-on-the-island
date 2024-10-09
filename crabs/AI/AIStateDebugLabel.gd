@@ -10,7 +10,7 @@ func _process(_delta: float) -> void:
 		text = ""
 		return
 
-	var msg: String
+	var msg: String = ""
 	for state: CrabAI.States in CrabAI.States.values():
 		var has_state: bool = _ai._sm.has_state(state)
 		if has_state:

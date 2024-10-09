@@ -14,7 +14,7 @@ func init(player: Player) -> void:
 	position = _player._crab.position
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	_update_zoom_level()
 	_update_position()
 

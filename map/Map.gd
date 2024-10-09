@@ -2,7 +2,6 @@ class_name Map
 
 extends Node2D
 
-@onready var _game: Game = get_parent()
 @onready var SandArea: Area2D = $sandArea
 @onready var WaterArea: Area2D = $waterArea
 var _crab_scene = preload("res://crabs/Crab.tscn")

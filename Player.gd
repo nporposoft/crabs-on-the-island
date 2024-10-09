@@ -34,7 +34,7 @@ func _process(delta: float) -> void:
 	_process_reproduction(delta)
 
 
-func _physics_process(delta: float) -> void:
+func _physics_process(_delta: float) -> void:
 	if !is_instance_valid(_crab): return
 	
 	_crab.move(_inputMovement)
@@ -101,6 +101,9 @@ func _unset_crab() -> void:
 
 
 func find_living_family_member() -> Crab:
+	var living_family_members: Array = get_family_crabs()
+	if living_family_members.size() == 0: return null
+	
 	return get_family_crabs().front()
 
 
@@ -134,11 +137,11 @@ func _process_harvest(delta) -> void:
 
 func _process_pickup() -> void:
 	return #TODO: implement pickup
-	if Input.is_action_pressed("pickup"):
-		if _crab.is_holding():
-			_crab.pickup()
-		else:
-			_crab.drop_held()
+	#if Input.is_action_pressed("pickup"):
+		#if _crab.is_holding():
+			#_crab.pickup()
+		#else:
+			#_crab.drop_held()
 
 
 func _process_reproduction(delta) -> void:

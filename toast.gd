@@ -7,7 +7,7 @@ extends Node2D
 var timeLeft: float
 
 func set_stats(stats: Dictionary) -> void:
-	var text: String
+	var text: String = ""
 	for stat in stats:
 		if stats[stat] > 0.0: text += "+"
 		text += str(stats[stat] as int) + "% " + Translator.g(stat) + "\n"
