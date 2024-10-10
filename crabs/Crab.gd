@@ -17,7 +17,7 @@ const buildDrainMult = -2.0
 const stat_init_size = 1.0
 const stat_init_hit_points = 20.0
 const stat_init_strength = 10.0
-const stat_init_move_speed = 5000.0
+const stat_init_move_power = 5000.0
 const stat_init_solar_charge_rate = 0.3
 const stat_init_battery_capacity = 10.0
 const stat_init_harvest_speed = 2.0
@@ -88,7 +88,7 @@ var _default_stats: Dictionary = {
 	"size": stat_init_size,
 	"hit_points": stat_init_hit_points,
 	"strength": stat_init_strength,
-	"move_speed": stat_init_move_speed,
+	"move_power": stat_init_move_power,
 	"solar_charge_rate": stat_init_solar_charge_rate,
 	"battery_capacity": stat_init_battery_capacity,
 	"harvest_speed": stat_init_harvest_speed,
@@ -99,7 +99,7 @@ var _stats_base: Dictionary = {
 	"size": stat_init_size,
 	"hit_points": stat_init_hit_points,
 	"strength": stat_init_strength,
-	"move_speed": stat_init_move_speed,
+	"move_power": stat_init_move_power,
 	"solar_charge_rate": stat_init_solar_charge_rate,
 	"battery_capacity": stat_init_battery_capacity,
 	"harvest_speed": stat_init_harvest_speed,
@@ -109,7 +109,7 @@ var _stats_effective: Dictionary = {
 	"size": _stats_base.size,
 	"hit_points": _stats_base.hit_points,
 	"strength": _stats_base.strength,
-	"move_speed": _stats_base.move_speed,
+	"move_power": _stats_base.move_power,
 	"solar_charge_rate": _stats_base.solar_charge_rate,
 	"battery_capacity": _stats_base.battery_capacity,
 	"harvest_speed": _stats_base.harvest_speed,
@@ -133,9 +133,11 @@ func _ready() -> void:
 func apply_size_bonuses() -> void:
 	_stats_effective.size = _stats_base.size
 	_stats_effective.hit_points = _stats_base.hit_points * _stats_base.size
-	_stats_effective.strength = _stats_base.strength + (_stats_base.size ** 3) / 4.0
-	#_stats_effective.move_speed = _stats_base.move_speed + _stats_base.size() ** 2
-	_stats_effective.move_speed = (_stats_base.move_speed * (_stats_base.size ** 2.0) * 0.01 * (_stats_effective.strength + (_stats_base.size ** 3.0) / 4.0) ** 2.0)
+	_stats_effective.strength = _stats_base.strength + (_stats_base.size ** 3) / 2.0
+	#_stats_effective.move_power = _stats_base.move_power + _stats_base.size() ** 2
+	#_stats_effective.move_power = (_stats_base.move_power * (_stats_base.size ** 2.0) * 0.01 * (_stats_effective.strength + (_stats_base.size ** 3.0) / 4.0) ** 2.0)
+	#_stats_effective.move_power = (_stats_base.move_power * (_stats_base.size ** 2.0) * 0.1 * (_stats_effective.strength + (_stats_base.size ** 3.0) / 2.0) * sqrt(_stats_base.size))
+	_stats_effective.move_power = (_stats_base.move_power * (_stats_base.size ** 2.0) * 0.1 * (_stats_effective.strength + (_stats_base.size ** 3.0) / 2.0) * log(1.25 + _stats_base.size))
 	_stats_effective.solar_charge_rate = _stats_base.solar_charge_rate
 	_stats_effective.battery_capacity = _stats_base.battery_capacity
 	_stats_effective.harvest_speed = _stats_base.harvest_speed
@@ -202,7 +204,7 @@ func move(movementDirection: Vector2) -> void:
 
 	_direction = Util.get_direction_from_vector(movementDirection)
 	var batteryPercent = _carried_resources.battery_energy / _stats_effective.battery_capacity
-	apply_central_force(movementDirection.normalized() * _stats_effective.move_speed * clampf(2.7 * batteryPercent + 0.1, 0.0, 1.0)) # linear ramp from 10% speed at empty battery to 100% speed at 1/3 battery
+	apply_central_force(movementDirection.normalized() * _stats_effective.move_power * clampf(2.7 * batteryPercent + 0.1, 0.0, 1.0)) # linear ramp from 10% speed at empty battery to 100% speed at 1/3 battery
 
 
 func dash() -> void:
@@ -212,7 +214,7 @@ func dash() -> void:
 	_sm.set_state(States.DASH_COOLDOWN)
 	var direction: Vector2 = Util.get_vector_from_direction(_direction)
 	var batteryPercent = min(_carried_resources.battery_energy / dash_battery_usage, 1.0)
-	apply_central_impulse(direction * _stats_effective.move_speed * dash_speed_multiplier * batteryPercent)
+	apply_central_impulse(direction * _stats_effective.move_power * dash_speed_multiplier * batteryPercent)
 	_modify_battery_energy(-dash_battery_usage)
 	$DashSoundEffect.play()
 	Util.one_shot_timer(self, dash_duration, func() -> void:
@@ -352,7 +354,8 @@ func harvest(delta: float) -> bool:
 
 
 func attackCrab(target: Crab, delta: float) -> void:
-	var dmg = _stats_effective.strength * delta
+	var relative_strength_mult = _stats_effective.strength / target._stats_effective.strength
+	var dmg = _stats_effective.strength * delta * relative_strength_mult
 	target.apply_damage(dmg)
 	$Sparks.set_emitting(true)
 	$Sparks.global_position = target.global_position
