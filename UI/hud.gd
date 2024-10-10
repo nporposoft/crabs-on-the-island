@@ -9,8 +9,8 @@ extends CanvasLayer
 @onready var waterCloneBar = $topleft/water_bar/water_clone_bar
 @onready var siliconBar = $topleft/silicon_bar
 @onready var siliconCloneBar = $topleft/silicon_bar/silicon_clone_bar
-@onready var ironBar = $topleft/iron_bar
-@onready var ironCloneBar = $topleft/iron_bar/iron_clone_bar
+@onready var metalBar = $topleft/metal_bar
+@onready var metalCloneBar = $topleft/metal_bar/metal_clone_bar
 @onready var sundial = $topright/sundial
 @onready var dayLabel = $topright/day_label
 
@@ -58,7 +58,7 @@ func _update_battery() -> void:
 func _update_resources() -> void:
 	_update_water()
 	_update_silicon()
-	_update_iron()
+	_update_metal()
 
 
 func _update_cobalt_light() -> void:
@@ -77,11 +77,11 @@ func _update_build_progress() -> void:
 	var progress = 100.0 * _crab().buildProgress
 	waterCloneBar.value = progress
 	siliconCloneBar.value = progress
-	ironCloneBar.value = progress
+	metalCloneBar.value = progress
 
 
 func _reproduction_targets_reached() -> bool:
-	return _water_target_reached() && _silicon_target_reached() && _iron_target_reached()
+	return _water_target_reached() && _silicon_target_reached() && _metal_target_reached()
 
 
 func _water_target_reached() -> bool:
@@ -92,12 +92,12 @@ func _silicon_target_reached() -> bool:
 	return _crab()._carried_resources.silicon >= _crab().siliconTarget
 
 
-func _iron_target_reached() -> bool:
-	return _crab()._carried_resources.iron >= _crab().ironTarget
+func _metal_target_reached() -> bool:
+	return _crab()._carried_resources.metal >= _crab().metalTarget
 
 
 func _cobalt_target_reached() -> bool:
-	return _crab()._carried_resources.cobalt >= _crab().cobaltTarget
+	return _crab()._contains_cobalt
 
 
 func _update_water() -> void:
@@ -110,9 +110,9 @@ func _update_silicon() -> void:
 	_set_silicon_light(_silicon_target_reached())
 
 
-func _update_iron() -> void:
-	ironBar.value = 100.0 * _crab()._carried_resources.iron / _crab().ironTarget
-	_set_iron_light(_iron_target_reached())
+func _update_metal() -> void:
+	metalBar.value = 100.0 * _crab()._carried_resources.metal / _crab().metalTarget
+	_set_metal_light(_metal_target_reached())
 
 
 func _set_cobalt_light(activate: bool) -> void:
@@ -122,8 +122,8 @@ func _set_cobalt_light(activate: bool) -> void:
 	$topleft/cobalt_light/cobalt_glow.set_visible(activate)
 
 
-func _set_iron_light(activate: bool) -> void:
-	$topleft/clone_light/iron_light.set_self_modulate(active_color if activate else inactive_color)
+func _set_metal_light(activate: bool) -> void:
+	$topleft/clone_light/metal_light.set_self_modulate(active_color if activate else inactive_color)
 
 
 func _set_silicon_light(activate: bool) -> void:

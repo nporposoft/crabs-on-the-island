@@ -413,7 +413,7 @@ texture_filter = 1
 position = Vector2(32, 144)
 texture = ExtResource("4_5x7w6")
 
-[node name="iron_bar" type="ProgressBar" parent="topleft"]
+[node name="metal_bar" type="ProgressBar" parent="topleft"]
 layout_mode = 0
 offset_left = 64.0
 offset_top = 176.0
@@ -423,7 +423,7 @@ theme_override_font_sizes/font_size = 11
 theme_override_styles/fill = SubResource("StyleBoxFlat_vgvjd")
 value = 50.0
 
-[node name="iron_clone_bar" type="ProgressBar" parent="topleft/iron_bar"]
+[node name="metal_clone_bar" type="ProgressBar" parent="topleft/metal_bar"]
 layout_mode = 0
 offset_right = 300.0
 offset_bottom = 32.0
@@ -433,7 +433,7 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_t2pt6")
 value = 25.0
 show_percentage = false
 
-[node name="iron_label" type="Sprite2D" parent="topleft"]
+[node name="metal_label" type="Sprite2D" parent="topleft"]
 modulate = Color(0.4, 0.4, 0.4, 1)
 texture_filter = 1
 position = Vector2(32, 192)
@@ -463,7 +463,7 @@ position = Vector2(-41, 0)
 scale = Vector2(0.5, 1)
 texture = ExtResource("11_vefkc")
 
-[node name="iron_light" type="Sprite2D" parent="topleft/clone_light"]
+[node name="metal_light" type="Sprite2D" parent="topleft/clone_light"]
 self_modulate = Color(0.0627451, 0.0627451, 0.0627451, 1)
 position = Vector2(-36, 36)
 rotation = -0.785398

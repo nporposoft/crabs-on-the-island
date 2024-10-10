@@ -8,10 +8,8 @@ extends RigidBody2D
 var chunkTXR: Texture2D = preload("res://assets/chunk.png")
 var ingotTXR: Texture2D = preload("res://assets/ingot.png")
 
-enum MATERIAL_TYPE {COBALT, IRON, SILICON}
-
-@export var mat_type = MATERIAL_TYPE.SILICON
 @export var amount = 1000.0
+@export var contains_cobalt: bool = false
 @export var is_chunk = false
 
 
@@ -25,10 +23,12 @@ func apply_children_scale(factor: float) -> void:
 	for n in children:
 		n.apply_scale(Vector2(factor, factor))
 
-func _set_resource (_mat, _amount, _isChunk):
-	mat_type = _mat
+func _set_resource (_amount: float, containsCobalt: bool, _isChunk: bool):
 	amount = _amount
+	contains_cobalt = containsCobalt
 	is_chunk = _isChunk
+	
+	set_children_scale(pow(amount, 1.0/3.0))
 	
 	if is_chunk:
 		sprite.set_texture(chunkTXR)
@@ -38,17 +38,14 @@ func _set_resource (_mat, _amount, _isChunk):
 		sprite.set_texture(ingotTXR)
 		ingot_collider.set_disabled(false)
 		chunk_collider.set_disabled(true)
+	
+	if contains_cobalt:
+		sprite.set_modulate(Color(0.33, 0.33, 1.0))
+		set_mass(amount * 8.8)
+	else:
+		sprite.set_modulate(Color(0.4, 0.4, 0.4))
+		set_mass(amount * 7.86)
 
-	match mat_type:
-		MATERIAL_TYPE.COBALT:
-			sprite.set_modulate(Color(0.33, 0.33, 1.0))
-			set_mass(amount * 8.8)
-		MATERIAL_TYPE.IRON:
-			sprite.set_modulate(Color(0.4, 0.4, 0.4))
-			set_mass(amount * 7.86)
-		MATERIAL_TYPE.SILICON:
-			sprite.set_modulate(Color(0.6, 1.0, 1.0))
-			set_mass(amount * 2.33)
 
 func _extract (extractAmount) -> float:
 	if extractAmount >= amount:
@@ -58,6 +55,5 @@ func _extract (extractAmount) -> float:
 		amount -= extractAmount
 		return extractAmount
 
-
 func _ready():
-	_set_resource(mat_type, amount, is_chunk)
+	_set_resource(amount, contains_cobalt, is_chunk)

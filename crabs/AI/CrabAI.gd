@@ -101,7 +101,7 @@ func _harvest_routine(delta: float) -> bool:
 
 func _crab_harvest_routine(delta: float) -> bool:
 	if _crab.has_reproduction_resources(): return false
-	if !_crab.has_cobalt_target(): return false
+	if !_crab._contains_cobalt: return false
 	
 	var nearby_crabs: Array = _get_nearby_crabs()
 	for crab in nearby_crabs:
@@ -201,10 +201,7 @@ func _harvest_morsel(delta: float, morsel: Morsel) -> void:
 
 
 func _want_to_attack_crab(crab: Crab) -> bool:
-	return (
-		(crab.will_drop_iron() && _want_iron()) ||
-		(crab.will_drop_silicon() && _want_silicon())
-	)
+	return crab.will_drop_metal() && _want_metal()
 
 
 func _get_nearby_crabs() -> Array:
@@ -254,23 +251,11 @@ func _can_reach_resource(resource: Dictionary) -> bool:
 
 
 func _want_morsel(morsel: Morsel) -> bool:
-	match morsel.mat_type:
-		Morsel.MATERIAL_TYPE.IRON:
-			return _want_iron()
-		Morsel.MATERIAL_TYPE.COBALT:
-			return _want_cobalt()
-		Morsel.MATERIAL_TYPE.SILICON:
-			return _want_silicon()
-		_:
-			return false
+	return _want_metal()
 
 
-func _want_iron() -> bool:
-	return _crab._carried_resources.iron < _crab.ironTarget
-
-
-func _want_cobalt() -> bool:
-	return _crab._carried_resources.cobalt < _crab.cobaltTarget
+func _want_metal() -> bool:
+	return _crab._carried_resources.metal < _crab.metalTarget
 
 
 func _want_water() -> bool:

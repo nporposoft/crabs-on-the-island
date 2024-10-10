@@ -27,7 +27,7 @@ func _ready() -> void:
 
 func _spawn_player_crab() -> void:
 	var crab: Crab = get_map().create_new_crab()
-	crab.init({}, {}, $Player.color, Crab.Family.PLAYER)
+	crab.init({}, {}, $Player.color, false, Crab.Family.PLAYER)
 	crab.position = get_player_spawn_position()
 	$Player.set_crab(crab)
 
