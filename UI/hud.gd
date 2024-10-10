@@ -48,7 +48,7 @@ func _update_sundial() -> void:
 
 
 func _update_battery() -> void:
-	var batteryPercent = _crab()._carried_resources.battery_energy / _crab()._stats.battery_capacity
+	var batteryPercent = _crab()._carried_resources.battery_energy / _crab()._stats_effective.battery_capacity
 	energyBar.value = 100.0 * batteryPercent
 	var redVal = max(1.0 - 3.0 * batteryPercent, 0.0)
 	var greenVal = min(3 * batteryPercent, 1.0)
@@ -154,8 +154,8 @@ func _update_statblock() -> void:
 	if !is_instance_valid(_crab()): return
 
 	var lines: Array = []
-	for stat in _crab()._stats:
-		var stat_value: int = floor(100.0 * _crab()._stats[stat] / _crab()._default_stats[stat])
+	for stat in _crab()._stats_effective:
+		var stat_value: int = floor(100.0 * _crab()._stats_effective[stat] / _crab()._default_stats[stat])
 		var stat_name: String = Translator.g(stat)
 		lines.append(stat_name + ":\t\t" + str(stat_value) + "%")
 	$center/statblock.set_text("\n".join(lines))

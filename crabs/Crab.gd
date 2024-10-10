@@ -14,7 +14,6 @@ extends RigidBody2D
 const movementThreshold: float = 20.0
 const harvestDrainMult = -0.25
 const buildDrainMult = -2.0
-const material_size_mult = 10.0
 const stat_init_size = 1.0
 const stat_init_hit_points = 20.0
 const stat_init_strength = 10.0
@@ -41,6 +40,7 @@ var _foot_step_timer: Timer
 var _attacks_enabled: bool = false
 var _sm: MultiStateMachine = MultiStateMachine.new()
 var _HP: float
+var _mass: float
 var cobaltTarget: float
 var ironTarget: float
 var siliconTarget: float
@@ -94,71 +94,59 @@ var _default_stats: Dictionary = {
 	"harvest_speed": stat_init_harvest_speed,
 	"build_speed": stat_init_build_speed
 }
-var _stats: Dictionary = _default_stats
-#var _stats_base: Dictionary = { # future update stuff...
-	#"size": stat_init_size,
-	#"hit_points": stat_init_hit_points,
-	#"strength": stat_init_strength,
-	#"move_speed": stat_init_move_speed,
-	#"solar_charge_rate": stat_init_solar_charge_rate,
-	#"battery_capacity": stat_init_battery_capacity,
-	#"harvest_speed": stat_init_harvest_speed,
-	#"build_speed": stat_init_build_speed
-#}
-#var _stats_effective: Dictionary = {
-	#"size": stat_init_size,
-	#"hit_points": stat_init_hit_points,
-	#"strength": stat_init_strength,
-	#"move_speed": stat_init_move_speed,
-	#"solar_charge_rate": stat_init_solar_charge_rate,
-	#"battery_capacity": stat_init_battery_capacity,
-	#"harvest_speed": stat_init_harvest_speed,
-	#"build_speed": stat_init_build_speed
-#}
+#var _stats: Dictionary = _default_stats
+var _stats_base: Dictionary = {
+	"size": stat_init_size,
+	"hit_points": stat_init_hit_points,
+	"strength": stat_init_strength,
+	"move_speed": stat_init_move_speed,
+	"solar_charge_rate": stat_init_solar_charge_rate,
+	"battery_capacity": stat_init_battery_capacity,
+	"harvest_speed": stat_init_harvest_speed,
+	"build_speed": stat_init_build_speed
+}
+var _stats_effective: Dictionary = {
+	"size": _stats_base.size,
+	"hit_points": _stats_base.hit_points,
+	"strength": _stats_base.strength,
+	"move_speed": _stats_base.move_speed,
+	"solar_charge_rate": _stats_base.solar_charge_rate,
+	"battery_capacity": _stats_base.battery_capacity,
+	"harvest_speed": _stats_base.harvest_speed,
+	"build_speed": _stats_base.build_speed
+}
 
 func _ready() -> void:
 	_foot_step_timer = Timer.new()
 	_foot_step_timer.wait_time = foot_step_time_delay
 	_foot_step_timer.timeout.connect(_play_random_footstep_sound)
 	add_child(_foot_step_timer)
-	#TODO: find out whether to keep the following initialization, or somehow make it work in init()
-	_body_resources = { "iron": _stats.size * material_size_mult, "cobalt": _stats.size * material_size_mult / 2.0, "silicon": _stats.size * material_size_mult }
-	_HP = _stats.hit_points
-	cobaltTarget = _stats.size * material_size_mult * 0.5
-	ironTarget = _stats.size * material_size_mult
-	siliconTarget = _stats.size * material_size_mult
-	waterTarget = _stats.size * material_size_mult
 	#apply_size_bonuses()
 
-	$healthBar/healthNum.set_text(str(_HP))
+	#$healthBar/healthNum.set_text(str(_HP))
 	
-	set_size(_stats.size)
+	#set_size(_stats_effective.size)
 
 	# start powered off
 	_start_sleep(false)
 
-#func apply_size_bonuses() -> void:
-	##const stat_init_size = 1.0
-	##const stat_init_hit_points = 20.0
-	##const stat_init_strength = 10.0
-	##const stat_init_move_speed = 5000.0
-	##const stat_init_solar_charge_rate = 0.3
-	##const stat_init_battery_capacity = 10.0
-	##const stat_init_harvest_speed = 2.0
-	##const stat_init_build_speed = 0.2
-	#_body_resources = { "iron": _stats_base.size * material_size_mult, "cobalt": _body_resources.cobalt, "silicon": _stats_base.size * material_size_mult }
-	#_stats_effective.size = _stats_base.size
-	#_stats_effective.hit_points = _stats_base.hit_points + _stats_base.size * 0.25 * stat_init_hit_points
-	##const stat_init_strength = 10.0
+func apply_size_bonuses() -> void:
+	_stats_effective.size = _stats_base.size
+	_stats_effective.hit_points = _stats_base.hit_points * _stats_base.size
+	_stats_effective.strength = _stats_base.strength + (_stats_base.size ** 3) / 4.0
 	#_stats_effective.move_speed = _stats_base.move_speed + _stats_base.size() ** 2
-	#_stats_effective.solar_charge_rate = 0.3 * _stats_base ** 2
-	#_stats_effective.battery_capacity = 10.0
-	#_stats_effective.harvest_speed = 2.0
-	#_stats_effective.build_speed = 0.2
-	#cobaltTarget = (_stats_base.size ** 3) * 0.5
-	#ironTarget = _stats_base.size ** 3
-	#siliconTarget = _stats_base.size ** 3
-	#waterTarget = _stats_base.size ** 3
+	_stats_effective.move_speed = (_stats_base.move_speed * (_stats_base.size ** 2.0) * 0.01 * (_stats_effective.strength + (_stats_base.size ** 3.0) / 4.0) ** 2.0)
+	_stats_effective.solar_charge_rate = _stats_base.solar_charge_rate
+	_stats_effective.battery_capacity = _stats_base.battery_capacity
+	_stats_effective.harvest_speed = _stats_base.harvest_speed
+	_stats_effective.build_speed = _stats_base.build_speed
+	_HP = _stats_effective.hit_points
+	_mass = _stats_base.size ** 3
+	_body_resources = { "iron": _stats_base.size ** 3, "cobalt": _stats_base.size ** 3 / 2.0, "silicon": _stats_base.size ** 3 }
+	cobaltTarget = (_stats_base.size ** 3) * 0.5
+	ironTarget = _stats_base.size ** 3
+	siliconTarget = _stats_base.size ** 3
+	waterTarget = _stats_base.size ** 3
 
 func init(
 	body_resources: Dictionary,
@@ -169,21 +157,16 @@ func init(
 	
 	set_color(color)
 	set_family(family)
+	if !stats.is_empty(): _stats_base = stats
+	apply_size_bonuses()
 	
 	if body_resources.is_empty():
-		_body_resources = { "iron": _stats.size * material_size_mult, "cobalt": 0.0, "silicon": _stats.size * material_size_mult }
+		_body_resources = { "iron": _stats_effective.size ** 3, "cobalt": _stats_effective.size ** 3 / 2.0, "silicon": _stats_effective.size ** 3 }
 	else:
 		_body_resources = body_resources
 	
-	if !stats.is_empty(): _stats = stats
-	set_size(_stats.size)
-	
-	#TODO: test whether the (re?)initialization of the targets below is necessary, esp. for descendants
-	#_HP = _stats.hit_points
-	#cobaltTarget = _stats.size * material_size_mult * 0.05
-	#ironTarget = _stats.size * material_size_mult
-	#siliconTarget = _stats.size * material_size_mult
-	#waterTarget = _stats.size * material_size_mult
+	set_size(_stats_effective.size)
+	$healthBar/healthNum.set_text(str(_HP))
 
 
 func set_family(family: Family):
@@ -218,8 +201,8 @@ func move(movementDirection: Vector2) -> void:
 		_foot_step_timer.start()
 
 	_direction = Util.get_direction_from_vector(movementDirection)
-	var batteryPercent = _carried_resources.battery_energy / _stats.battery_capacity
-	apply_central_force(movementDirection.normalized() * _stats.move_speed * clampf(2.7 * batteryPercent + 0.1, 0.0, 1.0)) # linear ramp from 10% speed at empty battery to 100% speed at 1/3 battery
+	var batteryPercent = _carried_resources.battery_energy / _stats_effective.battery_capacity
+	apply_central_force(movementDirection.normalized() * _stats_effective.move_speed * clampf(2.7 * batteryPercent + 0.1, 0.0, 1.0)) # linear ramp from 10% speed at empty battery to 100% speed at 1/3 battery
 
 
 func dash() -> void:
@@ -229,7 +212,7 @@ func dash() -> void:
 	_sm.set_state(States.DASH_COOLDOWN)
 	var direction: Vector2 = Util.get_vector_from_direction(_direction)
 	var batteryPercent = min(_carried_resources.battery_energy / dash_battery_usage, 1.0)
-	apply_central_impulse(direction * _stats.move_speed * dash_speed_multiplier * batteryPercent)
+	apply_central_impulse(direction * _stats_effective.move_speed * dash_speed_multiplier * batteryPercent)
 	_modify_battery_energy(-dash_battery_usage)
 	$DashSoundEffect.play()
 	Util.one_shot_timer(self, dash_duration, func() -> void:
@@ -241,13 +224,13 @@ func dash() -> void:
 
 
 func apply_damage(damage: float) -> void:
-	if _HP == _stats.hit_points:
+	if _HP <= _stats_effective.hit_points:
 		$healthBar.set_visible(true)
 	_HP -= damage
 	if _HP <= 0.0:
 		die()
 	else:
-		$healthBar.set_value(100.0 * _HP / _stats.hit_points)
+		$healthBar.set_value(100.0 * _HP / _stats_effective.hit_points)
 		if DebugMode.enabled:
 			$healthBar/healthNum.set_visible(true)
 			$healthBar/healthNum.set_text(str(_HP))
@@ -257,7 +240,7 @@ func generate_chunks(percent: float, include_body: bool) -> void:
 	var cobaltMass = _carried_resources.cobalt * percent
 	if include_body: cobaltMass += _body_resources.cobalt
 	while cobaltMass > 0.0:
-		var randMass = min(randf_range(_stats.size() * material_size_mult * 0.2, _stats.size() * material_size_mult * 0.5), cobaltMass)
+		var randMass = min(randf_range((_stats_effective.size() ** 3) * 0.2, (_stats_effective.size() ** 3) * 0.5), cobaltMass)
 		cobaltMass -= randMass
 		if percent < 1.0 and _carried_resources.cobalt > 0.0:
 			_carried_resources.cobalt = max(0.0, _carried_resources.cobalt - randMass)
@@ -269,7 +252,7 @@ func generate_chunks(percent: float, include_body: bool) -> void:
 	var ironMass = _carried_resources.iron * percent
 	if include_body: ironMass += _body_resources.iron
 	while ironMass > 0.0:
-		var randMass = min(randf_range(_stats.size() * material_size_mult * 0.2, _stats.size() * material_size_mult * 0.5), ironMass)
+		var randMass = min(randf_range((_stats_effective.size() ** 3) * 0.2, (_stats_effective.size() ** 3) * 0.5), ironMass)
 		ironMass -= randMass
 		if percent < 1.0 and _carried_resources.iron > 0.0:
 			_carried_resources.iron = max(0.0, _carried_resources.iron - randMass)
@@ -281,16 +264,10 @@ func generate_chunks(percent: float, include_body: bool) -> void:
 	var siliconMass = _carried_resources.silicon * percent
 	if include_body: siliconMass += _body_resources.silicon
 	while siliconMass > 0.0:
-		var randMass = min(randf_range(_stats.size() * material_size_mult * 0.2, _stats.size() * material_size_mult * 0.5), siliconMass)
+		var randMass = min(randf_range((_stats_effective.size() ** 3) * 0.2, (_stats_effective.size() ** 3) * 0.5), siliconMass)
 		siliconMass -= randMass
 		if percent < 1.0 and _carried_resources.silicon > 0.0:
 			_carried_resources.silicon = max(0.0, _carried_resources.silicon - randMass)
-		# DISABLED SILICON CHUNK GENERATION FOR PERFORMANCE/VISUAL CLUTTER
-		#var new_morsel = morselTemplate.instantiate()
-		#$"../..".add_child(new_morsel)
-		#new_morsel.set_children_scale(sqrt(randMass) / 2.0)
-		#new_morsel._set_resource(Morsel.MATERIAL_TYPE.SILICON, randMass, true)
-		#new_morsel.set_position(Vector2(position.x, position.y))
 
 
 func get_nearby_pickuppables() -> Array:
@@ -375,7 +352,7 @@ func harvest(delta: float) -> bool:
 
 
 func attackCrab(target: Crab, delta: float) -> void:
-	var dmg = _stats.strength * delta
+	var dmg = _stats_effective.strength * delta
 	target.apply_damage(dmg)
 	$Sparks.set_emitting(true)
 	$Sparks.global_position = target.global_position
@@ -389,7 +366,7 @@ func harvest_sand(delta: float) -> bool:
 
 	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrainMult))
 	if _carried_resources.silicon < siliconTarget:
-		_add_silicon(partial_harvest * _stats.harvest_speed * delta, delta)
+		_add_silicon(partial_harvest * _stats_effective.harvest_speed * delta, delta)
 		$Vacuum.set_color(Color(0.75, 0.6, 0.0))
 		$Vacuum.set_emitting(true)
 		return true
@@ -403,7 +380,7 @@ func harvest_water(delta: float) -> bool:
 
 	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrainMult))
 	if _carried_resources.water < waterTarget:
-		_add_water(partial_harvest * _stats.harvest_speed * delta, delta)
+		_add_water(partial_harvest * _stats_effective.harvest_speed * delta, delta)
 		$Vacuum.set_color(Color(0.0, 1.0, 1.0))
 		$Vacuum.set_emitting(true)
 		return true
@@ -418,13 +395,13 @@ func harvest_morsel(delta: float, morsel: Morsel) -> bool:
 	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrainMult))
 	match morsel.mat_type:
 		Morsel.MATERIAL_TYPE.COBALT:
-			if _carried_resources.cobalt < cobaltTarget: _add_cobalt(partial_harvest * morsel._extract(_stats.harvest_speed * delta), delta)
+			if _carried_resources.cobalt < cobaltTarget: _add_cobalt(partial_harvest * morsel._extract(_stats_effective.harvest_speed * delta), delta)
 			else: return false
 		Morsel.MATERIAL_TYPE.IRON:
-			if _carried_resources.iron < ironTarget: _add_iron(partial_harvest * morsel._extract(_stats.harvest_speed * delta), delta)
+			if _carried_resources.iron < ironTarget: _add_iron(partial_harvest * morsel._extract(_stats_effective.harvest_speed * delta), delta)
 			else: return false
 		Morsel.MATERIAL_TYPE.SILICON:
-			if _carried_resources.silicon < siliconTarget: _add_silicon(partial_harvest * morsel._extract(_stats.harvest_speed * delta), delta)
+			if _carried_resources.silicon < siliconTarget: _add_silicon(partial_harvest * morsel._extract(_stats_effective.harvest_speed * delta), delta)
 			else: return false
 
 	$Sparks.set_emitting(true)
@@ -465,10 +442,10 @@ func auto_reproduce(delta: float) -> bool:
 	if can_reproduce():
 		if _sm.has_any_state([States.OUT_OF_BATTERY]):
 			return true
-		buildProgress += _stats.build_speed * delta
-		_modify_battery_energy(_stats.build_speed * delta * buildDrainMult)
+		buildProgress += _stats_effective.build_speed * delta
+		_modify_battery_energy(_stats_effective.build_speed * delta * buildDrainMult)
 		if buildProgress >= 1.0:
-			var mutation: Dictionary = MutationEngine.get_mutation_options(_stats)
+			var mutation: Dictionary = MutationEngine.get_mutation_options(_stats_base)
 			reproduce(mutation)
 			buildProgress = 0.0
 			return false
@@ -484,13 +461,14 @@ func stop_reproduce() -> void:
 
 
 func reproduce(mutation: Dictionary) -> void:
-	var new_stats: Dictionary = MutationEngine.apply_mutation(_stats, mutation)
+	var new_stats: Dictionary = MutationEngine.apply_mutation(_stats_base, mutation)
 	var new_crab: Crab = _island.create_new_crab()
 	var new_body_resources = { "iron": _carried_resources.iron, "cobalt": _carried_resources.cobalt / 2.0, "silicon": _carried_resources.silicon }
 	_carried_resources = { "iron": 0.0, "cobalt": _carried_resources.cobalt / 2.0, "silicon": 0.0, "water": 0.0, "battery_energy": _carried_resources.battery_energy }
+	new_crab._carried_resources = { "iron": 0.0, "cobalt": _carried_resources.cobalt / 2.0, "silicon": 0.0, "water": 0.0, "battery_energy": 0.0 }
 	new_crab.init(new_body_resources, new_stats, _color, _family)
 	var new_crab_direction: Vector2 = Util.random_direction()
-	new_crab.position = position + (new_crab_direction * new_crab._stats.size * 32.0)
+	new_crab.position = position + (new_crab_direction * new_crab._stats_effective.size * 32.0)
 	var new_crab_ai: CrabAI = crab_ai_scene.instantiate()
 	new_crab.add_child(new_crab_ai)
 	new_crab.stat_toasts(mutation)
@@ -516,7 +494,7 @@ func can_reproduce() -> bool:
 func get_mutations(num_options: int = 1) -> Array:
 	var mutations: Array
 	for _i in num_options:
-		mutations.push_back(MutationEngine.get_mutation_options(_stats))
+		mutations.push_back(MutationEngine.get_mutation_options(_stats_base))
 	return mutations
 
 
@@ -531,14 +509,14 @@ func _process(delta: float) -> void:
 func _harvest_sunlight(delta: float) -> void:
 	var time: float = WorldClock.time
 	if time > 0.25 && time < 0.75:
-		var gained_energy: float = _stats.solar_charge_rate * delta
+		var gained_energy: float = _stats_effective.solar_charge_rate * delta
 		_modify_battery_energy(gained_energy)
 
 
 func _deplete_battery_from_movement(delta: float) -> void:
 	if !_sm.has_state(States.RUNNING): return
 
-	var batteryPercent = _carried_resources.battery_energy / _stats.battery_capacity
+	var batteryPercent = _carried_resources.battery_energy / _stats_effective.battery_capacity
 	var lost_energy: float = min(move_battery_usage * delta * (1.6 * batteryPercent + 0.2), 1.0) # usage scales to match speed ramp at low battery
 	_modify_battery_energy(-lost_energy)
 
@@ -547,7 +525,7 @@ func _update_sleep_state() -> void:
 		_end_sleep()
 
 func _modify_battery_energy(value: float) -> void:
-	_carried_resources.battery_energy = clampf(_carried_resources.battery_energy + value, 0, _stats.battery_capacity)
+	_carried_resources.battery_energy = clampf(_carried_resources.battery_energy + value, 0, _stats_effective.battery_capacity)
 	if _carried_resources.battery_energy == 0:
 		_start_sleep()
 
@@ -652,3 +630,4 @@ func set_size(new_scale: float) -> void:
 	for child in find_children("*", "", false):
 		var scalable_child: Node2D = child as Node2D
 		if scalable_child != null: scalable_child.scale *= new_scale
+	set_mass(new_scale ** 3)
