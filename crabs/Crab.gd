@@ -42,8 +42,6 @@ var _sm: MultiStateMachine = MultiStateMachine.new()
 var _HP: float
 var _mass: float
 var metalTarget: float
-#var cobaltTarget: float
-#var ironTarget: float
 var siliconTarget: float
 var waterTarget: float
 var buildProgress: float = 0.0
@@ -90,7 +88,6 @@ var _default_stats: Dictionary = {
 	"harvest_speed": stat_init_harvest_speed,
 	"build_speed": stat_init_build_speed
 }
-#var _stats: Dictionary = _default_stats
 var _stats_base: Dictionary = {
 	"size": stat_init_size,
 	"hit_points": stat_init_hit_points,
@@ -125,14 +122,14 @@ func apply_size_bonuses() -> void:
 	_stats_base.size = max(0.05, _stats_base.size)	# ABSOLUTE MINIMUM SIZE (prevents stat weirdness at very small values)
 	_stats_effective.size = _stats_base.size
 	_stats_effective.hit_points = _stats_base.hit_points * _stats_base.size
-	_stats_effective.strength = _stats_base.strength + (_stats_base.size ** 3) / 2.0
+	_stats_effective.strength = _stats_base.strength + (_stats_base.size ** 3) / 4.0
 	#_stats_effective.move_power = _stats_base.move_power + _stats_base.size() ** 2
 	#_stats_effective.move_power = (_stats_base.move_power * (_stats_base.size ** 2.0) * 0.01 * (_stats_effective.strength + (_stats_base.size ** 3.0) / 4.0) ** 2.0)
 	#_stats_effective.move_power = (_stats_base.move_power * (_stats_base.size ** 2.0) * 0.1 * (_stats_effective.strength + (_stats_base.size ** 3.0) / 2.0) * sqrt(_stats_base.size))
 	_stats_effective.move_power = (_stats_base.move_power * (_stats_base.size ** 2.0) * 0.1 * (_stats_effective.strength + (_stats_base.size ** 3.0) / 2.0) * log(1.25 + _stats_base.size))
 	_stats_effective.solar_charge_rate = _stats_base.solar_charge_rate
 	_stats_effective.battery_capacity = _stats_base.battery_capacity
-	_stats_effective.harvest_speed = _stats_base.harvest_speed
+	_stats_effective.harvest_speed = _stats_base.harvest_speed * _stats_base.size
 	_stats_effective.build_speed = _stats_base.build_speed
 	_HP = _stats_effective.hit_points
 	_mass = _stats_base.size ** 3
@@ -141,11 +138,11 @@ func apply_size_bonuses() -> void:
 	waterTarget = _stats_base.size ** 3
 
 func init(
-	body_resources: Dictionary,
-	stats: Dictionary,
-	color: Color,
-	cobalt: bool,
-	family: Family = Family.AI
+		body_resources: Dictionary,
+		stats: Dictionary,
+		color: Color,
+		cobalt: bool,
+		family: Family = Family.AI
 	) -> void:
 		
 	_contains_cobalt = cobalt
@@ -180,37 +177,39 @@ func is_dead() -> bool:
 
 
 func move(movementDirection: Vector2) -> void:
-	_velocity = movementDirection.normalized()
+	if is_zero_approx(buildProgress):
+		_velocity = movementDirection.normalized()
 
-	if _sm.has_any_state([States.REPRODUCING, States.OUT_OF_BATTERY, States.DASHING]): return
-	if movementDirection.length() == 0: return
+		if _sm.has_any_state([States.REPRODUCING, States.OUT_OF_BATTERY, States.DASHING]): return
+		if is_zero_approx(movementDirection.length()): return
 
-	if !_sm.has_state(States.RUNNING):
-		_sm.set_state(States.RUNNING)
-		_play_random_footstep_sound()
-		_foot_step_timer.start()
+		if !_sm.has_state(States.RUNNING):
+			_sm.set_state(States.RUNNING)
+			_play_random_footstep_sound()
+			_foot_step_timer.start()
 
-	_direction = Util.get_direction_from_vector(movementDirection)
-	var batteryPercent = _carried_resources.battery_energy / _stats_effective.battery_capacity
-	apply_central_force(movementDirection.normalized() * _stats_effective.move_power * clampf(2.7 * batteryPercent + 0.1, 0.0, 1.0)) # linear ramp from 10% speed at empty battery to 100% speed at 1/3 battery
+		_direction = Util.get_direction_from_vector(movementDirection)
+		var batteryPercent = _carried_resources.battery_energy / _stats_effective.battery_capacity
+		apply_central_force(movementDirection.normalized() * _stats_effective.move_power * clampf(2.7 * batteryPercent + 0.1, 0.0, 1.0)) # linear ramp from 10% speed at empty battery to 100% speed at 1/3 battery
 
 
 func dash() -> void:
-	if _sm.has_any_state([States.DASHING, States.DASH_COOLDOWN, States.OUT_OF_BATTERY, States.REPRODUCING]): return
+	if is_zero_approx(buildProgress):
+		if _sm.has_any_state([States.DASHING, States.DASH_COOLDOWN, States.OUT_OF_BATTERY, States.REPRODUCING]): return
 
-	_sm.set_state(States.DASHING)
-	_sm.set_state(States.DASH_COOLDOWN)
-	var direction: Vector2 = Util.get_vector_from_direction(_direction)
-	var batteryPercent = min(_carried_resources.battery_energy / dash_battery_usage, 1.0)
-	apply_central_impulse(direction * _stats_effective.move_power * dash_speed_multiplier * batteryPercent)
-	_modify_battery_energy(-dash_battery_usage)
-	$DashSoundEffect.play()
-	Util.one_shot_timer(self, dash_duration, func() -> void:
-		_sm.unset_state(States.DASHING)
-	)
-	Util.one_shot_timer(self, dash_cooldown_seconds, func() -> void:
-		_sm.unset_state(States.DASH_COOLDOWN)
-	)
+		_sm.set_state(States.DASHING)
+		_sm.set_state(States.DASH_COOLDOWN)
+		var direction: Vector2 = Util.get_vector_from_direction(_direction)
+		var batteryPercent = min(_carried_resources.battery_energy / dash_battery_usage, 1.0)
+		apply_central_impulse(direction * _stats_effective.move_power * dash_speed_multiplier * batteryPercent)
+		_modify_battery_energy(-dash_battery_usage)
+		$DashSoundEffect.play()
+		Util.one_shot_timer(self, dash_duration, func() -> void:
+			_sm.unset_state(States.DASHING)
+		)
+		Util.one_shot_timer(self, dash_cooldown_seconds, func() -> void:
+			_sm.unset_state(States.DASH_COOLDOWN)
+		)
 
 
 func apply_damage(damage: float) -> void:
@@ -292,7 +291,7 @@ func get_nearest_crab() -> RigidBody2D:
 	var nearest_distance: float = 1000.0 # arbitrary max float
 	for body: Crab in get_nearby_crabs():
 		var distance: float = (body.position - position).length()
-		if distance < nearest_distance and body.get_rid() != self.get_rid():
+		if distance < nearest_distance and body.get_rid() != self.get_rid() and !body.isPlayerFamily:
 			nearest = body
 			nearest_distance = distance
 	return nearest
@@ -441,7 +440,6 @@ func reproduce(mutation: Dictionary) -> void:
 		tabForTrigger.fading = true
 
 
-
 func has_reproduction_resources() -> bool:
 	if _carried_resources.metal < metalTarget: return false
 	if _carried_resources.silicon < siliconTarget: return false
@@ -489,7 +487,7 @@ func _update_sleep_state() -> void:
 
 func _modify_battery_energy(value: float) -> void:
 	_carried_resources.battery_energy = clampf(_carried_resources.battery_energy + value, 0, _stats_effective.battery_capacity)
-	if _carried_resources.battery_energy == 0:
+	if is_zero_approx(_carried_resources.battery_energy):
 		_start_sleep()
 
 
@@ -539,7 +537,7 @@ func _update_movement_state() -> void:
 
 	if _sm.has_state(States.DASHING): return
 
-	if _velocity.length() == 0:
+	if is_zero_approx(_velocity.length()):
 		_foot_step_timer.stop()
 		_sm.unset_state(States.RUNNING)
 
@@ -551,6 +549,8 @@ func _update_animation_from_state() -> void:
 	if _direction in Util.LeftDirections: flip_h = true
 
 	if _sm.has_state(States.OUT_OF_BATTERY):
+		animation = "sleep"
+	elif _sm.has_state(States.REPRODUCING):
 		animation = "sleep"
 	elif _sm.has_state(States.DASHING):
 		animation = "dash"
