@@ -241,36 +241,32 @@ tile_set = SubResource("TileSet_lgr6q")
 metadata/_edit_lock_ = true
 
 [node name="resource0" parent="." instance=ExtResource("6_2lyxb")]
-position = Vector2(-714, 1023)
+position = Vector2(-1295, 762)
 amount = 200.0
 contains_cobalt = true
 
 [node name="resource1" parent="." instance=ExtResource("6_2lyxb")]
-position = Vector2(1490, -1418)
+position = Vector2(1370, -916)
 amount = 100.0
 
 [node name="resource2" parent="." instance=ExtResource("6_2lyxb")]
-position = Vector2(-1638, -1261)
+position = Vector2(-1091, -1455)
 amount = 100.0
 
 [node name="resource3" parent="." instance=ExtResource("6_2lyxb")]
-position = Vector2(-2547, -86)
+position = Vector2(-3559, 1015)
 amount = 100.0
 
 [node name="resource4" parent="." instance=ExtResource("6_2lyxb")]
-position = Vector2(470, 1852)
+position = Vector2(2256, 934)
 amount = 100.0
 
 [node name="resource5" parent="." instance=ExtResource("6_2lyxb")]
-position = Vector2(-2266, 1500)
+position = Vector2(505, 2035)
 amount = 100.0
 
 [node name="resource6" parent="." instance=ExtResource("6_2lyxb")]
-position = Vector2(834, -726)
-amount = 100.0
-
-[node name="resource7" parent="." instance=ExtResource("6_2lyxb")]
-position = Vector2(2340, 780)
+position = Vector2(-2684, -618)
 amount = 100.0
 
 [node name="sandArea" type="Area2D" parent="."]
@@ -291,14 +287,24 @@ position = Vector2(130, -720)
 [node name="CrabAI" parent="Crab1" instance=ExtResource("8_b2rce")]
 
 [node name="Crab2" parent="." instance=ExtResource("3_s85qb")]
-position = Vector2(377, -712)
+position = Vector2(370, -720)
 
 [node name="CrabAI" parent="Crab2" instance=ExtResource("8_b2rce")]
 
+[node name="Crab3" parent="." instance=ExtResource("3_s85qb")]
+position = Vector2(130, -840)
+
+[node name="CrabAI" parent="Crab3" instance=ExtResource("8_b2rce")]
+
 [node name="Crab4" parent="." instance=ExtResource("3_s85qb")]
-position = Vector2(254, -827)
+position = Vector2(250, -840)
 
 [node name="CrabAI" parent="Crab4" instance=ExtResource("8_b2rce")]
+
+[node name="Crab5" parent="." instance=ExtResource("3_s85qb")]
+position = Vector2(370, -840)
+
+[node name="CrabAI" parent="Crab5" instance=ExtResource("8_b2rce")]
 
 [node name="PlayerSpawnPoint" type="Node2D" parent="."]
 position = Vector2(250, -720)

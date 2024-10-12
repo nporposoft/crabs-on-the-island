@@ -146,6 +146,7 @@ func _set_tab_menu() -> void:
 	if _player.is_disassociating:
 		_update_statblock()
 	$center/TAB.set_visible(true if _player.is_disassociating else false)
+	$center/crab_cursor.set_visible(true if _player.is_disassociating else false)
 	$center/statblock.set_visible(true if _player.is_disassociating else false)
 
 

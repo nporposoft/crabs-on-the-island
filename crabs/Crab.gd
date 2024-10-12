@@ -41,9 +41,9 @@ var _contains_cobalt: bool = false
 var _sm: MultiStateMachine = MultiStateMachine.new()
 var _HP: float
 var _mass: float
-var metalTarget: float
-var siliconTarget: float
-var waterTarget: float
+var metalTarget: float = 1.0
+var siliconTarget: float = 1.0
+var waterTarget: float = 1.0
 var buildProgress: float = 0.0
 @onready var _island: Map = $"/root/Game/IslandV1"
 var default_color: Color = Color(1, 1, 1, 1)
@@ -121,7 +121,7 @@ func _ready() -> void:
 func apply_size_bonuses() -> void:
 	_stats_base.size = max(0.05, _stats_base.size)	# ABSOLUTE MINIMUM SIZE (prevents stat weirdness at very small values)
 	_stats_effective.size = _stats_base.size
-	_stats_effective.hit_points = _stats_base.hit_points * _stats_base.size
+	_stats_effective.hit_points = _stats_base.hit_points * _stats_base.size ** 2
 	_stats_effective.strength = _stats_base.strength + (_stats_base.size ** 3) / 4.0
 	#_stats_effective.move_power = _stats_base.move_power + _stats_base.size() ** 2
 	#_stats_effective.move_power = (_stats_base.move_power * (_stats_base.size ** 2.0) * 0.01 * (_stats_effective.strength + (_stats_base.size ** 3.0) / 4.0) ** 2.0)
