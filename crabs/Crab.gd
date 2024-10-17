@@ -30,6 +30,7 @@ var toastTemplate: PackedScene = preload("res://Toast.tscn")
 @onready var tabForTrigger: AnimatedSprite2D = $"/root/Game/hud/center/TAB"
 
 signal on_death
+signal on_damage
 
 var tutorial_swap = false
 var isPlayerFamily: bool
@@ -137,6 +138,7 @@ func apply_size_bonuses() -> void:
 	siliconTarget = _stats_base.size ** 3
 	waterTarget = _stats_base.size ** 3
 
+
 func init(
 		body_resources: Dictionary,
 		stats: Dictionary,
@@ -150,10 +152,10 @@ func init(
 	set_family(family)
 	if !stats.is_empty(): _stats_base = stats
 	apply_size_bonuses()
+	_HP = _stats_effective.hit_points
 	_body_metal = _stats_base.size ** 3
 	
 	set_size(_stats_effective.size)
-	$healthBar/healthNum.set_text(str(_HP))
 
 
 func set_family(family: Family):
@@ -194,35 +196,29 @@ func move(movementDirection: Vector2) -> void:
 
 
 func dash() -> void:
-	if is_zero_approx(buildProgress):
-		if _sm.has_any_state([States.DASHING, States.DASH_COOLDOWN, States.OUT_OF_BATTERY, States.REPRODUCING]): return
+	if !is_zero_approx(buildProgress): return
+	if _sm.has_any_state([States.DASHING, States.DASH_COOLDOWN, States.OUT_OF_BATTERY, States.REPRODUCING]): return
 
-		_sm.set_state(States.DASHING)
-		_sm.set_state(States.DASH_COOLDOWN)
-		var direction: Vector2 = Util.get_vector_from_direction(_direction)
-		var batteryPercent = min(_carried_resources.battery_energy / dash_battery_usage, 1.0)
-		apply_central_impulse(direction * _stats_effective.move_power * dash_speed_multiplier * batteryPercent)
-		_modify_battery_energy(-dash_battery_usage)
-		$DashSoundEffect.play()
-		Util.one_shot_timer(self, dash_duration, func() -> void:
-			_sm.unset_state(States.DASHING)
-		)
-		Util.one_shot_timer(self, dash_cooldown_seconds, func() -> void:
-			_sm.unset_state(States.DASH_COOLDOWN)
-		)
+	_sm.set_state(States.DASHING)
+	_sm.set_state(States.DASH_COOLDOWN)
+	var direction: Vector2 = Util.get_vector_from_direction(_direction)
+	var batteryPercent = min(_carried_resources.battery_energy / dash_battery_usage, 1.0)
+	apply_central_impulse(direction * _stats_effective.move_power * dash_speed_multiplier * batteryPercent)
+	_modify_battery_energy(-dash_battery_usage)
+	$DashSoundEffect.play()
+	Util.one_shot_timer(self, dash_duration, func() -> void:
+		_sm.unset_state(States.DASHING)
+	)
+	Util.one_shot_timer(self, dash_cooldown_seconds, func() -> void:
+		_sm.unset_state(States.DASH_COOLDOWN)
+	)
 
 
 func apply_damage(damage: float) -> void:
-	if _HP <= _stats_effective.hit_points:
-		$healthBar.set_visible(true)
+	on_damage.emit()
 	_HP -= damage
 	if _HP <= 0.0:
 		die()
-	else:
-		$healthBar.set_value(100.0 * _HP / _stats_effective.hit_points)
-		if DebugMode.enabled:
-			$healthBar/healthNum.set_visible(true)
-			$healthBar/healthNum.set_text(str(_HP))
 
 
 func generate_chunks(percent: float, include_body: bool) -> void:
