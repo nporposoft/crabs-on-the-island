@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://kawh61ekogmh"
-path="res://.godot/imported/crab.png-8c3f0d487c4f55739f26903ac89d0947.ctex"
+uid="uid://c6qci8pbv05x"
+path="res://.godot/imported/linelight.png-91d957123cc3ae4326174b6f3e7b7b9e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/crab.png"
-dest_files=["res://.godot/imported/crab.png-8c3f0d487c4f55739f26903ac89d0947.ctex"]
+source_file="res://assets/UI/linelight.png"
+dest_files=["res://.godot/imported/linelight.png-91d957123cc3ae4326174b6f3e7b7b9e.ctex"]
 
 [params]
 

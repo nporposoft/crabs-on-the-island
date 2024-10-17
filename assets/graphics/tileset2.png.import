@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://kawh61ekogmh"
-path="res://.godot/imported/crab.png-8c3f0d487c4f55739f26903ac89d0947.ctex"
+uid="uid://dpnein262wtyt"
+path="res://.godot/imported/tileset2.png-66dca1b59c0b770384ac4722e4850167.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/crab.png"
-dest_files=["res://.godot/imported/crab.png-8c3f0d487c4f55739f26903ac89d0947.ctex"]
+source_file="res://assets/graphics/tileset2.png"
+dest_files=["res://.godot/imported/tileset2.png-66dca1b59c0b770384ac4722e4850167.ctex"]
 
 [params]
 

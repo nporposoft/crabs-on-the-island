@@ -11,9 +11,9 @@ config_version=5
 [application]
 
 config/name="Crabs on the Island"
-run/main_scene="res://Game.tscn"
+run/main_scene="res://game/Game.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
-config/icon="res://crab.png"
+config/icon="res://assets/crab.png"
 
 [autoload]
 

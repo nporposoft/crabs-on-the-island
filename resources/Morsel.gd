@@ -5,8 +5,8 @@ extends RigidBody2D
 @onready var sprite: Sprite2D = $morselSprite
 @onready var chunk_collider = $chunk_collider
 @onready var ingot_collider = $ingot_collider
-var chunkTXR: Texture2D = preload("res://assets/chunk.png")
-var ingotTXR: Texture2D = preload("res://assets/ingot.png")
+var chunkTXR: Texture2D = preload("res://assets/graphics/chunk.png")
+var ingotTXR: Texture2D = preload("res://assets/graphics/ingot.png")
 
 @export var amount = 1000.0
 @export var contains_cobalt: bool = false
