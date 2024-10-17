@@ -102,6 +102,12 @@ swap={
 ]
 }
 
+[layer_names]
+
+2d_physics/layer_1="Unpassable"
+2d_physics/layer_2="Shallow Water"
+2d_physics/layer_3="Sand"
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
