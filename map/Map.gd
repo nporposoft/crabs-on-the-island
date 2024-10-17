@@ -8,6 +8,8 @@ var _crab_scene = preload("res://crabs/Crab.tscn")
 
 var tutorial_swap: bool = false
 
+const harvestTypeKey = "harvest_type"
+
 signal victory
 signal defeat
 
@@ -34,6 +36,12 @@ func calculate_win_condition():
 		defeat.emit()
 	elif get_ai_crabs().size() == 0:
 		victory.emit()
+
+
+func get_terrain_at_point(point: Vector2) -> String:
+	var cell: Vector2 = $tileIsland.local_to_map(point)
+	var data = $tileIsland.get_cell_tile_data(cell)
+	return data.get_custom_data(harvestTypeKey)
 
 
 func get_all_crabs() -> Array:

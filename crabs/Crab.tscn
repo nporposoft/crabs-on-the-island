@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://ch3lyfrb4hms3"]
+[gd_scene load_steps=28 format=3 uid="uid://ch3lyfrb4hms3"]
 
 [ext_resource type="Script" path="res://crabs/Crab.gd" id="1_xe67b"]
 [ext_resource type="Texture2D" uid="uid://cinsac2bckvcm" path="res://assets/graphics/robocrab.png" id="2_pcqpt"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://ck3fg10c2vv46" path="res://crabs/Zs.tscn" id="4_grhim"]
 [ext_resource type="AudioStream" uid="uid://qh5qcwmukbyf" path="res://assets/sfx/poweroff.wav" id="5_g3tvs"]
 [ext_resource type="AudioStream" uid="uid://bktiyb8rih1f2" path="res://assets/sfx/dash.wav" id="6_s5pfp"]
+[ext_resource type="Script" path="res://crabs/TerrainDebugLabel.gd" id="7_7jiyb"]
 [ext_resource type="AudioStream" uid="uid://mmp73kcler03" path="res://assets/sfx/step1.wav" id="7_e6rox"]
 [ext_resource type="AudioStream" uid="uid://dydsdao7apbh8" path="res://assets/sfx/step2.wav" id="8_gxgl0"]
 [ext_resource type="PackedScene" uid="uid://cigl58gfahcla" path="res://crabs/sparks.tscn" id="9_67f86"]
@@ -141,6 +142,16 @@ offset_bottom = 11.0
 theme = SubResource("Theme_4eqcg")
 vertical_alignment = 2
 script = ExtResource("3_wxbeg")
+
+[node name="TerrainDebugLabel" type="Label" parent="."]
+texture_filter = 1
+offset_left = -18.0
+offset_top = -61.0
+offset_right = 22.0
+offset_bottom = -38.0
+theme = SubResource("Theme_4eqcg")
+vertical_alignment = 2
+script = ExtResource("7_7jiyb")
 
 [node name="reach_area" type="Area2D" parent="."]
 
