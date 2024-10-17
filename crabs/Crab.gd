@@ -152,7 +152,6 @@ func init(
 	set_family(family)
 	if !stats.is_empty(): _stats_base = stats
 	apply_size_bonuses()
-	_HP = _stats_effective.hit_points
 	_body_metal = _stats_base.size ** 3
 	
 	set_size(_stats_effective.size)

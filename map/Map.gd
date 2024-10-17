@@ -13,10 +13,10 @@ signal defeat
 
 
 func _ready() -> void:
-	# attach signal for crabs that already exist in scene
+	# init crabs that already exist in scene
 	for crab in get_ai_crabs():
 		crab.on_death.connect(calculate_win_condition)
-
+		crab.init({}, {}, Color.WHITE, false, Crab.Family.AI)
 
 func get_player_spawn_point() -> Node2D:
 	return $PlayerSpawnPoint
