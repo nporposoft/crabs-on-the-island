@@ -189,10 +189,10 @@ func _harvest_resource(delta: float, resource: Dictionary) -> void:
 	var morsel: Morsel = resource.object as Morsel
 	if morsel != null:
 		_crab.harvest_morsel(delta, morsel)
-	elif resource.object == _island.WaterArea:
-		_crab.harvest_water(delta)
-	elif resource.object == _island.SandArea:
-		_crab.harvest_sand(delta)
+	#elif resource.object == _island.WaterArea:
+		#_crab.harvest_water(delta)
+	#elif resource.object == _island.SandArea:
+		#_crab.harvest_sand(delta)
 
 
 func _harvest_morsel(delta: float, morsel: Morsel) -> void:
@@ -232,10 +232,10 @@ func _want_resource(resource: Dictionary) -> bool:
 	var morsel: Morsel = resource.object as Morsel
 	if morsel != null:
 		return _want_morsel(morsel)
-	if resource.object == _island.WaterArea:
-		return _want_water()
-	if resource.object == _island.SandArea:
-		return _want_silicon()
+	#if resource.object == _island.WaterArea:
+		#return _want_water()
+	#if resource.object == _island.SandArea:
+		#return _want_silicon()
 	return false
 
 
@@ -243,10 +243,10 @@ func _can_reach_resource(resource: Dictionary) -> bool:
 	var morsel: Morsel = resource.object as Morsel
 	if morsel != null:
 		return _crab.can_reach_morsel(morsel)
-	if resource.object == _island.WaterArea:
-		return _island.WaterArea.get_overlapping_bodies().has(_crab)
-	if resource.object == _island.SandArea:
-		return _island.SandArea.get_overlapping_bodies().has(_crab)
+	#if resource.object == _island.WaterArea:
+		#return _island.WaterArea.get_overlapping_bodies().has(_crab)
+	#if resource.object == _island.SandArea:
+		#return _island.SandArea.get_overlapping_bodies().has(_crab)
 	return false
 
 
@@ -286,8 +286,8 @@ func _find_visible_resources() -> Array:
 		}
 		)
 		.filter(func(hit) -> bool:
-		if hit.object == _island.SandArea: return true
-		if hit.object == _island.WaterArea: return true
+		#if hit.object == _island.SandArea: return true
+		#if hit.object == _island.WaterArea: return true
 		var morsel: Morsel = hit.object as Morsel
 		if morsel != null: return true
 		return false

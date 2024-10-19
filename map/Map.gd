@@ -2,13 +2,12 @@ class_name Map
 
 extends Node2D
 
-@onready var SandArea: Area2D = $sandArea
-@onready var WaterArea: Area2D = $waterArea
 var _crab_scene = preload("res://crabs/Crab.tscn")
 
 var tutorial_swap: bool = false
 
 const harvestTypeKey = "harvest_type"
+const soundTypeKey = "sound_type"
 
 signal victory
 signal defeat
@@ -19,6 +18,7 @@ func _ready() -> void:
 	for crab in get_ai_crabs():
 		crab.on_death.connect(calculate_win_condition)
 		crab.init({}, {}, Color.WHITE, false, Crab.Family.AI)
+
 
 func get_player_spawn_point() -> Node2D:
 	return $PlayerSpawnPoint
@@ -38,10 +38,13 @@ func calculate_win_condition():
 		victory.emit()
 
 
-func get_terrain_at_point(point: Vector2) -> String:
-	var cell: Vector2 = $tileIsland.local_to_map(point)
-	var data = $tileIsland.get_cell_tile_data(cell)
-	return data.get_custom_data(harvestTypeKey)
+func get_terrain_at_point(point: Vector2) -> TerrainData:
+	var cell: Vector2             = $tileIsland.local_to_map(point)
+	var cell_data                 = $tileIsland.get_cell_tile_data(cell)
+	var terrain_data: TerrainData = TerrainData.new()
+	terrain_data.harvest_type = TerrainData.harvest_type_from_string(cell_data.get_custom_data(harvestTypeKey))
+	#terrain_data.sound_type = cell_data.get_custom_data(soundTypeKey)
+	return terrain_data
 
 
 func get_all_crabs() -> Array:

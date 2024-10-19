@@ -107,7 +107,7 @@ lock_rotation = true
 linear_damp = 10.0
 script = ExtResource("1_xe67b")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
 scale = Vector2(4, 4)
 sprite_frames = SubResource("SpriteFrames_0lpsw")
 animation = &"sleep"
@@ -129,7 +129,7 @@ position = Vector2(0, -28)
 emitting = false
 amount = 3
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="Collider" type="CollisionShape2D" parent="."]
 position = Vector2(0, 6)
 shape = SubResource("CircleShape2D_hx6oy")
 

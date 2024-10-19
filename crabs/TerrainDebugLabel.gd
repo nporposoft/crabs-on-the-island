@@ -12,6 +12,5 @@ func _process(_delta: float) -> void:
 		text = ""
 		return
 
-	var msg: String = _crab._island.get_terrain_at_point(_crab.position)
-	
-	text = msg
+	var terrain_data: TerrainData = _crab._island.get_terrain_at_point(_crab.position)
+	text = TerrainData.HarvestType.keys()[terrain_data.harvest_type]

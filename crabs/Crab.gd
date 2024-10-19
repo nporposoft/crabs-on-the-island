@@ -163,7 +163,7 @@ func set_family(family: Family):
 
 func set_color(color: Color):
 	_color = color
-	$AnimatedSprite2D.set_self_modulate(color)
+	$Sprite.set_self_modulate(color)
 
 
 func die() -> void:
@@ -230,7 +230,7 @@ func generate_chunks(percent: float, include_body: bool) -> void:
 			_carried_resources.metal = max(0.0, _carried_resources.metal - randMass)
 		var new_morsel = morselTemplate.instantiate()
 		$"../..".add_child(new_morsel)
-		new_morsel._set_resource(randMass, true if _contains_cobalt else false, true)
+		new_morsel._set_resource(randMass, _contains_cobalt, true)
 		new_morsel.set_position(Vector2(position.x, position.y))
 
 
@@ -281,7 +281,7 @@ func get_nearby_crabs() -> Array:
 	)
 
 
-func get_nearest_crab() -> RigidBody2D:
+func get_nearest_crab() -> Crab:
 	var nearest: Crab
 	var nearest_distance: float = 1000.0 # arbitrary max float
 	for body: Crab in get_nearby_crabs():
@@ -296,23 +296,24 @@ func harvest(delta: float) -> bool:
 	if _sm.has_state(States.OUT_OF_BATTERY):
 		stop_harvest()
 		return false
+
 	if _contains_cobalt:
-		var nearestCrab = get_nearest_crab()
+		var nearestCrab: Crab = get_nearest_crab()
 		if nearestCrab != null:
 			attackCrab(nearestCrab, delta)
 			return true
-	var nearestMorsel = get_nearest_morsel()
+
+	var nearestMorsel: Morsel = get_nearest_morsel()
 	if nearestMorsel != null:
 		return harvest_morsel(delta, nearestMorsel)
-	else:
-		var sandBodies = _island.SandArea.get_overlapping_bodies()
-		if sandBodies.has(self):
-			return harvest_sand(delta)
-		else:
-			var waterBodies = _island.WaterArea.get_overlapping_bodies()
-			if waterBodies.has(self):
-				return harvest_water(delta)
-		return false
+
+	var terrainData: TerrainData = _island.get_terrain_at_point(position)
+	if terrainData.harvest_type == TerrainData.HarvestType.SAND:
+		return harvest_sand(delta)
+	elif terrainData.harvest_type == TerrainData.HarvestType.WATER:
+		return harvest_water(delta)
+
+	return false
 
 
 func attackCrab(target: Crab, delta: float) -> void:
@@ -557,8 +558,8 @@ func _update_animation_from_state() -> void:
 	if animation != _current_animation || flip_h != _current_flip_h:
 		_current_animation = animation
 		_current_flip_h = flip_h
-		$AnimatedSprite2D.play(_current_animation)
-		$AnimatedSprite2D.flip_h = _current_flip_h
+		$Sprite.play(_current_animation)
+		$Sprite.flip_h = _current_flip_h
 
 func stat_toasts(mutation: Dictionary) -> void:
 	var newToast = toastTemplate.instantiate()
