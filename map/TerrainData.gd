@@ -15,6 +15,7 @@ enum SoundType {
 
 var harvest_type: HarvestType
 var sound_type: SoundType
+var location: Vector4
 
 
 static func harvest_type_from_string(type: String) -> HarvestType:

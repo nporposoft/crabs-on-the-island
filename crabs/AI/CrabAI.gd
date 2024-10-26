@@ -206,13 +206,13 @@ func _want_to_attack_crab(crab: Crab) -> bool:
 
 func _get_nearby_crabs() -> Array:
 	return (
-		_crab.get_nearby_crabs()
+		_crab.get_crabs_within_reach()
 		.filter(func(crab: Crab) -> bool: return crab != _crab)
 	)
 
 
 func _can_reach_crab(crab: Crab) -> bool:
-	return _crab.get_nearby_crabs().has(crab)
+	return _crab.get_crabs_within_reach().has(crab)
 
 
 func _attack_crab(delta: float, crab: Crab) -> void:

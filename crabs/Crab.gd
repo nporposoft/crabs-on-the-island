@@ -146,9 +146,9 @@ func init(
 		cobalt: bool,
 		family: Family = Family.AI
 	) -> void:
-		
+	
 	_contains_cobalt = cobalt
-	set_color(color)
+	$Sprite.set_color(color)
 	set_family(family)
 	if !stats.is_empty(): _stats_base = stats
 	apply_size_bonuses()
@@ -159,11 +159,6 @@ func init(
 
 func set_family(family: Family):
 	_family = family
-
-
-func set_color(color: Color):
-	_color = color
-	$Sprite.set_self_modulate(color)
 
 
 func die() -> void:
@@ -234,17 +229,17 @@ func generate_chunks(percent: float, include_body: bool) -> void:
 		new_morsel.set_position(Vector2(position.x, position.y))
 
 
-func get_nearby_pickuppables() -> Array:
+func pickupables_within_reach() -> Array:
 	return ($reach_area.get_overlapping_bodies()
 		.map(func(body) -> RigidBody2D: return body as RigidBody2D)
 		.filter(func(body) -> bool: return body != null)
 	)
 
 
-func get_nearest_pickuppable() -> RigidBody2D:
+func nearest_pickuppable_within_reach() -> RigidBody2D:
 	var nearest: RigidBody2D
 	var nearest_distance: float = 1000.0 # arbitrary max float
-	for body: RigidBody2D in get_nearby_pickuppables():
+	for body: RigidBody2D in pickupables_within_reach():
 		var distance: float = (body.position - position).length()
 		if distance < nearest_distance:
 			nearest = body
@@ -255,7 +250,7 @@ func get_nearest_pickuppable() -> RigidBody2D:
 func pickup() -> void:
 	if _sm.has_state(States.OUT_OF_BATTERY): return
 
-	var nearestPickuppable = get_nearest_pickuppable()
+	var nearestPickuppable = nearest_pickuppable_within_reach()
 	if nearestPickuppable != null:
 		var crabItem: Crab
 		crabItem = nearestPickuppable
@@ -274,17 +269,17 @@ func is_holding() -> bool:
 	return false #TODO
 
 
-func get_nearby_crabs() -> Array:
+func crabs_within_reach() -> Array:
 	return ($reach_area.get_overlapping_bodies()
 		.map(func(body) -> Crab: return body as Crab)
 		.filter(func(body) -> bool: return body != null)
 	)
 
 
-func get_nearest_crab() -> Crab:
+func nearest_crab_within_reach() -> Crab:
 	var nearest: Crab
 	var nearest_distance: float = 1000.0 # arbitrary max float
-	for body: Crab in get_nearby_crabs():
+	for body: Crab in crabs_within_reach():
 		var distance: float = (body.position - position).length()
 		if distance < nearest_distance and body.get_rid() != self.get_rid() and !body.isPlayerFamily:
 			nearest = body
@@ -298,12 +293,12 @@ func harvest(delta: float) -> bool:
 		return false
 
 	if _contains_cobalt:
-		var nearestCrab: Crab = get_nearest_crab()
+		var nearestCrab: Crab = nearest_crab_within_reach()
 		if nearestCrab != null:
 			attackCrab(nearestCrab, delta)
 			return true
 
-	var nearestMorsel: Morsel = get_nearest_morsel()
+	var nearestMorsel: Morsel = nearest_morsel_within_reach()
 	if nearestMorsel != null:
 		return harvest_morsel(delta, nearestMorsel)
 
@@ -374,17 +369,17 @@ func stop_harvest():
 	$HarvestSoundEffect.stop()
 
 
-func get_nearby_morsels() -> Array:
+func morsels_within_reach() -> Array:
 	return ($reach_area.get_overlapping_bodies()
 		.map(func(body) -> Morsel: return body as Morsel)
 		.filter(func(body) -> bool: return body != null)
 	)
 
 
-func get_nearest_morsel() -> Morsel:
+func nearest_morsel_within_reach() -> Morsel:
 	var nearest: Morsel
 	var nearest_distance: float = 1000.0 # arbitrary max float
-	for morsel: Morsel in get_nearby_morsels():
+	for morsel: Morsel in morsels_within_reach():
 		var distance: float = (morsel.position - position).length()
 		if distance < nearest_distance:
 			nearest = morsel
@@ -393,7 +388,7 @@ func get_nearest_morsel() -> Morsel:
 
 
 func can_reach_morsel(morsel: Morsel) -> bool:
-	return get_nearby_morsels().has(morsel)
+	return morsels_within_reach().has(morsel)
 
 
 func auto_reproduce(delta: float) -> bool:
@@ -460,7 +455,6 @@ func _process(delta: float) -> void:
 	_update_sleep_state()
 	_harvest_sunlight(delta)
 	_deplete_battery_from_movement(delta)
-	_update_animation_from_state()
 
 
 func _harvest_sunlight(delta: float) -> void:
@@ -537,29 +531,6 @@ func _update_movement_state() -> void:
 		_foot_step_timer.stop()
 		_sm.unset_state(States.RUNNING)
 
-
-func _update_animation_from_state() -> void:
-	var animation: String
-	var flip_h: bool
-
-	if _direction in Util.LeftDirections: flip_h = true
-
-	if _sm.has_state(States.OUT_OF_BATTERY):
-		animation = "sleep"
-	elif _sm.has_state(States.REPRODUCING):
-		animation = "sleep"
-	elif _sm.has_state(States.DASHING):
-		animation = "dash"
-	elif _sm.has_state(States.RUNNING):
-		animation = "move"
-	else:
-		animation = "idle"
-
-	if animation != _current_animation || flip_h != _current_flip_h:
-		_current_animation = animation
-		_current_flip_h = flip_h
-		$Sprite.play(_current_animation)
-		$Sprite.flip_h = _current_flip_h
 
 func stat_toasts(mutation: Dictionary) -> void:
 	var newToast = toastTemplate.instantiate()

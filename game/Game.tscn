@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://dh2a4agrr1sr0"]
+[gd_scene load_steps=7 format=3 uid="uid://dh2a4agrr1sr0"]
 
 [ext_resource type="PackedScene" uid="uid://co582gapcsfm4" path="res://map/island_v1/island_v1.tscn" id="1_214ao"]
 [ext_resource type="Script" path="res://game/Game.gd" id="1_umy7e"]
 [ext_resource type="Script" path="res://game/Camera.gd" id="2_616yq"]
+[ext_resource type="Script" path="res://map/TileMapMap.gd" id="3_lbxjc"]
 [ext_resource type="PackedScene" uid="uid://c0mfa4rplirjk" path="res://game/player.tscn" id="4_2bewm"]
 [ext_resource type="PackedScene" uid="uid://cx2ye0w0rqf4n" path="res://UI/hud.tscn" id="5_mmxbx"]
 
@@ -10,6 +11,7 @@
 script = ExtResource("1_umy7e")
 
 [node name="IslandV1" parent="." instance=ExtResource("1_214ao")]
+script = ExtResource("3_lbxjc")
 
 [node name="Camera" type="Camera2D" parent="."]
 script = ExtResource("2_616yq")
