@@ -6,8 +6,9 @@ extends Camera2D
 @export var _pan_strength: float = 0.5
 @export var _zoom_strength: float = 0.5
 
-var zoom_level: int = 5
-
+const max_zoom: int = 5
+const min_zoom: int = 1
+var current_zoom: int = max_zoom
 
 func init(player: Player) -> void:
 	_player = player
@@ -21,10 +22,10 @@ func _process(_delta: float) -> void:
 
 func _update_zoom_level() -> void:
 	if Input.is_action_just_pressed("zoom_in"):
-		zoom_level = min(zoom_level + 1, 5)
+		current_zoom = min(current_zoom + 1, max_zoom)
 	elif Input.is_action_just_pressed("zoom_out"):
-		zoom_level = max(zoom_level - 1, 1)
-	var desired_zoom: float = zoom_level / 5.0
+		current_zoom = max(current_zoom - 1, min_zoom)
+	var desired_zoom: float = current_zoom / 5.0
 	zoom = zoom.lerp(Vector2(desired_zoom, desired_zoom), _zoom_strength)
 
 
