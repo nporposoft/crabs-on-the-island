@@ -148,7 +148,7 @@ func init(
 	) -> void:
 	
 	_contains_cobalt = cobalt
-	$Sprite.set_color(color)
+	set_color(color)
 	set_family(family)
 	if !stats.is_empty(): _stats_base = stats
 	apply_size_bonuses()
@@ -157,8 +157,13 @@ func init(
 	set_size(_stats_effective.size)
 
 
-func set_family(family: Family):
+func set_family(family: Family) -> void:
 	_family = family
+
+
+func set_color(color: Color) -> void:
+	_color = color
+	$Sprite.set_color(color)
 
 
 func die() -> void:
