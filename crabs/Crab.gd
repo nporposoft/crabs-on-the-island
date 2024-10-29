@@ -32,6 +32,7 @@ var toastTemplate: PackedScene = preload("res://crabs/Toast.tscn")
 signal on_death
 signal on_damage
 
+var _map: Map
 var tutorial_swap = false
 var isPlayerFamily: bool
 var _direction: Util.Directions = Util.Directions.DOWN
@@ -144,9 +145,11 @@ func init(
 		stats: Dictionary,
 		color: Color,
 		cobalt: bool,
+		map: Map,
 		family: Family = Family.AI
 	) -> void:
 	
+	_map = map
 	_contains_cobalt = cobalt
 	set_color(color)
 	set_family(family)
@@ -250,6 +253,24 @@ func nearest_pickuppable_within_reach() -> RigidBody2D:
 			nearest = body
 			nearest_distance = distance
 	return nearest
+
+
+func resources_within_reach() -> Array[Harvestable]:
+	var resources: Array[Harvestable]
+	for morsel: Morsel in morsels_within_reach():
+		resources.push_back(Harvestable.from_morsel(morsel))
+	for terrain_data: TerrainData in _map.get_terrain_in_radius(position, 64): # TODO: that radius can't be static!
+		resources.push_back(Harvestable.from_terrain(terrain_data))
+	return resources
+
+
+func visible_resources() -> Array[Harvestable]:
+	var resources: Array[Harvestable]
+	for morsel: Morsel in morsels_within_view():
+		resources.push_back(Harvestable.from_morsel(morsel))
+	for terrain_data: TerrainData in _map.get_terrain_in_radius(position, 500): # TODO: that radius can't be static!
+		resources.push_back(Harvestable.from_terrain(terrain_data))
+	return resources
 
 
 func pickup() -> void:
@@ -374,6 +395,13 @@ func stop_harvest():
 	$HarvestSoundEffect.stop()
 
 
+func morsels_within_view() -> Array:
+	return ($VisionArea.get_overlapping_areas()
+		.map(func(body) -> Morsel: return body as Morsel)
+		.filter(func(body) -> bool: return body != null)
+	)
+
+
 func morsels_within_reach() -> Array:
 	return ($reach_area.get_overlapping_bodies()
 		.map(func(body) -> Morsel: return body as Morsel)
@@ -424,7 +452,7 @@ func reproduce(mutation: Dictionary) -> void:
 	var new_body_resources = { "metal": _carried_resources.metal, "silicon": _carried_resources.silicon }
 	_carried_resources = { "metal": 0.0, "silicon": 0.0, "water": 0.0, "battery_energy": _carried_resources.battery_energy }
 	new_crab._carried_resources = { "metal": 0.0, "silicon": 0.0, "water": 0.0, "battery_energy": 0.0 }
-	new_crab.init(new_body_resources, new_stats, _color, _contains_cobalt, _family)
+	new_crab.init(new_body_resources, new_stats, _color, _contains_cobalt, _map, _family)
 	var new_crab_direction: Vector2 = Util.random_direction()
 	new_crab.position = position + (new_crab_direction * new_crab._stats_effective.size * 32.0)
 	var new_crab_ai: CrabAI = crab_ai_scene.instantiate()

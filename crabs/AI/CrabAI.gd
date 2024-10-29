@@ -10,18 +10,6 @@ extends Node
 @export var _vision_check_delay: float = 0.25
 
 var _sm: MultiStateMachine = MultiStateMachine.new()
-var _vision_ray_directions: Array = [
-	Vector2.UP,
-	Vector2(1,-1).normalized(),
-	Vector2.RIGHT,
-	Vector2(1, 1).normalized(),
-	Vector2.DOWN,
-	Vector2(-1, 1).normalized(),
-	Vector2.LEFT,
-	Vector2(-1, -1).normalized()
-]
-var _vision_timer: Timer
-var _visible_resources: Array
 
 var _wander_direction: Vector2
 var _wander_timer: Timer
@@ -42,10 +30,8 @@ enum States {
 
 func _ready() -> void:
 	_create_wander_timer()
-	_create_vision_timer()
 
 
-# CrabAI runs in physics process b/c it uses 2D raycasting for vision
 func _physics_process(delta: float) -> void:
 	if _sleep_routine(): return
 	if _continue_attack_routine(delta): return
@@ -79,12 +65,8 @@ func _reproduce_routine(delta: float) -> bool:
 	return false
 
 
-func _harvest_routine(delta: float) -> bool:
-	if _vision_timer.is_stopped():
-		_vision_timer.start()
-		_visible_resources = _find_visible_resources()
-	
-	for resource: Dictionary in _visible_resources:
+func _harvest_routine(delta: float) -> bool:	
+	for resource: Harvestable in _crab.visible_resources():
 		if resource.object == null: continue
 		if !_want_resource(resource): continue
 		
@@ -174,7 +156,7 @@ func _keep_wandering() -> void:
 	_crab.move(_wander_direction)
 
 
-func _move_toward_resource(resource: Dictionary) -> void:
+func _move_toward_resource(resource: Harvestable) -> void:
 	_sm.set_state(States.MOVING_TO_RESOURCE)
 	_move_toward_point(resource.position)
 
@@ -184,15 +166,17 @@ func _move_toward_point(point: Vector2) -> void:
 	_crab.move(direction)
 
 
-func _harvest_resource(delta: float, resource: Dictionary) -> void:
+func _harvest_resource(delta: float, resource: Harvestable) -> void:
 	_sm.set_state(States.HARVESTING)
-	var morsel: Morsel = resource.object as Morsel
-	if morsel != null:
-		_crab.harvest_morsel(delta, morsel)
-	#elif resource.object == _island.WaterArea:
-		#_crab.harvest_water(delta)
-	#elif resource.object == _island.SandArea:
-		#_crab.harvest_sand(delta)
+	match resource.type:
+		Harvestable.HarvestableType.SAND:
+			return # TODO
+		Harvestable.HarvestableType.WATER:
+			return # TODO
+		Harvestable.HarvestableType.MORSEL:
+			_crab.harvest_morsel(delta, resource.morsel)
+		_:
+			return
 
 
 func _harvest_morsel(delta: float, morsel: Morsel) -> void:
@@ -228,26 +212,28 @@ func _stop_harvesting() -> void:
 	_sm.unset_state(States.HARVESTING)
 
 
-func _want_resource(resource: Dictionary) -> bool:
-	var morsel: Morsel = resource.object as Morsel
-	if morsel != null:
-		return _want_morsel(morsel)
-	#if resource.object == _island.WaterArea:
-		#return _want_water()
-	#if resource.object == _island.SandArea:
-		#return _want_silicon()
-	return false
+func _want_resource(resource: Harvestable) -> bool:
+	match resource.type:
+		Harvestable.HarvestableType.SAND:
+			return _want_silicon()
+		Harvestable.HarvestableType.WATER:
+			return _want_water()
+		Harvestable.HarvestableType.MORSEL:
+			return _want_morsel(resource.morsel)
+		_:
+			return false
 
 
-func _can_reach_resource(resource: Dictionary) -> bool:
-	var morsel: Morsel = resource.object as Morsel
-	if morsel != null:
-		return _crab.can_reach_morsel(morsel)
-	#if resource.object == _island.WaterArea:
-		#return _island.WaterArea.get_overlapping_bodies().has(_crab)
-	#if resource.object == _island.SandArea:
-		#return _island.SandArea.get_overlapping_bodies().has(_crab)
-	return false
+func _can_reach_resource(resource: Harvestable) -> bool:
+	match resource.type:
+		Harvestable.HarvestableType.SAND:
+			return false # TODO
+		Harvestable.HarvestableType.WATER:
+			return false # TODO
+		Harvestable.HarvestableType.MORSEL:
+			return _crab.can_reach_morsel(resource.morsel)
+		_:
+			return false
 
 
 func _want_morsel(morsel: Morsel) -> bool:
@@ -266,56 +252,7 @@ func _want_silicon() -> bool:
 	return _crab._carried_resources.silicon < _crab.siliconTarget
 
 
-# Finds all resources within visible range (_vision_distance) using raycasts in the configured directions (_vision_ray_directions).
-# Returns an array of Dictionaries; one for each visible resource.
-# The dictionary structure is:
-# {
-#   "position": Vector2
-#   "object": Morsel | Area2D
-#   "distance": float
-# }
-# The array is sorted by distance in ascending order
-func _find_visible_resources() -> Array:
-	var resources: Array = (
-		_detect_objects_with_rays()
-		.map(func(hit) -> Dictionary:
-		return {
-			"position": hit.position,
-			"object": hit.collider,
-			"distance": (hit.position - _crab.position).length()
-		}
-		)
-		.filter(func(hit) -> bool:
-		#if hit.object == _island.SandArea: return true
-		#if hit.object == _island.WaterArea: return true
-		var morsel: Morsel = hit.object as Morsel
-		if morsel != null: return true
-		return false
-		)
-	)
-	resources.sort_custom(func(a, b) -> bool: return a.distance < b.distance)
-	return resources
-
-
-func _detect_objects_with_rays() -> Array:
-	var hits: Array
-	for direction in _vision_ray_directions:
-		var ray_query = PhysicsRayQueryParameters2D.create(_crab.position, _crab.position + direction * _vision_distance)
-		ray_query.exclude = [_crab]
-		ray_query.collide_with_areas = true
-		var hit = _crab.get_world_2d().direct_space_state.intersect_ray(ray_query)
-		if !hit.is_empty(): hits.push_back(hit)
-	return hits
-
-
 func _create_wander_timer() -> void:
 	_wander_timer = Timer.new()
 	_wander_timer.one_shot = true
 	add_child(_wander_timer)
-
-
-func _create_vision_timer() -> void:
-	_vision_timer = Timer.new()
-	_vision_timer.one_shot = true
-	_vision_timer.wait_time = _vision_check_delay
-	add_child(_vision_timer)

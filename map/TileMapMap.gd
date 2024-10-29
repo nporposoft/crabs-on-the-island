@@ -15,13 +15,13 @@ func get_terrain_at_point(point: Vector2) -> TerrainData:
 		return terrain_data
 	
 	terrain_data.harvest_type = TerrainData.harvest_type_from_string(cell_data.get_custom_data(harvestTypeKey))
-	#terrain_data.sound_type = cell_data.get_custom_data(soundTypeKey)
+	terrain_data.position = tilemap.map_to_local(cell)
 	return terrain_data
 
 
 func get_terrain_in_radius(point: Vector2, radius: float) -> Array[TerrainData]:
-	var center_on_map: Vector2i = tilemap.world_to_map(point)
+	var center_on_map: Vector2i = tilemap.local_to_map(point)
 	var tileset: TileSet = tilemap.tile_set
-	var tile_size: int = tilemap.cell_size
+	var tile_size: int = tileset.tile_size.x
 	
 	return []

@@ -17,7 +17,7 @@ func get_player_spawn_position() -> Vector2:
 	return $IslandV1.get_player_spawn_point().position
 
 
-func _ready() -> void:	
+func _ready() -> void:
 	_spawn_player_crab()
 	$hud.init($Player)
 	$Camera.init($Player)
@@ -27,7 +27,7 @@ func _ready() -> void:
 
 func _spawn_player_crab() -> void:
 	var crab: Crab = get_map().create_new_crab()
-	crab.init({}, {}, $Player.color, false, Crab.Family.PLAYER)
+	crab.init({}, {}, $Player.color, false, get_map(), Crab.Family.PLAYER)
 	crab.position = get_player_spawn_position()
 	$Player.set_crab(crab)
 

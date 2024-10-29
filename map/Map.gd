@@ -17,7 +17,7 @@ func _ready() -> void:
 	# init crabs that already exist in scene
 	for crab in get_ai_crabs():
 		crab.on_death.connect(calculate_win_condition)
-		crab.init({}, {}, Color.WHITE, false, Crab.Family.AI)
+		crab.init({}, {}, Color.WHITE, false, self, Crab.Family.AI)
 
 
 func get_player_spawn_point() -> Node2D:
