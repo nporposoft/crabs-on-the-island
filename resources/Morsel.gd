@@ -16,12 +16,8 @@ var ingotTXR: Texture2D = preload("res://assets/graphics/ingot.png")
 func set_children_scale(factor: float) -> void:
 	var children = get_children()
 	for n in children:
-		n.set_scale(Vector2(factor, factor))
-		
-func apply_children_scale(factor: float) -> void:
-	var children = get_children()
-	for n in children:
-		n.apply_scale(Vector2(factor, factor))
+		n.scale *= factor
+
 
 func _set_resource (_amount: float, containsCobalt: bool, _isChunk: bool):
 	amount = _amount
