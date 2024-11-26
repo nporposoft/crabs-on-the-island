@@ -1,32 +1,17 @@
-class_name Player
+class_name PlayerController
 
 extends Node
-
-
-@onready var _game: Game = get_parent()
-@onready var _map: Map
-var crab_ai_scene: PackedScene = preload("res://crabs/AI/CrabAI.tscn")
 
 signal disassociation_changed
 signal crab_swapped
 
-@export var color: Color = Color(1.0, 0.0, 0.0)
 
 var _crab: Crab
 var _inputMovement: Vector2
 var is_disassociating: bool = false
 
 
-func _ready() -> void:
-	_map = _game.get_map()
-
-
 func _process(delta: float) -> void:
-	if !is_instance_valid(_crab): return
-	_process_swap()
-	
-	if is_disassociating: return
-	
 	_process_movement()
 	_process_dash()
 	_process_harvest(delta)
@@ -34,10 +19,15 @@ func _process(delta: float) -> void:
 	_process_reproduction(delta)
 
 
-func _physics_process(_delta: float) -> void:
-	if !is_instance_valid(_crab): return
-	
-	_crab.move(_inputMovement)
+func _process_movement() -> void:
+	_crab.move(movement_input())
+
+
+func movement_input() -> Vector2:
+	var input: Vector2
+	input.x = Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
+	input.y = Input.get_action_strength("move_down") - Input.get_action_strength("move_up")
+	return input.normalized()
 
 
 func _on_crab_die() -> void:
@@ -78,8 +68,8 @@ func _shift_crab(indexShift: int = 1) -> void:
 	var newIndex: int = ((currentIndex + indexShift) as int) % familyCrabs.size()
 	var next_crab: Crab = familyCrabs[newIndex]
 	
-	var replacement_ai: CrabAI = crab_ai_scene.instantiate()
-	prev_crab.add_child(replacement_ai)
+	#var replacement_ai: CrabAI = crab_ai_scene.instantiate()
+	#prev_crab.add_child(replacement_ai)
 	
 	var existing_ai: CrabAI = next_crab.get_node("CrabAI")
 	if existing_ai != null: existing_ai.queue_free()
@@ -92,11 +82,13 @@ func _shift_crab(indexShift: int = 1) -> void:
 func set_crab(crab: Crab) -> void:
 	if _crab != null: _unset_crab()
 	_crab = crab
+	_crab.ai.enabled = false
 	_crab.on_death.connect(_on_crab_die)
 
 
 func _unset_crab() -> void:
 	if _crab == null: return
+	_crab.ai.enabled = true
 	_crab.on_death.disconnect(_on_crab_die)
 
 
@@ -108,23 +100,19 @@ func find_living_family_member() -> Crab:
 
 
 func get_family_crabs() -> Array:
-	return (_map.get_all_crabs()
-		.filter(func(crab: Crab) -> bool:
-		return (is_instance_valid(crab) && 
-		crab._family == Crab.Family.PLAYER && 
-		!crab.is_dead())
-		)
-	)
+	#return (_map.get_all_crabs()
+		#.filter(func(crab: Crab) -> bool:
+		#return (is_instance_valid(crab) && 
+		#crab._family == Crab.Family.PLAYER && 
+		#!crab.is_dead())
+		#)
+	#)
+	return []
 
 
 func _process_dash() -> void:
 	if Input.is_action_just_pressed("dash"):
 		_crab.dash()
-
-
-func _process_movement() -> void:
-	_inputMovement.x = Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
-	_inputMovement.y = Input.get_action_strength("move_down") - Input.get_action_strength("move_up")
 
 
 func _process_harvest(delta) -> void:

@@ -3,7 +3,7 @@ class_name Hud
 extends CanvasLayer
 
 
-@export var _player : Player
+@export var _player : PlayerController
 @onready var energyBar = $topleft/energy_bar
 @onready var waterBar = $topleft/water_bar
 @onready var waterCloneBar = $topleft/water_bar/water_clone_bar
@@ -25,7 +25,7 @@ func _ready():
 	WorldClock.new_day_rollover.connect(_new_day)
 
 
-func init(player: Player) -> void:
+func init(player: PlayerController) -> void:
 	_player = player
 	_player.crab_swapped.connect(_update_statblock)
 	_player.disassociation_changed.connect(_set_tab_menu)

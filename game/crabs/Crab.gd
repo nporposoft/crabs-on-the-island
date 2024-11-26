@@ -2,6 +2,10 @@ class_name Crab
 
 extends RigidBody2D
 
+
+@onready var sprite: AnimatedSprite2D = $Sprite
+@onready var ai: CrabAI = $AI
+
 @export var move_battery_usage: float = 0.1
 @export var dash_battery_usage: float = 0.5
 @export var harvest_battery_usage: float = 0.1
@@ -14,25 +18,17 @@ extends RigidBody2D
 const movementThreshold: float = 20.0
 const harvestDrainMult = -0.25
 const buildDrainMult = -2.0
-const stat_init_size = 1.0
-const stat_init_hit_points = 20.0
-const stat_init_strength = 10.0
-const stat_init_move_power = 2500.0
-const stat_init_solar_charge_rate = 0.3
-const stat_init_battery_capacity = 10.0
-const stat_init_harvest_speed = 2.0
-const stat_init_build_speed = 0.2
 
-var crab_scene: PackedScene = preload("res://crabs/Crab.tscn")
-var crab_ai_scene: PackedScene = preload("res://crabs/AI/CrabAI.tscn")
-var morselTemplate: PackedScene = preload("res://resources/Morsel.tscn")
-var toastTemplate: PackedScene = preload("res://crabs/Toast.tscn")
+
+var morselTemplate: PackedScene = preload("res://game/resources/Morsel.tscn")
+var toastTemplate: PackedScene = preload("res://game/crabs/Toast.tscn")
 @onready var tabForTrigger: AnimatedSprite2D = $"/root/Game/hud/center/TAB"
+
 
 signal on_death
 signal on_damage
 
-var _map: Map
+
 var tutorial_swap = false
 var isPlayerFamily: bool
 var _direction: Util.Directions = Util.Directions.DOWN
@@ -40,17 +36,16 @@ var _velocity: Vector2
 @onready var _foot_step_sounds: Array[AudioStreamPlayer2D] = [$FootStepSound1, $FootStepSound2]
 var _foot_step_timer: Timer
 var _contains_cobalt: bool = false
-var _sm: MultiStateMachine = MultiStateMachine.new()
+var state: State = State.new()
 var _HP: float
 var _mass: float
 var metalTarget: float = 1.0
 var siliconTarget: float = 1.0
 var waterTarget: float = 1.0
 var buildProgress: float = 0.0
-@onready var _island: Map = $"/root/Game/IslandV1"
 var default_color: Color = Color(1, 1, 1, 1)
 var _color: Color = default_color
-var _family: Family
+var family: Family
 var batteryEnergyTargetPercentage = 50
 
 enum States {
@@ -70,46 +65,21 @@ enum Family {
 	PLAYER
 }
 
-var _current_animation: String
-var _current_flip_h: bool
 
 var _body_metal: float = 0.0
-var _carried_resources: Dictionary = {
-	"metal": 0,
-	"silicon": 0,
-	"water": 0,
-	"battery_energy": 0.0,
-}
-var _default_stats: Dictionary = {
-	"size": stat_init_size,
-	"hit_points": stat_init_hit_points,
-	"strength": stat_init_strength,
-	"move_power": stat_init_move_power,
-	"solar_charge_rate": stat_init_solar_charge_rate,
-	"battery_capacity": stat_init_battery_capacity,
-	"harvest_speed": stat_init_harvest_speed,
-	"build_speed": stat_init_build_speed
-}
+var _carried_resources: Dictionary
 var _stats_base: Dictionary = {
-	"size": stat_init_size,
-	"hit_points": stat_init_hit_points,
-	"strength": stat_init_strength,
-	"move_power": stat_init_move_power,
-	"solar_charge_rate": stat_init_solar_charge_rate,
-	"battery_capacity": stat_init_battery_capacity,
-	"harvest_speed": stat_init_harvest_speed,
-	"build_speed": stat_init_build_speed
+	"size": 0,
+	"hit_points": 0,
+	"strength": 0,
+	"move_power": 0,
+	"solar_charge_rate": 0,
+	"battery_capacity": 0,
+	"harvest_speed": 0,
+	"build_speed": 0
 }
-var _stats_effective: Dictionary = {
-	"size": _stats_base.size,
-	"hit_points": _stats_base.hit_points,
-	"strength": _stats_base.strength,
-	"move_power": _stats_base.move_power,
-	"solar_charge_rate": _stats_base.solar_charge_rate,
-	"battery_capacity": _stats_base.battery_capacity,
-	"harvest_speed": _stats_base.harvest_speed,
-	"build_speed": _stats_base.build_speed
-}
+var _stats_effective: Dictionary = _stats_base.duplicate()
+
 
 func _ready() -> void:
 	_foot_step_timer = Timer.new()
@@ -117,8 +87,6 @@ func _ready() -> void:
 	_foot_step_timer.timeout.connect(_play_random_footstep_sound)
 	add_child(_foot_step_timer)
 
-	# start powered off
-	_start_sleep(false)
 
 func apply_size_bonuses() -> void:
 	_stats_base.size = max(0.05, _stats_base.size)	# ABSOLUTE MINIMUM SIZE (prevents stat weirdness at very small values)
@@ -141,27 +109,26 @@ func apply_size_bonuses() -> void:
 
 
 func init(
-		body_resources: Dictionary,
+		carried_resources: Dictionary,
 		stats: Dictionary,
 		color: Color,
-		cobalt: bool,
-		map: Map,
-		family: Family = Family.AI
+		contains_cobalt: bool,
+		family: Family,
+		start_sleeping: bool = true,
 	) -> void:
 	
-	_map = map
-	_contains_cobalt = cobalt
+	_carried_resources = carried_resources
+	_contains_cobalt = contains_cobalt
 	set_color(color)
-	set_family(family)
-	if !stats.is_empty(): _stats_base = stats
+	self.family = family
+	_stats_base = stats
 	apply_size_bonuses()
 	_body_metal = _stats_base.size ** 3
 	
 	set_size(_stats_effective.size)
-
-
-func set_family(family: Family) -> void:
-	_family = family
+	
+	if start_sleeping:
+		_start_sleep(false)
 
 
 func set_color(color: Color) -> void:
@@ -171,49 +138,53 @@ func set_color(color: Color) -> void:
 
 func die() -> void:
 	generate_chunks(1.0, true)
-	_sm.set_state(States.DEAD)
+	state.add(States.DEAD)
 	queue_free()
 	on_death.emit()
 
 
 func is_dead() -> bool:
-	return _sm.has_state(States.DEAD)
+	return state.has(States.DEAD)
 
 
 func move(movementDirection: Vector2) -> void:
-	if is_zero_approx(buildProgress):
-		_velocity = movementDirection.normalized()
+	if !is_zero_approx(buildProgress): return
+	
+	_velocity = movementDirection.normalized()
 
-		if _sm.has_any_state([States.REPRODUCING, States.OUT_OF_BATTERY, States.DASHING]): return
-		if is_zero_approx(movementDirection.length()): return
+	if state.has_any([States.REPRODUCING, States.OUT_OF_BATTERY, States.DASHING]): return
+	if is_zero_approx(movementDirection.length()): return
 
-		if !_sm.has_state(States.RUNNING):
-			_sm.set_state(States.RUNNING)
-			_play_random_footstep_sound()
-			_foot_step_timer.start()
+	if !state.has(States.RUNNING):
+		state.has(States.RUNNING)
+		_play_random_footstep_sound()
+		_foot_step_timer.start()
 
-		_direction = Util.get_direction_from_vector(movementDirection)
-		var batteryPercent = _carried_resources.battery_energy / _stats_effective.battery_capacity
-		apply_central_force(movementDirection.normalized() * _stats_effective.move_power * clampf(2.7 * batteryPercent + 0.1, 0.0, 1.0)) # linear ramp from 10% speed at empty battery to 100% speed at 1/3 battery
+	_direction = Util.get_direction_from_vector(movementDirection)
+	var batteryPercent = _carried_resources.battery_energy / _stats_effective.battery_capacity
+	apply_central_force(movementDirection.normalized() * _stats_effective.move_power * clampf(2.7 * batteryPercent + 0.1, 0.0, 1.0)) # linear ramp from 10% speed at empty battery to 100% speed at 1/3 battery
 
 
 func dash() -> void:
 	if !is_zero_approx(buildProgress): return
-	if _sm.has_any_state([States.DASHING, States.DASH_COOLDOWN, States.OUT_OF_BATTERY, States.REPRODUCING]): return
+	if !can_dash(): return
 
-	_sm.set_state(States.DASHING)
-	_sm.set_state(States.DASH_COOLDOWN)
+	state.add_all([States.DASHING, States.DASH_COOLDOWN])
 	var direction: Vector2 = Util.get_vector_from_direction(_direction)
 	var batteryPercent = min(_carried_resources.battery_energy / dash_battery_usage, 1.0)
 	apply_central_impulse(direction * _stats_effective.move_power * dash_speed_multiplier * batteryPercent)
 	_modify_battery_energy(-dash_battery_usage)
 	$DashSoundEffect.play()
 	Util.one_shot_timer(self, dash_duration, func() -> void:
-		_sm.unset_state(States.DASHING)
+		state.remove(States.DASHING)
 	)
 	Util.one_shot_timer(self, dash_cooldown_seconds, func() -> void:
-		_sm.unset_state(States.DASH_COOLDOWN)
+		state.remove(States.DASH_COOLDOWN)
 	)
+
+
+func can_dash() -> bool:
+	return !state.has_any([States.DASHING, States.DASH_COOLDOWN, States.OUT_OF_BATTERY, States.REPRODUCING])
 
 
 func apply_damage(damage: float) -> void:
@@ -238,7 +209,7 @@ func generate_chunks(percent: float, include_body: bool) -> void:
 
 
 func pickupables_within_reach() -> Array:
-	return ($reach_area.get_overlapping_bodies()
+	return ($ReachArea.get_overlapping_bodies()
 		.map(func(body) -> RigidBody2D: return body as RigidBody2D)
 		.filter(func(body) -> bool: return body != null)
 	)
@@ -255,26 +226,8 @@ func nearest_pickuppable_within_reach() -> RigidBody2D:
 	return nearest
 
 
-func resources_within_reach() -> Array[Harvestable]:
-	var resources: Array[Harvestable]
-	for morsel: Morsel in morsels_within_reach():
-		resources.push_back(Harvestable.from_morsel(morsel))
-	for terrain_data: TerrainData in _map.get_terrain_in_radius(position, 64): # TODO: that radius can't be static!
-		resources.push_back(Harvestable.from_terrain(terrain_data))
-	return resources
-
-
-func visible_resources() -> Array[Harvestable]:
-	var resources: Array[Harvestable]
-	for morsel: Morsel in morsels_within_view():
-		resources.push_back(Harvestable.from_morsel(morsel))
-	for terrain_data: TerrainData in _map.get_terrain_in_radius(position, 500): # TODO: that radius can't be static!
-		resources.push_back(Harvestable.from_terrain(terrain_data))
-	return resources
-
-
 func pickup() -> void:
-	if _sm.has_state(States.OUT_OF_BATTERY): return
+	if state.has(States.OUT_OF_BATTERY): return
 
 	var nearestPickuppable = nearest_pickuppable_within_reach()
 	if nearestPickuppable != null:
@@ -296,7 +249,7 @@ func is_holding() -> bool:
 
 
 func crabs_within_reach() -> Array:
-	return ($reach_area.get_overlapping_bodies()
+	return ($ReachArea.get_overlapping_bodies()
 		.map(func(body) -> Crab: return body as Crab)
 		.filter(func(body) -> bool: return body != null)
 	)
@@ -314,7 +267,7 @@ func nearest_crab_within_reach() -> Crab:
 
 
 func harvest(delta: float) -> bool:
-	if _sm.has_state(States.OUT_OF_BATTERY):
+	if state.has(States.OUT_OF_BATTERY):
 		stop_harvest()
 		return false
 
@@ -327,12 +280,6 @@ func harvest(delta: float) -> bool:
 	var nearestMorsel: Morsel = nearest_morsel_within_reach()
 	if nearestMorsel != null:
 		return harvest_morsel(delta, nearestMorsel)
-
-	var terrainData: TerrainData = _island.get_terrain_at_point(position)
-	if terrainData.harvest_type == TerrainData.HarvestType.SAND:
-		return harvest_sand(delta)
-	elif terrainData.harvest_type == TerrainData.HarvestType.WATER:
-		return harvest_water(delta)
 
 	return false
 
@@ -347,7 +294,7 @@ func attackCrab(target: Crab, delta: float) -> void:
 
 
 func harvest_sand(delta: float) -> bool:
-	if _sm.has_state(States.OUT_OF_BATTERY):
+	if state.has(States.OUT_OF_BATTERY):
 		stop_harvest()
 		return false
 
@@ -361,7 +308,7 @@ func harvest_sand(delta: float) -> bool:
 
 
 func harvest_water(delta: float) -> bool:
-	if _sm.has_state(States.OUT_OF_BATTERY):
+	if state.has(States.OUT_OF_BATTERY):
 		stop_harvest()
 		return false
 
@@ -375,7 +322,7 @@ func harvest_water(delta: float) -> bool:
 
 
 func harvest_morsel(delta: float, morsel: Morsel) -> bool:
-	if _sm.has_state(States.OUT_OF_BATTERY):
+	if state.has(States.OUT_OF_BATTERY):
 		stop_harvest()
 		return false
 
@@ -403,7 +350,7 @@ func morsels_within_view() -> Array:
 
 
 func morsels_within_reach() -> Array:
-	return ($reach_area.get_overlapping_bodies()
+	return ($ReachArea.get_overlapping_bodies()
 		.map(func(body) -> Morsel: return body as Morsel)
 		.filter(func(body) -> bool: return body != null)
 	)
@@ -426,7 +373,7 @@ func can_reach_morsel(morsel: Morsel) -> bool:
 
 func auto_reproduce(delta: float) -> bool:
 	if can_reproduce():
-		if _sm.has_any_state([States.OUT_OF_BATTERY]):
+		if state.has([States.OUT_OF_BATTERY]):
 			return true
 		buildProgress += _stats_effective.build_speed * delta
 		_modify_battery_energy(_stats_effective.build_speed * delta * buildDrainMult)
@@ -447,21 +394,20 @@ func stop_reproduce() -> void:
 
 
 func reproduce(mutation: Dictionary) -> void:
-	var new_stats: Dictionary = MutationEngine.apply_mutation(_stats_base, mutation)
-	var new_crab: Crab = _island.create_new_crab()
-	var new_body_resources = { "metal": _carried_resources.metal, "silicon": _carried_resources.silicon }
-	_carried_resources = { "metal": 0.0, "silicon": 0.0, "water": 0.0, "battery_energy": _carried_resources.battery_energy }
-	new_crab._carried_resources = { "metal": 0.0, "silicon": 0.0, "water": 0.0, "battery_energy": 0.0 }
-	new_crab.init(new_body_resources, new_stats, _color, _contains_cobalt, _map, _family)
-	var new_crab_direction: Vector2 = Util.random_direction()
-	new_crab.position = position + (new_crab_direction * new_crab._stats_effective.size * 32.0)
-	var new_crab_ai: CrabAI = crab_ai_scene.instantiate()
-	new_crab.add_child(new_crab_ai)
-	new_crab.stat_toasts(mutation)
-	if !(_island.tutorial_swap) and new_crab.isPlayerFamily:
-		_island.tutorial_swap = true
-		tabForTrigger.set_visible(true)
-		tabForTrigger.fading = true
+	pass
+	#var new_stats: Dictionary = MutationEngine.apply_mutation(_stats_base, mutation)
+	#var new_crab: Crab = _island.create_new_crab()
+	#var new_body_resources = { "metal": _carried_resources.metal, "silicon": _carried_resources.silicon }
+	#_carried_resources = { "metal": 0.0, "silicon": 0.0, "water": 0.0, "battery_energy": _carried_resources.battery_energy }
+	#new_crab._carried_resources = { "metal": 0.0, "silicon": 0.0, "water": 0.0, "battery_energy": 0.0 }
+	#new_crab.init(new_body_resources, new_stats, _color, _contains_cobalt, _family)
+	#var new_crab_direction: Vector2 = Util.random_direction()
+	#new_crab.position = position + (new_crab_direction * new_crab._stats_effective.size * 32.0)
+	#new_crab.stat_toasts(mutation)
+	#if !(_island.tutorial_swap) and new_crab.isPlayerFamily:
+		#_island.tutorial_swap = true
+		#tabForTrigger.set_visible(true)
+		#tabForTrigger.fading = true
 
 
 func has_reproduction_resources() -> bool:
@@ -484,8 +430,8 @@ func get_mutations(num_options: int = 1) -> Array:
 
 
 func _process(delta: float) -> void:
-	_update_movement_state()
-	_update_sleep_state()
+	_update_movementstate()
+	_update_sleepstate()
 	_harvest_sunlight(delta)
 	_deplete_battery_from_movement(delta)
 
@@ -498,14 +444,14 @@ func _harvest_sunlight(delta: float) -> void:
 
 
 func _deplete_battery_from_movement(delta: float) -> void:
-	if !_sm.has_state(States.RUNNING): return
+	if !state.has(States.RUNNING): return
 
 	var batteryPercent = _carried_resources.battery_energy / _stats_effective.battery_capacity
 	var lost_energy: float = min(move_battery_usage * delta * (1.6 * batteryPercent + 0.2), 1.0) # usage scales to match speed ramp at low battery
 	_modify_battery_energy(-lost_energy)
 
-func _update_sleep_state() -> void:
-	if !_sm.has_state(States.SHUTDOWN_COOLDOWN) && _sm.has_state(States.OUT_OF_BATTERY) && _carried_resources.battery_energy > 0:
+func _update_sleepstate() -> void:
+	if !state.has(States.SHUTDOWN_COOLDOWN) && state.has(States.OUT_OF_BATTERY) && _carried_resources.battery_energy > 0:
 		_end_sleep()
 
 func _modify_battery_energy(value: float) -> void:
@@ -515,19 +461,19 @@ func _modify_battery_energy(value: float) -> void:
 
 
 func _start_sleep(play_sound: bool = true) -> void:
-	if _sm.has_state(States.OUT_OF_BATTERY): return
+	if state.has(States.OUT_OF_BATTERY): return
 
-	_sm.set_states([States.OUT_OF_BATTERY, States.SHUTDOWN_COOLDOWN])
+	state.add_all([States.OUT_OF_BATTERY, States.SHUTDOWN_COOLDOWN])
 	if play_sound: $PowerOffSoundEffect.play()
 	$Zs.set_emitting(true)
 	stop_harvest()
 	Util.one_shot_timer(self, shutdown_cooldown_seconds, func() -> void:
-		_sm.unset_state(States.SHUTDOWN_COOLDOWN)
+		state.remove(States.SHUTDOWN_COOLDOWN)
 	)
 
 
 func _end_sleep() -> void:
-	_sm.unset_state(States.OUT_OF_BATTERY)
+	state.remove(States.OUT_OF_BATTERY)
 	$PowerOnSoundEffect.play()
 	$Zs.set_emitting(false)
 
@@ -552,17 +498,17 @@ func _add_water(value: float, delta: float) -> void:
 	_modify_battery_energy(delta * harvestDrainMult)
 
 
-func _update_movement_state() -> void:
-	if _sm.has_state(States.OUT_OF_BATTERY):
+func _update_movementstate() -> void:
+	if state.has(States.OUT_OF_BATTERY):
 		_foot_step_timer.stop()
-		_sm.unset_state(States.RUNNING)
+		state.remove(States.RUNNING)
 		return
 
-	if _sm.has_state(States.DASHING): return
+	if state.has(States.DASHING): return
 
 	if is_zero_approx(_velocity.length()):
 		_foot_step_timer.stop()
-		_sm.unset_state(States.RUNNING)
+		state.remove(States.RUNNING)
 
 
 func stat_toasts(mutation: Dictionary) -> void:

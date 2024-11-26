@@ -2,7 +2,6 @@ class_name Camera
 
 extends Camera2D
 
-@export var _player: Player
 @export var _pan_strength: float = 0.5
 @export var _zoom_strength: float = 0.5
 
@@ -10,9 +9,12 @@ const max_zoom: int = 5
 const min_zoom: int = 1
 var current_zoom: int = max_zoom
 
-func init(player: Player) -> void:
-	_player = player
-	position = _player._crab.position
+var target: Node2D
+
+
+func init(target: Node2D) -> void:
+	self.target = target
+	position = target.position
 
 
 func _process(_delta: float) -> void:
@@ -30,5 +32,5 @@ func _update_zoom_level() -> void:
 
 
 func _update_position() -> void:
-	if is_instance_valid(_player._crab):
-		position = position.lerp(_player._crab.position, _pan_strength)
+	if is_instance_valid(target):
+		position = position.lerp(target.position, _pan_strength)

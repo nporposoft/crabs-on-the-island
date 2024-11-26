@@ -1,0 +1,59 @@
+[gd_scene load_steps=10 format=3 uid="uid://dhbkj2kfpdna0"]
+
+[ext_resource type="Script" path="res://game/Scenario.gd" id="1_ajgca"]
+[ext_resource type="PackedScene" uid="uid://cx2ye0w0rqf4n" path="res://game/UI/hud.tscn" id="2_mf02r"]
+[ext_resource type="PackedScene" uid="uid://co582gapcsfm4" path="res://maps/island_v1/island_v1.tscn" id="2_pwdnd"]
+[ext_resource type="PackedScene" uid="uid://b7nkwabfweman" path="res://game/victory_conditions/conquest_victory.tscn" id="4_xh18d"]
+[ext_resource type="PackedScene" uid="uid://bop410g4bgxmi" path="res://game/crabs/crab_spawner.tscn" id="5_ylf2h"]
+[ext_resource type="PackedScene" uid="uid://ch3lyfrb4hms3" path="res://game/crabs/Crab.tscn" id="6_outce"]
+[ext_resource type="Script" path="res://game/Camera.gd" id="7_bn0l8"]
+[ext_resource type="Script" path="res://game/SpawnPoint.gd" id="8_qslcf"]
+[ext_resource type="Script" path="res://game/PlayerController.gd" id="9_m04ma"]
+
+[node name="StoryIslandScenario" type="Node"]
+script = ExtResource("1_ajgca")
+
+[node name="hud" parent="." node_paths=PackedStringArray("_player") instance=ExtResource("2_mf02r")]
+_player = NodePath("../PlayerController")
+
+[node name="IslandV1" parent="." instance=ExtResource("2_pwdnd")]
+
+[node name="ConquestVictory" parent="." node_paths=PackedStringArray("scenario") instance=ExtResource("4_xh18d")]
+scenario = NodePath("..")
+
+[node name="CrabSpawner" parent="." node_paths=PackedStringArray("container") instance=ExtResource("5_ylf2h")]
+container = NodePath("..")
+crab_scene = ExtResource("6_outce")
+
+[node name="Camera" type="Camera2D" parent="."]
+script = ExtResource("7_bn0l8")
+
+[node name="Player Spawn" type="Node2D" parent="."]
+position = Vector2(261, -719)
+script = ExtResource("8_qslcf")
+is_player = true
+team_color = Color(1, 0, 0, 1)
+family = 1
+
+[node name="AI Crab 1 Spawn" type="Node2D" parent="."]
+position = Vector2(158, -815)
+script = ExtResource("8_qslcf")
+
+[node name="AI Crab 2 Spawn" type="Node2D" parent="."]
+position = Vector2(259, -812)
+script = ExtResource("8_qslcf")
+
+[node name="AI Crab 3 Spawn" type="Node2D" parent="."]
+position = Vector2(353, -813)
+script = ExtResource("8_qslcf")
+
+[node name="AI Crab 4 Spawn" type="Node2D" parent="."]
+position = Vector2(159, -720)
+script = ExtResource("8_qslcf")
+
+[node name="AI Crab 5 Spawn" type="Node2D" parent="."]
+position = Vector2(356, -721)
+script = ExtResource("8_qslcf")
+
+[node name="PlayerController" type="Node" parent="."]
+script = ExtResource("9_m04ma")

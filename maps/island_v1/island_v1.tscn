@@ -1,19 +1,18 @@
-[gd_scene load_steps=9 format=4 uid="uid://co582gapcsfm4"]
+[gd_scene load_steps=7 format=4 uid="uid://co582gapcsfm4"]
 
-[ext_resource type="Script" path="res://map/Map.gd" id="1_8bswg"]
-[ext_resource type="PackedScene" uid="uid://2uy6byy1384y" path="res://map/day_night_cycle.tscn" id="2_4tlql"]
+[ext_resource type="Script" path="res://game/TileMapMap.gd" id="1_12vk2"]
+[ext_resource type="PackedScene" uid="uid://2uy6byy1384y" path="res://maps/day_night_cycle.tscn" id="2_4tlql"]
 [ext_resource type="Texture2D" uid="uid://dpnein262wtyt" path="res://assets/graphics/tileset2.png" id="2_8m5ny"]
-[ext_resource type="PackedScene" uid="uid://ch3lyfrb4hms3" path="res://crabs/Crab.tscn" id="3_s85qb"]
-[ext_resource type="TileSet" uid="uid://cx5n7i8uguq3n" path="res://map/island_v1/tilesetv3.tres" id="4_60xk5"]
-[ext_resource type="PackedScene" uid="uid://b530dsmiuti0k" path="res://resources/Morsel.tscn" id="6_2lyxb"]
-[ext_resource type="PackedScene" uid="uid://2ca0br6l0a2t" path="res://crabs/AI/CrabAI.tscn" id="8_b2rce"]
+[ext_resource type="TileSet" uid="uid://cx5n7i8uguq3n" path="res://maps/island_v1/tilesetv3.tres" id="4_60xk5"]
+[ext_resource type="PackedScene" uid="uid://b530dsmiuti0k" path="res://game/resources/Morsel.tscn" id="6_2lyxb"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_r1n16"]
 atlas = ExtResource("2_8m5ny")
 region = Rect2(23.2028, 1070.54, 218.793, 181.132)
 
-[node name="IslandV1" type="Node2D"]
-script = ExtResource("1_8bswg")
+[node name="IslandV1" type="Node2D" node_paths=PackedStringArray("tilemap")]
+script = ExtResource("1_12vk2")
+tilemap = NodePath("tileIsland2")
 
 [node name="Background" type="Sprite2D" parent="."]
 scale = Vector2(304.048, 647.828)
@@ -56,33 +55,5 @@ amount = 100.0
 [node name="resource6" parent="." instance=ExtResource("6_2lyxb")]
 position = Vector2(-2684, -618)
 amount = 100.0
-
-[node name="Crab1" parent="." instance=ExtResource("3_s85qb")]
-position = Vector2(130, -720)
-
-[node name="CrabAI" parent="Crab1" instance=ExtResource("8_b2rce")]
-
-[node name="Crab2" parent="." instance=ExtResource("3_s85qb")]
-position = Vector2(370, -720)
-
-[node name="CrabAI" parent="Crab2" instance=ExtResource("8_b2rce")]
-
-[node name="Crab3" parent="." instance=ExtResource("3_s85qb")]
-position = Vector2(130, -840)
-
-[node name="CrabAI" parent="Crab3" instance=ExtResource("8_b2rce")]
-
-[node name="Crab4" parent="." instance=ExtResource("3_s85qb")]
-position = Vector2(250, -840)
-
-[node name="CrabAI" parent="Crab4" instance=ExtResource("8_b2rce")]
-
-[node name="Crab5" parent="." instance=ExtResource("3_s85qb")]
-position = Vector2(370, -840)
-
-[node name="CrabAI" parent="Crab5" instance=ExtResource("8_b2rce")]
-
-[node name="PlayerSpawnPoint" type="Node2D" parent="."]
-position = Vector2(250, -720)
 
 [editable path="DayNightCycle"]

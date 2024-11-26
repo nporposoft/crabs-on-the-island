@@ -10,7 +10,7 @@ func _ready() -> void:
 	crab.on_damage.connect(func() -> void: set_visible(true))
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if !is_visible: return
 
 	var hp: float = crab._HP

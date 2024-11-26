@@ -61,3 +61,13 @@ static func get_vector_from_direction(direction: Directions) -> Vector2:
 		Directions.UP_RIGHT:
 			vector = Vector2.UP + Vector2.RIGHT
 	return vector.normalized()
+
+
+static func require_child(parent: Node, type) -> Node:
+	var node = (parent.get_children()
+	.filter(func(child: Node) -> bool: 
+		return is_instance_of(child, type)
+	).pop_front())
+	if node == null:
+		push_error("Required child not found")
+	return node

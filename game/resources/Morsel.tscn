@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://b530dsmiuti0k"]
 
-[ext_resource type="Script" path="res://resources/Morsel.gd" id="1_bccdp"]
+[ext_resource type="Script" path="res://game/resources/Morsel.gd" id="1_bccdp"]
 [ext_resource type="Texture2D" uid="uid://bfaup65ugpegb" path="res://assets/graphics/ingot.png" id="2_2qlx0"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_86wl0"]

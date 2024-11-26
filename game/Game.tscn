@@ -1,24 +1,12 @@
-[gd_scene load_steps=7 format=3 uid="uid://dh2a4agrr1sr0"]
+[gd_scene load_steps=4 format=3 uid="uid://dh2a4agrr1sr0"]
 
-[ext_resource type="PackedScene" uid="uid://co582gapcsfm4" path="res://map/island_v1/island_v1.tscn" id="1_214ao"]
 [ext_resource type="Script" path="res://game/Game.gd" id="1_umy7e"]
-[ext_resource type="Script" path="res://game/Camera.gd" id="2_616yq"]
-[ext_resource type="Script" path="res://map/TileMapMap.gd" id="3_lbxjc"]
-[ext_resource type="PackedScene" uid="uid://c0mfa4rplirjk" path="res://game/player.tscn" id="4_2bewm"]
-[ext_resource type="PackedScene" uid="uid://cx2ye0w0rqf4n" path="res://UI/hud.tscn" id="5_mmxbx"]
+[ext_resource type="Script" path="res://game/SceneManager.gd" id="2_tqlxo"]
+[ext_resource type="PackedScene" uid="uid://dhbkj2kfpdna0" path="res://scenarios/story_island_scenario.tscn" id="3_w7ipl"]
 
 [node name="Game" type="Node"]
 script = ExtResource("1_umy7e")
 
-[node name="IslandV1" parent="." instance=ExtResource("1_214ao")]
-script = ExtResource("3_lbxjc")
-
-[node name="Camera" type="Camera2D" parent="."]
-script = ExtResource("2_616yq")
-
-[node name="Player" parent="." instance=ExtResource("4_2bewm")]
-
-[node name="hud" parent="." instance=ExtResource("5_mmxbx")]
-
-[editable path="IslandV1"]
-[editable path="IslandV1/DayNightCycle"]
+[node name="SceneManager" type="Node" parent="."]
+script = ExtResource("2_tqlxo")
+starting_scene = ExtResource("3_w7ipl")

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bop410g4bgxmi"]
+
+[ext_resource type="Script" path="res://game/crabs/CrabSpawner.gd" id="1_qwefe"]
+
+[node name="CrabSpawner" type="Node"]
+script = ExtResource("1_qwefe")

@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://dep8m82etl7ym"]
 
-[ext_resource type="Script" path="res://crabs/toast.gd" id="1_3ypda"]
+[ext_resource type="Script" path="res://game/crabs/toast.gd" id="1_3ypda"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_gdqfh"]
 font_size = 24

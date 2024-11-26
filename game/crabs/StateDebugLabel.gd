@@ -12,7 +12,13 @@ func _process(_delta: float) -> void:
 
 	var msg: String = ""
 	for state: Crab.States in Crab.States.values():
-		if _crab._sm.has_state(state):
+		if _crab.state.has(state):
 			msg += Crab.States.keys()[state] + "\n"
+	
+	if _crab.ai.enabled:
+		msg += "AI:\n"
+		for state: CrabAI.States in CrabAI.States.values():
+			if _crab.ai._state.has(state):
+				msg += "\t" + CrabAI.States.keys()[state] + "\n"
 	
 	text = msg

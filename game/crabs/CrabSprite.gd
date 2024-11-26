@@ -10,19 +10,19 @@ func set_color(color: Color) -> void:
 	set_self_modulate(color)
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	var new_animation: String
 	var new_flip_h: bool
 
 	if _crab._direction in Util.LeftDirections: new_flip_h = true
 
-	if _crab._sm.has_state(Crab.States.OUT_OF_BATTERY):
+	if _crab.state.has(Crab.States.OUT_OF_BATTERY):
 		new_animation = "sleep"
-	elif _crab._sm.has_state(Crab.States.REPRODUCING):
+	elif _crab.state.has(Crab.States.REPRODUCING):
 		new_animation = "sleep"
-	elif _crab._sm.has_state(Crab.States.DASHING):
+	elif _crab.state.has(Crab.States.DASHING):
 		new_animation = "dash"
-	elif _crab._sm.has_state(Crab.States.RUNNING):
+	elif _crab.state.has(Crab.States.RUNNING):
 		new_animation = "move"
 	else:
 		new_animation = "idle"
