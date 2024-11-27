@@ -14,7 +14,7 @@ func _process(_delta: float) -> void:
 	var new_animation: String
 	var new_flip_h: bool
 
-	if _crab._direction in Util.LeftDirections: new_flip_h = true
+	if _crab.movementDirection.x < 0: new_flip_h = true
 
 	if _crab.state.has(Crab.States.OUT_OF_BATTERY):
 		new_animation = "sleep"

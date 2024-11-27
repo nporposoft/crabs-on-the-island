@@ -38,7 +38,7 @@ signal on_wakeup
 
 var tutorial_swap = false
 var isPlayerFamily: bool
-var _direction: Util.Directions = Util.Directions.DOWN
+var movementDirection: Vector2 = Vector2.RIGHT
 var _velocity: Vector2
 @onready var _foot_step_sounds: Array[AudioStreamPlayer2D] = [$FootStepSound1, $FootStepSound2]
 var _foot_step_timer: Timer
@@ -155,7 +155,7 @@ func is_dead() -> bool:
 
 
 func move(movementDirection: Vector2) -> void:
-	_velocity = movementDirection.normalized()
+	self.movementDirection = movementDirection.normalized()
 	
 	if !can_move(): return
 	if is_zero_approx(movementDirection.length()): return
@@ -165,7 +165,6 @@ func move(movementDirection: Vector2) -> void:
 		_play_random_footstep_sound()
 		_foot_step_timer.start()
 
-	_direction = Util.get_direction_from_vector(movementDirection)
 	var batteryPercent = _carried_resources.battery_energy / _stats_effective.battery_capacity
 	apply_central_force(movementDirection.normalized() * _stats_effective.move_power * clampf(2.7 * batteryPercent + 0.1, 0.0, 1.0)) # linear ramp from 10% speed at empty battery to 100% speed at 1/3 battery
 
@@ -176,11 +175,12 @@ func can_move() -> bool:
 
 func dash() -> void:
 	if !can_dash(): return
-
+	
+	if is_zero_approx(movementDirection.length()): return
+	
 	state.add(States.DASHING)
-	var direction: Vector2 = Util.get_vector_from_direction(_direction)
 	var batteryPercent = min(_carried_resources.battery_energy / dash_battery_usage, 1.0)
-	apply_central_impulse(direction * _stats_effective.move_power * dash_speed_multiplier * batteryPercent)
+	apply_central_impulse(movementDirection * _stats_effective.move_power * dash_speed_multiplier * batteryPercent)
 	_modify_battery_energy(-dash_battery_usage)
 	on_dash.emit()
 	
