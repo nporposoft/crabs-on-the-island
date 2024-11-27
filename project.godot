@@ -17,7 +17,6 @@ config/icon="res://assets/crab.png"
 
 [autoload]
 
-WorldClock="*res://util/Clock.gd"
 DebugMode="*res://util/DebugMode.gd"
 
 [display]

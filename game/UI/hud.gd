@@ -1,9 +1,12 @@
-class_name Hud
+class_name HUD
 
 extends CanvasLayer
 
+@onready var scenario: Scenario = get_parent()
+var player: PlayerController
+var clock: Clock
+var day: int = -1
 
-@export var _player : PlayerController
 @onready var energyBar = $topleft/energy_bar
 @onready var waterBar = $topleft/water_bar
 @onready var waterCloneBar = $topleft/water_bar/water_clone_bar
@@ -20,15 +23,19 @@ const active_color: Color = Color(1.0, 1.0, 1.0)
 const inactive_color: Color = Color(0.0625, 0.0625, 0.0625)
 
 
-func _ready():
-	dayLabel.text = "Day " + str(WorldClock.day_count + 1)
-	WorldClock.new_day_rollover.connect(_new_day)
+func _ready() -> void:
+	scenario.player_init.connect(_init_player)
+	scenario.clock_init.connect(_init_clock)
 
 
-func init(player: PlayerController) -> void:
-	_player = player
-	_player.crab_swapped.connect(_update_statblock)
-	_player.disassociation_changed.connect(_set_tab_menu)
+func _init_clock(clock: Clock) -> void:
+	self.clock = clock
+
+
+func _init_player(player: PlayerController) -> void:
+	self.player = player
+	player.crab_swapped.connect(_update_statblock)
+	player.disassociation_changed.connect(_set_tab_menu)
 
 
 func _process(_delta):
@@ -44,7 +51,11 @@ func _process(_delta):
 
 
 func _update_sundial() -> void:
-	sundial.set_rotation(2.0 * PI * WorldClock.time)
+	if day != clock.day_count:
+		dayLabel.text = "Day " + str(clock.day_count + 1)
+		day = clock.day_count
+	
+	sundial.set_rotation(2.0 * PI * clock.time)
 
 
 func _update_battery() -> void:
@@ -67,10 +78,6 @@ func _update_cobalt_light() -> void:
 
 func _update_ready_to_clone() -> void:
 	_set_clone_light(_reproduction_targets_reached())
-
-
-func _new_day():
-	dayLabel.text = "Day " + str(WorldClock.day_count + 1)
 
 
 func _update_build_progress() -> void:
@@ -116,7 +123,7 @@ func _update_metal() -> void:
 
 
 func _set_cobalt_light(activate: bool) -> void:
-	var sizeFloat = 2.0 + 0.5 * sin(WorldClock.time * 240.0)
+	var sizeFloat = 2.0 + 0.5 * sin(clock.time * 240.0)
 	$topleft/cobalt_light/cobalt_glow.set_scale(Vector2(sizeFloat, sizeFloat))
 	$topleft/cobalt_light.set_self_modulate(active_color if activate else inactive_color)
 	$topleft/cobalt_light/cobalt_glow.set_visible(activate)
@@ -143,15 +150,15 @@ func _set_clone_light(activate: bool) -> void:
 
 
 func _set_tab_menu() -> void:
-	if _player.is_disassociating:
+	if player.is_disassociating:
 		_update_statblock()
-	$center/TAB.set_visible(true if _player.is_disassociating else false)
-	$center/crab_cursor.set_visible(true if _player.is_disassociating else false)
-	$center/statblock.set_visible(true if _player.is_disassociating else false)
+	$center/TAB.set_visible(true if player.is_disassociating else false)
+	$center/crab_cursor.set_visible(true if player.is_disassociating else false)
+	$center/statblock.set_visible(true if player.is_disassociating else false)
 
 
 func _update_statblock() -> void:
-	if !_player.is_disassociating: return
+	if !player.is_disassociating: return
 	if !is_instance_valid(_crab()): return
 
 	var lines: Array = []
@@ -171,4 +178,4 @@ func _trigger_victory() -> void:
 
 
 func _crab() -> Crab:
-	return _player._crab
+	return player._crab

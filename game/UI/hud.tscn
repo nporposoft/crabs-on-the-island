@@ -303,7 +303,7 @@ animations = [{
 "speed": 2.0
 }]
 
-[node name="hud" type="CanvasLayer"]
+[node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_a2y7d")
 
 [node name="topright" type="Control" parent="."]

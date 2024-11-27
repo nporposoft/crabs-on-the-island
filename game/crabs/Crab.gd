@@ -5,6 +5,8 @@ extends RigidBody2D
 
 @onready var sprite: AnimatedSprite2D = $Sprite
 @onready var ai: CrabAI = $AI
+@onready var scenario: Scenario = get_parent()
+
 
 @export var move_battery_usage: float = 0.1
 @export var dash_battery_usage: float = 0.5
@@ -437,10 +439,14 @@ func _process(delta: float) -> void:
 
 
 func _harvest_sunlight(delta: float) -> void:
-	var time: float = WorldClock.time
-	if time > 0.25 && time < 0.75:
+	if _can_harvest_sunlight():
 		var gained_energy: float = _stats_effective.solar_charge_rate * delta
 		_modify_battery_energy(gained_energy)
+
+
+func _can_harvest_sunlight() -> bool:
+	var time: float = scenario.clock.time
+	return time > 0.25 && time < 0.75
 
 
 func _deplete_battery_from_movement(delta: float) -> void:
