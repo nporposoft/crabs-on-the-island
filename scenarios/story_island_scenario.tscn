@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://game/Scenario.gd" id="1_ajgca"]
 [ext_resource type="PackedScene" uid="uid://cx2ye0w0rqf4n" path="res://game/UI/hud.tscn" id="2_mf02r"]
 [ext_resource type="PackedScene" uid="uid://co582gapcsfm4" path="res://maps/island_v1/island_v1.tscn" id="2_pwdnd"]
-[ext_resource type="PackedScene" uid="uid://2uy6byy1384y" path="res://maps/day_night_cycle.tscn" id="3_g8x2x"]
+[ext_resource type="PackedScene" uid="uid://2uy6byy1384y" path="res://game/maps/day_night_cycle_v1/day_night_cycle.tscn" id="3_g8x2x"]
 [ext_resource type="PackedScene" uid="uid://b7nkwabfweman" path="res://game/victory_conditions/conquest_victory.tscn" id="4_xh18d"]
 [ext_resource type="PackedScene" uid="uid://bop410g4bgxmi" path="res://game/crabs/crab_spawner.tscn" id="5_ylf2h"]
 [ext_resource type="PackedScene" uid="uid://ch3lyfrb4hms3" path="res://game/crabs/Crab.tscn" id="6_outce"]

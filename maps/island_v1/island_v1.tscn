@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=4 uid="uid://co582gapcsfm4"]
 
-[ext_resource type="Script" path="res://game/TileMapMap.gd" id="1_12vk2"]
+[ext_resource type="Script" path="res://game/maps/TileMapMap.gd" id="1_12vk2"]
 [ext_resource type="Texture2D" uid="uid://dpnein262wtyt" path="res://assets/graphics/tileset2.png" id="2_8m5ny"]
 [ext_resource type="TileSet" uid="uid://cx5n7i8uguq3n" path="res://maps/island_v1/tilesetv3.tres" id="4_60xk5"]
 [ext_resource type="PackedScene" uid="uid://b530dsmiuti0k" path="res://game/resources/Morsel.tscn" id="6_2lyxb"]
