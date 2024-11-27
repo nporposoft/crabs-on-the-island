@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://game/crabs/Crab.gd" id="1_xe67b"]
 [ext_resource type="Texture2D" uid="uid://cinsac2bckvcm" path="res://assets/graphics/robocrab.png" id="2_pcqpt"]
 [ext_resource type="Script" path="res://game/crabs/CrabSprite.gd" id="3_a83at"]
-[ext_resource type="Script" path="res://game/crabs/StateDebugLabel.gd" id="3_wxbeg"]
+[ext_resource type="Script" path="res://game/crabs/DebugLabel.gd" id="3_wxbeg"]
 [ext_resource type="AudioStream" uid="uid://droer2prtggda" path="res://assets/sfx/poweron2.wav" id="4_3pxvx"]
 [ext_resource type="PackedScene" uid="uid://ck3fg10c2vv46" path="res://game/crabs/Zs.tscn" id="4_grhim"]
 [ext_resource type="AudioStream" uid="uid://qh5qcwmukbyf" path="res://assets/sfx/poweroff.wav" id="5_g3tvs"]

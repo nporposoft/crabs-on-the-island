@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://c5pl5wyt6bu4h"]
+
+[ext_resource type="Script" path="res://game/resources/WaterCollider.gd" id="1_k4b02"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_befjk"]
+
+[node name="WaterCollider" type="Area2D"]
+collision_layer = 2
+collision_mask = 2
+script = ExtResource("1_k4b02")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_befjk")
