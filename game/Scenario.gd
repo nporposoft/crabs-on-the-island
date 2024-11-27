@@ -7,7 +7,6 @@ var victory_conditions: VictoryConditions
 var crab_spawner: CrabSpawner
 var camera: Camera
 var player: PlayerController
-var map: Map
 var clock: Clock
 var hud: HUD
 
@@ -18,7 +17,6 @@ signal clock_init(clock: Clock)
 func _ready() -> void:
 	victory_conditions = Util.require_child(self, VictoryConditions)
 	crab_spawner = Util.require_child(self, CrabSpawner)
-	map = Util.require_child(self, Map)
 	
 	player = Util.require_child(self, PlayerController)
 	var player_crab: Crab = _init_player_crab()

@@ -1,8 +1,8 @@
-[gd_scene load_steps=12 format=3 uid="uid://dhbkj2kfpdna0"]
+[gd_scene load_steps=13 format=3 uid="uid://dhbkj2kfpdna0"]
 
 [ext_resource type="Script" path="res://game/Scenario.gd" id="1_ajgca"]
 [ext_resource type="PackedScene" uid="uid://cx2ye0w0rqf4n" path="res://game/UI/hud.tscn" id="2_mf02r"]
-[ext_resource type="PackedScene" uid="uid://co582gapcsfm4" path="res://maps/island_v1/island_v1.tscn" id="2_pwdnd"]
+[ext_resource type="PackedScene" uid="uid://nsr1sq37maew" path="res://maps/island_v1.tscn" id="2_pwdnd"]
 [ext_resource type="PackedScene" uid="uid://2uy6byy1384y" path="res://game/maps/day_night_cycle_v1/day_night_cycle.tscn" id="3_g8x2x"]
 [ext_resource type="PackedScene" uid="uid://b7nkwabfweman" path="res://game/victory_conditions/conquest_victory.tscn" id="4_xh18d"]
 [ext_resource type="PackedScene" uid="uid://bop410g4bgxmi" path="res://game/crabs/crab_spawner.tscn" id="5_ylf2h"]
@@ -11,6 +11,7 @@
 [ext_resource type="Script" path="res://game/SpawnPoint.gd" id="8_qslcf"]
 [ext_resource type="Script" path="res://game/PlayerController.gd" id="9_m04ma"]
 [ext_resource type="Script" path="res://util/Clock.gd" id="11_sap3j"]
+[ext_resource type="PackedScene" uid="uid://b530dsmiuti0k" path="res://game/resources/Morsel.tscn" id="12_8rwm3"]
 
 [node name="StoryIslandScenario" type="Node"]
 script = ExtResource("1_ajgca")
@@ -63,5 +64,34 @@ script = ExtResource("8_qslcf")
 
 [node name="PlayerController" type="Node" parent="."]
 script = ExtResource("9_m04ma")
+
+[node name="resource0" parent="." instance=ExtResource("12_8rwm3")]
+position = Vector2(-1295, 762)
+amount = 200.0
+contains_cobalt = true
+
+[node name="resource1" parent="." instance=ExtResource("12_8rwm3")]
+position = Vector2(1370, -916)
+amount = 100.0
+
+[node name="resource2" parent="." instance=ExtResource("12_8rwm3")]
+position = Vector2(-1091, -1455)
+amount = 100.0
+
+[node name="resource3" parent="." instance=ExtResource("12_8rwm3")]
+position = Vector2(-3559, 1015)
+amount = 100.0
+
+[node name="resource4" parent="." instance=ExtResource("12_8rwm3")]
+position = Vector2(2256, 934)
+amount = 100.0
+
+[node name="resource5" parent="." instance=ExtResource("12_8rwm3")]
+position = Vector2(505, 2035)
+amount = 100.0
+
+[node name="resource6" parent="." instance=ExtResource("12_8rwm3")]
+position = Vector2(-2684, -618)
+amount = 100.0
 
 [editable path="DayNightCycle"]
