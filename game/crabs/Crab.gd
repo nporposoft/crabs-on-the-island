@@ -12,7 +12,7 @@ extends RigidBody2D
 @export var move_battery_usage: float = 0.1
 @export var dash_battery_usage: float = 0.5
 @export var harvest_battery_usage: float = 0.1
-@export var dash_cooldown_seconds: float = 1.0
+@export var dash_cooldown_seconds: float = 0.6
 @export var dash_duration: float = 0.4
 @export var dash_speed_multiplier: float = 1.0
 @export var shutdown_cooldown_seconds: float = 2.0
@@ -25,11 +25,15 @@ const buildDrainMult = -2.0
 
 var morselTemplate: PackedScene = preload("res://game/resources/Morsel.tscn")
 var toastTemplate: PackedScene = preload("res://game/crabs/Toast.tscn")
-@onready var tabForTrigger: AnimatedSprite2D = $"/root/Game/hud/center/TAB"
+#@onready var tabForTrigger: AnimatedSprite2D = $"/root/Game/hud/center/TAB"
 
 
 signal on_death
 signal on_damage
+signal on_dash
+signal on_harvest(type: String)
+signal on_sleep
+signal on_wakeup
 
 
 var tutorial_swap = false
@@ -151,11 +155,9 @@ func is_dead() -> bool:
 
 
 func move(movementDirection: Vector2) -> void:
-	if !is_zero_approx(buildProgress): return
-	
 	_velocity = movementDirection.normalized()
-
-	if state.has_any([States.REPRODUCING, States.OUT_OF_BATTERY, States.DASHING]): return
+	
+	if !can_move(): return
 	if is_zero_approx(movementDirection.length()): return
 
 	if !state.has(States.RUNNING):
@@ -168,26 +170,37 @@ func move(movementDirection: Vector2) -> void:
 	apply_central_force(movementDirection.normalized() * _stats_effective.move_power * clampf(2.7 * batteryPercent + 0.1, 0.0, 1.0)) # linear ramp from 10% speed at empty battery to 100% speed at 1/3 battery
 
 
+func can_move() -> bool:
+	return !build_in_progress() && !state.has_any([States.REPRODUCING, States.OUT_OF_BATTERY, States.DASHING])
+
+
 func dash() -> void:
-	if !is_zero_approx(buildProgress): return
 	if !can_dash(): return
 
-	state.add_all([States.DASHING, States.DASH_COOLDOWN])
+	state.add(States.DASHING)
 	var direction: Vector2 = Util.get_vector_from_direction(_direction)
 	var batteryPercent = min(_carried_resources.battery_energy / dash_battery_usage, 1.0)
 	apply_central_impulse(direction * _stats_effective.move_power * dash_speed_multiplier * batteryPercent)
 	_modify_battery_energy(-dash_battery_usage)
-	$DashSoundEffect.play()
+	on_dash.emit()
+	
 	Util.one_shot_timer(self, dash_duration, func() -> void:
 		state.remove(States.DASHING)
-	)
-	Util.one_shot_timer(self, dash_cooldown_seconds, func() -> void:
-		state.remove(States.DASH_COOLDOWN)
+		state.add(States.DASH_COOLDOWN)
+		Util.one_shot_timer(self, dash_cooldown_seconds, func() -> void:
+			state.remove(States.DASH_COOLDOWN)
+		)
 	)
 
 
 func can_dash() -> bool:
-	return !state.has_any([States.DASHING, States.DASH_COOLDOWN, States.OUT_OF_BATTERY, States.REPRODUCING])
+	return !build_in_progress() && !state.has_any([
+		States.DASHING, States.DASH_COOLDOWN, States.OUT_OF_BATTERY, States.REPRODUCING
+	])
+
+
+func build_in_progress() -> bool:
+	return !is_zero_approx(buildProgress)
 
 
 func apply_damage(damage: float) -> void:
@@ -294,8 +307,7 @@ func harvest_sand(delta: float) -> bool:
 	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrainMult))
 	if _carried_resources.silicon < siliconTarget:
 		_add_silicon(partial_harvest * _stats_effective.harvest_speed * delta, delta)
-		$Vacuum.set_color(Color(0.75, 0.6, 0.0))
-		$Vacuum.set_emitting(true)
+		$SandVacuum.set_emitting(true)
 		return true
 	return false
 
@@ -308,8 +320,7 @@ func harvest_water(delta: float) -> bool:
 	var partial_harvest = min(1.0, _carried_resources.battery_energy / (delta * -harvestDrainMult))
 	if _carried_resources.water < waterTarget:
 		_add_water(partial_harvest * _stats_effective.harvest_speed * delta, delta)
-		$Vacuum.set_color(Color(0.0, 1.0, 1.0))
-		$Vacuum.set_emitting(true)
+		$WaterVacuum.set_emitting(true)
 		return true
 	return false
 
@@ -330,7 +341,8 @@ func harvest_morsel(delta: float, morsel: Morsel) -> bool:
 
 
 func stop_harvest():
-	$Vacuum.set_emitting(false)
+	$SandVacuum.set_emitting(false)
+	$WaterVacuum.set_emitting(false)
 	$Sparks.set_emitting(false)
 	$HarvestSoundEffect.stop()
 
