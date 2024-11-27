@@ -46,14 +46,14 @@ func _init_player_crab() -> Crab:
 	if player_spawn == null:
 		push_warning("cannot create player without spawn point")
 		return
-	var crab: Crab = crab_spawner.spawn(player_spawn)
+	var crab: Crab = crab_spawner.spawn_from_point(player_spawn)
 	return crab
 
 
 func _init_ai_crabs() -> Array[Crab]:
 	var crabs: Array[Crab]
 	for spawn_point: SpawnPoint in _get_ai_spawn_points():
-		var crab: Crab = crab_spawner.spawn(spawn_point)
+		var crab: Crab = crab_spawner.spawn_from_point(spawn_point)
 		crabs.push_back(crab)
 	return crabs
 

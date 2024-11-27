@@ -22,11 +22,15 @@ func nearest_morsel() -> Morsel:
 	return morsels[0]
 
 
+func has_morsel(morsel: Morsel) -> bool:
+	return get_overlapping_bodies().has(morsel)
+
+
 func crabs() -> Array[Crab]:
 	var crabs: Array[Crab] = []
 	for node: Node2D in get_overlapping_bodies():
 		var crab: Crab = node as Crab
-		if crab != null && crab_self != owner:
+		if crab != null && crab != crab_self:
 			crabs.push_back(crab)
 	
 	return crabs
@@ -37,6 +41,10 @@ func nearest_crab() -> Crab:
 	crabs.sort_custom(_sort_distance)
 	if crabs.size() == 0: return null
 	return crabs[0]
+
+
+func has_crab(crab: Crab) -> bool:
+	return get_overlapping_bodies().has(crab)
 
 
 func water() -> Array[WaterCollider]:
@@ -56,6 +64,10 @@ func nearest_water() -> WaterCollider:
 	return water[0]
 
 
+func has_water(water: WaterCollider) -> bool:
+	return get_overlapping_areas().has(water)
+
+
 func sand() -> Array[SandCollider]:
 	var sands: Array[SandCollider] = []
 	for area: Area2D in get_overlapping_areas():
@@ -71,6 +83,10 @@ func nearest_sand() -> SandCollider:
 	sand.sort_custom(_sort_distance)
 	if sand.size() == 0: return null
 	return sand[0]
+
+
+func has_sand(sand: SandCollider) -> bool:
+	return get_overlapping_areas().has(sand)
 
 
 func _sort_distance(a: Node2D, b: Node2D) -> bool:

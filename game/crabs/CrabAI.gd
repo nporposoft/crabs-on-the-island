@@ -10,8 +10,6 @@ var enabled: bool = true
 var _wander_direction: Vector2
 var _wander_timer: Timer
 
-var _attack_target: Crab
-
 enum States {
 	IDLING,
 	WANDERING,
@@ -31,10 +29,8 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if !enabled: return
 	if _sleep_routine(): return
-	if _continue_attack_routine(delta): return
 	if _reproduce_routine(delta): return
 	if _harvest_routine(delta): return
-	if _crab_harvest_routine(delta): return
 	_wander_routine()
 
 
@@ -44,13 +40,6 @@ func _sleep_routine() -> bool:
 		return true
 	_state.remove(States.SLEEPING)
 	return false
-
-
-func _continue_attack_routine(delta: float) -> bool:
-	if _attack_target == null: return false
-	
-	_attack_crab(delta, _attack_target)
-	return true
 
 
 func _reproduce_routine(delta: float) -> bool:
@@ -64,32 +53,67 @@ func _reproduce_routine(delta: float) -> bool:
 
 
 func _harvest_routine(delta: float) -> bool:
-	#var visible_resources: Array = _crab.visible_resources()
-	#for resource: Harvestable in visible_resources:
-		#if !_want_resource(resource): continue
-		#
-		#_clear_states()
-		#
-		#if _can_reach_resource(resource): 
-			#_harvest_resource(delta, resource)
-		#else:
-			#_clear_states()
-			#_move_toward_resource(resource)
-		#return true
-	#
-	#return false
+	if _harvest_sand(delta): return true
+	if _harvest_water(delta): return true
+	if _harvest_metal(delta): return true
+	if _harvest_crab(delta): return true
 	return false
 
 
-func _crab_harvest_routine(delta: float) -> bool:
-	if _crab.has_reproduction_resources(): return false
-	if !_crab._contains_cobalt: return false
+func _harvest_sand(delta: float) -> bool:
+	if !_want_silicon(): return false
 	
-	var nearby_crabs: Array = _get_nearby_crabs()
-	for crab in nearby_crabs:
-		if _want_to_attack_crab(crab):
-			_attack_crab(delta, crab)
-			return true
+	var sand: SandCollider = _crab.vision.nearest_sand()
+	if !sand: return false
+
+	if _crab.reach.has_sand(sand):
+		_clear_states()
+		_state.add(States.HARVESTING)
+		_crab.harvest_sand(delta)
+	else:
+		_move_toward_resource(sand)
+	return true
+
+
+func _harvest_water(delta: float) -> bool:
+	if !_want_water(): return false
+
+	var water: WaterCollider = _crab.vision.nearest_water()
+	if !water: return false
+
+	if _crab.reach.has_water(water):
+		_clear_states()
+		_state.add(States.HARVESTING)
+		_crab.harvest_water(delta)
+	else:
+		_move_toward_resource(water)
+	return true
+
+
+func _harvest_metal(delta: float) -> bool:
+	if !_want_metal(): return false
+
+	var morsel: Morsel = _crab.vision.nearest_morsel()
+	if !morsel: return false
+
+	if _crab.reach.has_morsel(morsel):
+		_clear_states()
+		_state.add(States.HARVESTING)
+		_crab.harvest_morsel(delta, morsel)
+	else:
+		_move_toward_resource(morsel)
+	return true
+
+
+func _harvest_crab(delta: float) -> bool:
+	if !_can_attack(): return false
+	
+	for crab: Crab in _get_nearby_crabs():
+		if !_want_to_attack_crab(crab): continue
+		
+		_attack_crab(delta, crab)
+		return true
+	
 	return false
 
 
@@ -156,32 +180,25 @@ func _keep_wandering() -> void:
 	_crab.move(_wander_direction)
 
 
-#func _move_toward_resource(resource: Harvestable) -> void:
-	#_sm.set_state(States.MOVING_TO_RESOURCE)
-	#_move_toward_point(resource.position)
-#
-#
+func _move_toward_resource(resource: Node2D) -> void:
+	_clear_states()
+	_state.add(States.MOVING_TO_RESOURCE)
+	_move_toward_point(resource.position)
+
+
 func _move_toward_point(point: Vector2) -> void:
 	var direction: Vector2 = point - _crab.position
 	_crab.move(direction)
 
 
-#func _harvest_resource(delta: float, resource: Harvestable) -> void:
-	#_sm.set_state(States.HARVESTING)
-	#match resource.type:
-		#Harvestable.HarvestableType.SAND:
-			#return # TODO
-		#Harvestable.HarvestableType.WATER:
-			#return # TODO
-		#Harvestable.HarvestableType.MORSEL:
-			#_crab.harvest_morsel(delta, resource.morsel)
-		#_:
-			#return
-
-
 func _harvest_morsel(delta: float, morsel: Morsel) -> void:
+	_clear_states()
 	_state.add(States.HARVESTING)
 	_crab.harvest_morsel(delta, morsel)
+
+
+func _can_attack() -> bool:
+	return _crab._contains_cobalt
 
 
 func _want_to_attack_crab(crab: Crab) -> bool:
@@ -189,17 +206,15 @@ func _want_to_attack_crab(crab: Crab) -> bool:
 
 
 func _get_nearby_crabs() -> Array:
-	return (
-		_crab.crabs_within_reach()
-		.filter(func(crab: Crab) -> bool: return crab != _crab)
-	)
+	return _crab.reach.crabs()
 
 
 func _can_reach_crab(crab: Crab) -> bool:
-	return _crab.crabs_within_reach().has(crab)
+	return _get_nearby_crabs().has(crab)
 
 
 func _attack_crab(delta: float, crab: Crab) -> void:
+	_clear_states()
 	_state.add(States.ATTACKING)
 	if _can_reach_crab(crab):
 		_crab.attackCrab(crab, delta)
@@ -210,34 +225,6 @@ func _attack_crab(delta: float, crab: Crab) -> void:
 func _stop_harvesting() -> void:
 	_crab.stop_harvest()
 	_state.remove(States.HARVESTING)
-
-#
-#func _want_resource(resource: Harvestable) -> bool:
-	#match resource.type:
-		#Harvestable.HarvestableType.SAND:
-			#return _want_silicon()
-		#Harvestable.HarvestableType.WATER:
-			#return _want_water()
-		#Harvestable.HarvestableType.MORSEL:
-			#return _want_morsel(resource.morsel)
-		#_:
-			#return false
-#
-#
-#func _can_reach_resource(resource: Harvestable) -> bool:
-	#match resource.type:
-		#Harvestable.HarvestableType.SAND:
-			#return false # TODO
-		#Harvestable.HarvestableType.WATER:
-			#return false # TODO
-		#Harvestable.HarvestableType.MORSEL:
-			#return _crab.can_reach_morsel(resource.morsel)
-		#_:
-			#return false
-
-
-func _want_morsel(_morsel: Morsel) -> bool:
-	return _want_metal()
 
 
 func _want_metal() -> bool:

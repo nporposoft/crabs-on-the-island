@@ -34,6 +34,7 @@ signal on_dash
 signal on_harvest(type: String)
 signal on_sleep
 signal on_wakeup
+signal on_reproduce(parent: Crab, child: Crab)
 
 
 var tutorial_swap = false
@@ -370,16 +371,17 @@ func stop_reproduce() -> void:
 
 
 func reproduce(mutation: Dictionary) -> void:
-	pass
-	#var new_stats: Dictionary = MutationEngine.apply_mutation(_stats_base, mutation)
-	#var new_crab: Crab = _island.create_new_crab()
-	#var new_body_resources = { "metal": _carried_resources.metal, "silicon": _carried_resources.silicon }
-	#_carried_resources = { "metal": 0.0, "silicon": 0.0, "water": 0.0, "battery_energy": _carried_resources.battery_energy }
-	#new_crab._carried_resources = { "metal": 0.0, "silicon": 0.0, "water": 0.0, "battery_energy": 0.0 }
-	#new_crab.init(new_body_resources, new_stats, _color, _contains_cobalt, _family)
-	#var new_crab_direction: Vector2 = Util.random_direction()
-	#new_crab.position = position + (new_crab_direction * new_crab._stats_effective.size * 32.0)
-	#new_crab.stat_toasts(mutation)
+	_carried_resources = { "metal": 0.0, "silicon": 0.0, "water": 0.0, "battery_energy": _carried_resources["battery_energy"]}
+	var child: Crab = scenario.crab_spawner.spawn_with_attributes(
+		position,
+		{ "metal": 0.0, "silicon": 0.0, "water": 0.0, "battery_energy": 0.0 },
+		MutationEngine.apply_mutation(_stats_base, mutation),
+		_color,
+		_contains_cobalt,
+		family
+	)
+	on_reproduce.emit(self, child)
+	child.stat_toasts(mutation)
 	#if !(_island.tutorial_swap) and new_crab.isPlayerFamily:
 		#_island.tutorial_swap = true
 		#tabForTrigger.set_visible(true)

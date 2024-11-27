@@ -14,9 +14,9 @@ var ingotTXR: Texture2D = preload("res://assets/graphics/ingot.png")
 
 
 func set_children_scale(factor: float) -> void:
-	var children = get_children()
-	for n in children:
-		n.scale *= factor
+	sprite.scale = Vector2.ONE * (4 * factor)
+	chunk_collider.scale = Vector2.ONE * (4 * factor)
+	ingot_collider.scale = Vector2.ONE * factor
 
 
 func _set_resource (_amount: float, containsCobalt: bool, _isChunk: bool):
@@ -24,7 +24,7 @@ func _set_resource (_amount: float, containsCobalt: bool, _isChunk: bool):
 	contains_cobalt = containsCobalt
 	is_chunk = _isChunk
 	
-	set_children_scale(pow(amount, 0.1))
+	_update_scale()
 	
 	if is_chunk:
 		sprite.set_texture(chunkTXR)
@@ -49,7 +49,13 @@ func _extract (extractAmount) -> float:
 		return amount
 	else:
 		amount -= extractAmount
+		_update_scale()
 		return extractAmount
+
+
+func _update_scale() -> void:
+	set_children_scale(pow(amount, 0.05))
+
 
 func _ready():
 	_set_resource(amount, contains_cobalt, is_chunk)
