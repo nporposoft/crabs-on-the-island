@@ -139,11 +139,15 @@ amount = 3
 shape = SubResource("CircleShape2D_hx6oy")
 
 [node name="ReachArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 7
 
 [node name="reach_area_collider" type="CollisionShape2D" parent="ReachArea"]
 shape = SubResource("CircleShape2D_t5lib")
 
 [node name="VisionArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 7
 
 [node name="Area" type="CollisionShape2D" parent="VisionArea"]
 shape = SubResource("CircleShape2D_ny5g2")
