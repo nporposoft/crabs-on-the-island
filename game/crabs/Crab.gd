@@ -6,7 +6,8 @@ extends RigidBody2D
 @onready var sprite: AnimatedSprite2D = $Sprite
 @onready var ai: CrabAI = $AI
 @onready var scenario: Scenario = get_parent()
-
+@onready var reach: Detector = $ReachArea
+@onready var vision: Detector = $VisionArea
 
 @export var move_battery_usage: float = 0.1
 @export var dash_battery_usage: float = 0.5
@@ -250,38 +251,28 @@ func is_holding() -> bool:
 	return false #TODO
 
 
-func crabs_within_reach() -> Array:
-	return ($ReachArea.get_overlapping_bodies()
-		.map(func(body) -> Crab: return body as Crab)
-		.filter(func(body) -> bool: return body != null)
-	)
-
-
-func nearest_crab_within_reach() -> Crab:
-	var nearest: Crab
-	var nearest_distance: float = 1000.0 # arbitrary max float
-	for body: Crab in crabs_within_reach():
-		var distance: float = (body.position - position).length()
-		if distance < nearest_distance and body.get_rid() != self.get_rid() and !body.isPlayerFamily:
-			nearest = body
-			nearest_distance = distance
-	return nearest
-
-
 func harvest(delta: float) -> bool:
 	if state.has(States.OUT_OF_BATTERY):
 		stop_harvest()
 		return false
 
 	if _contains_cobalt:
-		var nearestCrab: Crab = nearest_crab_within_reach()
+		var nearestCrab: Crab = reach.nearest_crab()
 		if nearestCrab != null:
 			attackCrab(nearestCrab, delta)
 			return true
 
-	var nearestMorsel: Morsel = nearest_morsel_within_reach()
+	var nearestMorsel: Morsel = reach.nearest_morsel()
 	if nearestMorsel != null:
 		return harvest_morsel(delta, nearestMorsel)
+
+	var nearestSand: SandCollider = reach.nearest_sand()
+	if nearestSand != null:
+		return harvest_sand(delta)
+	
+	var nearestWater: WaterCollider = reach.nearest_water()
+	if nearestWater != null:
+		return harvest_water(delta)
 
 	return false
 
@@ -344,38 +335,9 @@ func stop_harvest():
 	$HarvestSoundEffect.stop()
 
 
-func morsels_within_view() -> Array:
-	return ($VisionArea.get_overlapping_areas()
-		.map(func(body) -> Morsel: return body as Morsel)
-		.filter(func(body) -> bool: return body != null)
-	)
-
-
-func morsels_within_reach() -> Array:
-	return ($ReachArea.get_overlapping_bodies()
-		.map(func(body) -> Morsel: return body as Morsel)
-		.filter(func(body) -> bool: return body != null)
-	)
-
-
-func nearest_morsel_within_reach() -> Morsel:
-	var nearest: Morsel
-	var nearest_distance: float = 1000.0 # arbitrary max float
-	for morsel: Morsel in morsels_within_reach():
-		var distance: float = (morsel.position - position).length()
-		if distance < nearest_distance:
-			nearest = morsel
-			nearest_distance = distance
-	return nearest
-
-
-func can_reach_morsel(morsel: Morsel) -> bool:
-	return morsels_within_reach().has(morsel)
-
-
 func auto_reproduce(delta: float) -> bool:
 	if can_reproduce():
-		if state.has([States.OUT_OF_BATTERY]):
+		if state.has(States.OUT_OF_BATTERY):
 			return true
 		buildProgress += _stats_effective.build_speed * delta
 		_modify_battery_energy(_stats_effective.build_speed * delta * buildDrainMult)

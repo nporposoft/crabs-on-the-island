@@ -11,6 +11,9 @@ func _process(_delta: float) -> void:
 		return
 
 	var msg: String = ""
+	
+	msg += str(_crab.position) + "\n"
+	
 	for state: Crab.States in Crab.States.values():
 		if _crab.state.has(state):
 			msg += Crab.States.keys()[state] + "\n"

@@ -24,7 +24,7 @@ func _set_resource (_amount: float, containsCobalt: bool, _isChunk: bool):
 	contains_cobalt = containsCobalt
 	is_chunk = _isChunk
 	
-	set_children_scale(pow(amount, 1.0/3.0))
+	set_children_scale(pow(amount, 0.1))
 	
 	if is_chunk:
 		sprite.set_texture(chunkTXR)
