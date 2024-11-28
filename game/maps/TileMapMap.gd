@@ -13,13 +13,17 @@ extends TileMapLayer
 @onready var sand_collider: PackedScene = preload("res://game/resources/SandCollider.tscn")
 
 
+const background_size: int = 1000000
+const background_rect: Rect2 = Rect2(-background_size / 2, -background_size / 2, background_size, background_size)
+
+
 func _ready() -> void:
 	_create_resource_colliders()
 
 
 func _draw() -> void:
 	# draw an arbitrarily large rectangle behind the map to hide the edges
-	draw_rect(Rect2(-10000.0, -10000.0, 10000.0, 10000.0), background_color)
+	draw_rect(background_rect, background_color)
 
 
 func _create_resource_colliders() -> void:
