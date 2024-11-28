@@ -12,6 +12,8 @@ var is_disassociating: bool = false
 
 
 func _process(delta: float) -> void:
+	if !is_instance_valid(_crab): return
+
 	_process_movement()
 	_process_dash()
 	_process_harvest(delta)
@@ -20,6 +22,8 @@ func _process(delta: float) -> void:
 
 
 func _process_movement() -> void:
+	if !is_instance_valid(_crab): return
+
 	_crab.move(movement_input())
 
 
