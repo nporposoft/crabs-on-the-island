@@ -1,4 +1,4 @@
-class_name ResourceCollider
+class_name MapResource
 
 extends Area2D
 

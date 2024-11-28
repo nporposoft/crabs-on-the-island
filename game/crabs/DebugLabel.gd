@@ -20,8 +20,6 @@ func _process(_delta: float) -> void:
 	
 	if _crab.ai.enabled:
 		msg += "AI_ENABLED\n"
-		for state: CrabAI.States in CrabAI.States.values():
-			if _crab.ai._state.has(state):
-				msg += CrabAI.States.keys()[state] + "\n"
+		msg += CrabAI.States.keys()[_crab.ai._state] + "\n"
 	
 	text = msg

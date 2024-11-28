@@ -1,3 +1,0 @@
-class_name SandCollider
-
-extends ResourceCollider

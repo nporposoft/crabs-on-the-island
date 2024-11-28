@@ -54,7 +54,8 @@ func _extract (extractAmount) -> float:
 
 
 func _update_scale() -> void:
-	set_children_scale(pow(amount, 0.05))
+	# TODO: morsels dropped by crabs are invisible, this needs to be tweaked
+	set_children_scale(pow(amount/100, 3))
 
 
 func _ready():

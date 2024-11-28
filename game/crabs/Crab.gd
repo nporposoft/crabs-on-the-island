@@ -270,21 +270,23 @@ func harvest(delta: float) -> bool:
 		stop_harvest()
 		return false
 
+	var resources_in_reach: ResourceCollection = reach.get_resources()
+
 	if _contains_cobalt:
-		var nearestCrab: Crab = reach.nearest_crab()
+		var nearestCrab: Crab = resources_in_reach.nearest_crab()
 		if nearestCrab != null:
 			attackCrab(nearestCrab, delta)
 			return true
 
-	var nearestMorsel: Morsel = reach.nearest_morsel()
+	var nearestMorsel: Morsel = resources_in_reach.nearest_morsel()
 	if nearestMorsel != null:
 		return harvest_morsel(delta, nearestMorsel)
 
-	var nearestSand: SandCollider = reach.nearest_sand()
+	var nearestSand: Sand = resources_in_reach.nearest_sand()
 	if nearestSand != null:
 		return harvest_sand(delta)
 	
-	var nearestWater: WaterCollider = reach.nearest_water()
+	var nearestWater: Water = resources_in_reach.nearest_water()
 	if nearestWater != null:
 		return harvest_water(delta)
 

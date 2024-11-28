@@ -43,7 +43,7 @@ func _create_collider(harvest_type: String, position: Vector2, size: Vector2) ->
 		"sand": scene = sand_collider
 		"water": scene = water_collider
 	
-	var collider: ResourceCollider = scene.instantiate()
+	var collider: MapResource = scene.instantiate()
 	collider.position = position
 	collider.set_size(size)
 	return collider

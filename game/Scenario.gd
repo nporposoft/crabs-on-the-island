@@ -80,7 +80,7 @@ func _get_ai_spawn_points() -> Array:
 func _get_spawn_points() -> Array:
 	return (get_children().filter(func(child: Node) -> bool:
 		var spawn_point: SpawnPoint = child as SpawnPoint
-		return spawn_point != null
+		return spawn_point != null && spawn_point.enabled
 	))
 
 

@@ -2,6 +2,7 @@ class_name SpawnPoint
 
 extends Node2D
 
+@export var enabled: bool = true
 @export var is_player: bool = false
 @export var team_color: Color = Color.WHITE
 @export var starting_stats: Dictionary = {

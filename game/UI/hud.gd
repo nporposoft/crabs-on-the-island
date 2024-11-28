@@ -2,10 +2,10 @@ class_name HUD
 
 extends CanvasLayer
 
-@onready var scenario: Scenario = get_parent()
-var player: PlayerController
-var clock: Clock
-var day: int = -1
+@onready var _scenario: Scenario = get_parent()
+var _player: PlayerController
+var _clock: Clock
+var _day: int = -1
 
 @onready var energyBar = $topleft/energy_bar
 @onready var waterBar = $topleft/water_bar
@@ -24,18 +24,18 @@ const inactive_color: Color = Color(0.0625, 0.0625, 0.0625)
 
 
 func _ready() -> void:
-	scenario.player_init.connect(_init_player)
-	scenario.clock_init.connect(_init_clock)
+	_scenario.player_init.connect(_init_player)
+	_scenario.clock_init.connect(_init_clock)
 
 
 func _init_clock(clock: Clock) -> void:
-	self.clock = clock
+	_clock = clock
 
 
 func _init_player(player: PlayerController) -> void:
-	self.player = player
-	player.crab_swapped.connect(_update_statblock)
-	player.disassociation_changed.connect(_set_tab_menu)
+	_player = player
+	_player.crab_swapped.connect(_update_statblock)
+	_player.disassociation_changed.connect(_set_tab_menu)
 
 
 func _process(_delta):
@@ -51,11 +51,11 @@ func _process(_delta):
 
 
 func _update_sundial() -> void:
-	if day != clock.day_count:
-		dayLabel.text = "Day " + str(clock.day_count + 1)
-		day = clock.day_count
+	if _day != _clock.day_count:
+		dayLabel.text = "Day " + str(_clock.day_count + 1)
+		_day = _clock.day_count
 	
-	sundial.set_rotation(2.0 * PI * clock.time)
+	sundial.set_rotation(2.0 * PI * _clock.time)
 
 
 func _update_battery() -> void:
@@ -123,7 +123,7 @@ func _update_metal() -> void:
 
 
 func _set_cobalt_light(activate: bool) -> void:
-	var sizeFloat = 2.0 + 0.5 * sin(clock.time * 240.0)
+	var sizeFloat = 2.0 + 0.5 * sin(_clock.time * 240.0)
 	$topleft/cobalt_light/cobalt_glow.set_scale(Vector2(sizeFloat, sizeFloat))
 	$topleft/cobalt_light.set_self_modulate(active_color if activate else inactive_color)
 	$topleft/cobalt_light/cobalt_glow.set_visible(activate)
@@ -150,15 +150,15 @@ func _set_clone_light(activate: bool) -> void:
 
 
 func _set_tab_menu() -> void:
-	if player.is_disassociating:
+	if _player.is_disassociating:
 		_update_statblock()
-	$center/TAB.set_visible(true if player.is_disassociating else false)
-	$center/crab_cursor.set_visible(true if player.is_disassociating else false)
-	$center/statblock.set_visible(true if player.is_disassociating else false)
+	$center/TAB.set_visible(true if _player.is_disassociating else false)
+	$center/crab_cursor.set_visible(true if _player.is_disassociating else false)
+	$center/statblock.set_visible(true if _player.is_disassociating else false)
 
 
 func _update_statblock() -> void:
-	if !player.is_disassociating: return
+	if !_player.is_disassociating: return
 	if !is_instance_valid(_crab()): return
 
 	var lines: Array = []
@@ -178,4 +178,4 @@ func _trigger_victory() -> void:
 
 
 func _crab() -> Crab:
-	return player._crab
+	return _player._crab
