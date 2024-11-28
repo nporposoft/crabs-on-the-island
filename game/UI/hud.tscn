@@ -1,8 +1,9 @@
-[gd_scene load_steps=65 format=3 uid="uid://cx2ye0w0rqf4n"]
+[gd_scene load_steps=66 format=3 uid="uid://cx2ye0w0rqf4n"]
 
 [ext_resource type="Script" path="res://game/UI/hud.gd" id="1_a2y7d"]
 [ext_resource type="Texture2D" uid="uid://c2e3eoxyqgivc" path="res://assets/UI/energy.png" id="1_p7i3m"]
 [ext_resource type="Texture2D" uid="uid://b4812ywitkgq0" path="res://assets/UI/water.png" id="2_2ik4q"]
+[ext_resource type="Script" path="res://game/UI/fps_counter.gd" id="4_0ejut"]
 [ext_resource type="Texture2D" uid="uid://crwfnyltk1xxa" path="res://assets/UI/sand.png" id="4_5x7w6"]
 [ext_resource type="Texture2D" uid="uid://bfaup65ugpegb" path="res://assets/graphics/ingot.png" id="4_q7b3k"]
 [ext_resource type="Texture2D" uid="uid://db5h2n8wc1b1q" path="res://assets/UI/sundial2.png" id="6_60k4m"]
@@ -342,6 +343,17 @@ vertical_alignment = 1
 autowrap_mode = 2
 justification_flags = 3
 uppercase = true
+
+[node name="fps" type="Label" parent="topright"]
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -40.0
+offset_bottom = 23.0
+grow_horizontal = 0
+script = ExtResource("4_0ejut")
 
 [node name="topleft" type="Control" parent="."]
 layout_mode = 3

@@ -1,6 +1,6 @@
 extends Node
 
-signal on_change
+signal on_change(enabled: bool)
 var enabled: bool
 
 func _process(_delta: float) -> void:

@@ -2,8 +2,10 @@ extends Label
 
 var _crab: Crab
 
+
 func _ready() -> void:
 	_crab = get_parent()
+
 
 func _process(_delta: float) -> void:
 	if !DebugMode.enabled:
