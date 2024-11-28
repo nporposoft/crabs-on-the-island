@@ -2,9 +2,6 @@ class_name VictoryConditions
 
 extends Node
 
-signal victory
-signal defeat
-
 enum Condition {
 	UNRESOLVED,
 	VICTORY,

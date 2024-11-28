@@ -26,6 +26,8 @@ const inactive_color: Color = Color(0.0625, 0.0625, 0.0625)
 func _ready() -> void:
 	_scenario.player_init.connect(_init_player)
 	_scenario.clock_init.connect(_init_clock)
+	_scenario.victory.connect(_trigger_victory)
+	_scenario.defeat.connect(_trigger_defeat)
 
 
 func _init_clock(clock: Clock) -> void:

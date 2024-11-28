@@ -12,6 +12,8 @@ var hud: HUD
 
 signal player_init(player: PlayerController)
 signal clock_init(clock: Clock)
+signal victory
+signal defeat
 
 
 func _ready() -> void:
@@ -34,7 +36,11 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	victory_conditions.evaluate()
+	match victory_conditions.evaluate():
+		VictoryConditions.Condition.VICTORY:
+			victory.emit()
+		VictoryConditions.Condition.DEFEAT:
+			defeat.emit()
 
 
 func _init_resources() -> void:
