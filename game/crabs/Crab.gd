@@ -220,7 +220,7 @@ func generate_chunks(percent: float, include_body: bool) -> void:
 		if percent < 1.0 and _carried_resources.metal > 0.0:
 			_carried_resources.metal = max(0.0, _carried_resources.metal - randMass)
 		var new_morsel = morselTemplate.instantiate()
-		$"../..".add_child(new_morsel)
+		scenario.add_child(new_morsel)
 		new_morsel._set_resource(randMass, _contains_cobalt, true)
 		new_morsel.set_position(Vector2(position.x, position.y))
 
