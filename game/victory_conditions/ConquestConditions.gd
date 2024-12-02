@@ -5,10 +5,15 @@ extends VictoryConditions
 @export var scenario: Scenario
 
 
-func evaluate() -> VictoryConditions.Condition:
+func _ready() -> void:
+	_on_crab_death.connect(_evaluate)
+
+
+func _evaluate() -> void:
 	var living_crabs: CrabCollection = scenario.crabs().living()
-	if living_crabs.of_family(Crab.Family.PLAYER).size() == 0:
-		return VictoryConditions.Condition.DEFEAT
-	elif living_crabs.of_family(Crab.Family.AI).size() == 0:
-		return VictoryConditions.Condition.VICTORY
-	return VictoryConditions.Condition.UNRESOLVED
+	var player_crabs_count: int = living_crabs.of_family(Crab.Family.PLAYER).size()
+	var ai_crabs_count: int = living_crabs.of_family(Crab.Family.AI).size()
+	if player_crabs_count == 0:
+		defeat.emit()
+	elif ai_crabs_count == 0:
+		victory.emit()

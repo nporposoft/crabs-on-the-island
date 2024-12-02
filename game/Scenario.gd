@@ -10,6 +10,7 @@ var player: PlayerController
 var clock: Clock
 var hud: HUD
 
+
 signal player_init(player: PlayerController)
 signal clock_init(clock: Clock)
 signal victory
@@ -18,6 +19,9 @@ signal defeat
 
 func _ready() -> void:
 	victory_conditions = Util.require_child(self, VictoryConditions)
+	victory_conditions.defeat.connect(func() -> void: defeat.emit())
+	victory_conditions.victory.connect(func() -> void: victory.emit())
+	
 	crab_spawner = Util.require_child(self, CrabSpawner)
 	
 	player = Util.require_child(self, PlayerController)
@@ -31,19 +35,11 @@ func _ready() -> void:
 	clock = Util.require_child(self, Clock)
 	clock_init.emit(clock)
 	
-	_init_resources()
+	_init_morsels()
 	_init_ai_crabs()
 
 
-func _process(_delta: float) -> void:
-	match victory_conditions.evaluate():
-		VictoryConditions.Condition.VICTORY:
-			victory.emit()
-		VictoryConditions.Condition.DEFEAT:
-			defeat.emit()
-
-
-func _init_resources() -> void:
+func _init_morsels() -> void:
 	pass
 
 
@@ -53,15 +49,17 @@ func _init_player_crab() -> Crab:
 		push_warning("cannot create player without spawn point")
 		return
 	var crab: Crab = crab_spawner.spawn_from_point(player_spawn)
+	crab.on_death.connect(victory_conditions.on_crab_death)
 	return crab
 
 
 func _init_ai_crabs() -> Array[Crab]:
-	var crabs: Array[Crab]
+	var ai_crabs: Array[Crab]
 	for spawn_point: SpawnPoint in _get_ai_spawn_points():
 		var crab: Crab = crab_spawner.spawn_from_point(spawn_point)
-		crabs.push_back(crab)
-	return crabs
+		crab.on_death.connect(victory_conditions.on_crab_death)
+		ai_crabs.push_back(crab)
+	return ai_crabs
 
 
 func _get_player_spawn_point() -> SpawnPoint:
@@ -91,9 +89,9 @@ func _get_spawn_points() -> Array:
 
 
 func crabs() -> CrabCollection:
-	var crabs: Array[Crab]
+	var all_crabs: Array[Crab]
 	for node: Node in get_children():
 		var crab: Crab = node as Crab
 		if crab != null:
-			crabs.push_back(crab)
-	return CrabCollection.new(crabs)
+			all_crabs.push_back(crab)
+	return CrabCollection.new(all_crabs)
