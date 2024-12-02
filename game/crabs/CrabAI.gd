@@ -3,6 +3,8 @@ class_name CrabAI
 extends Node
 
 
+signal on_target(target: Vector2)
+
 @onready var _crab: Crab = get_parent()
 var _state: States
 var enabled: bool = true
@@ -10,6 +12,9 @@ var enabled: bool = true
 var _attack_target: Crab
 var _visible_resources_cache: ResourceCollection
 var _resources_in_reach_cache: ResourceCollection
+
+@export var dash_chance: float = 0.1
+@export var dash_attack_chance: float = 0.5
 
 @export var vision_interval: float = 0.3
 @export var vision_interval_jitter: float = 0.1
@@ -41,9 +46,15 @@ func _process(delta: float) -> void:
 	if !enabled: return
 	if _sleep_routine(): return
 	if _reproduce_routine(delta): return
+	
+	_cache_resources()
+	
 	if _harvest_routine(delta): return
 	if _continue_attack_routine(delta): return
 	if _harvest_crab_routine(delta): return
+	
+	on_target.emit(Vector2.ZERO)
+	
 	_wander_routine()
 
 
@@ -55,14 +66,19 @@ func _sleep_routine() -> bool:
 
 
 func _continue_attack_routine(delta: float) -> bool:
-	if !is_instance_valid(_attack_target): return false
-	if !_want_to_attack_crab(_attack_target):
+	if _stop_attacking():
 		_attack_target = null
+		_crab.stop_harvest()
 		return false
 	
 	_attack_crab(delta, _attack_target)
 	return true
 
+
+func _stop_attacking() -> bool:
+	if !is_instance_valid(_attack_target): return true
+	if !_want_to_attack_crab(_attack_target): return true
+	return _visible_resources().crabs().has(_attack_target)
 
 func _reproduce_routine(delta: float) -> bool:
 	if _crab.has_reproduction_resources():
@@ -185,12 +201,19 @@ func _start_idle_timer() -> void:
 
 
 func _keep_wandering() -> void:
-	_crab.move(_wander_direction)
+	_move(_wander_direction)
 
 
 func _move_toward_point(point: Vector2) -> void:
+	on_target.emit(point)
 	var direction: Vector2 = point - _crab.position
+	_move(direction)
+
+
+func _move(direction: Vector2) -> void:
 	_crab.move(direction)
+	if randf() == dash_chance:
+		_crab.dash()
 
 
 func _can_attack() -> bool:
@@ -207,6 +230,8 @@ func _attack_crab(delta: float, crab: Crab) -> void:
 		_crab.attackCrab(crab, delta)
 	else:
 		_move_toward_point(crab.position)
+		if randf() == dash_attack_chance:
+			_crab.dash()
 
 
 func _want_metal() -> bool:
@@ -222,16 +247,16 @@ func _want_silicon() -> bool:
 
 
 func _visible_resources() -> ResourceCollection:
-	if _vision_timer.is_stopped(): _cache_resources()
 	return _visible_resources_cache
 
 
 func _resources_in_reach() -> ResourceCollection:
-	if _vision_timer.is_stopped(): _cache_resources()
 	return _resources_in_reach_cache
 
 
 func _cache_resources() -> void:
+	if !_vision_timer.is_stopped(): return
+	
 	_visible_resources_cache = _crab.vision.get_resources()
 	_resources_in_reach_cache = _crab.reach.get_resources()
 	_vision_timer.start(randf_range(vision_interval - vision_interval_jitter, vision_interval + vision_interval_jitter))
