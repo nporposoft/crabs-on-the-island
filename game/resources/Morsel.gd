@@ -8,9 +8,9 @@ extends RigidBody2D
 var chunkTXR: Texture2D = preload("res://assets/graphics/chunk.png")
 var ingotTXR: Texture2D = preload("res://assets/graphics/ingot.png")
 
-@export var amount = 1000.0
+@export var amount: float = 1000.0
 @export var contains_cobalt: bool = false
-@export var is_chunk = false
+@export var is_chunk: bool = false
 
 
 func set_children_scale(factor: float) -> void:
@@ -54,8 +54,8 @@ func _extract (extractAmount) -> float:
 
 
 func _update_scale() -> void:
-	# TODO: morsels dropped by crabs are invisible, this needs to be tweaked
-	set_children_scale(pow(amount/100, 3))
+	var new_scale: float = pow(amount/100, 3)
+	set_children_scale(max(new_scale, 0.2))
 
 
 func _ready():
