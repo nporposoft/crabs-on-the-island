@@ -1,6 +1,6 @@
 [gd_scene load_steps=13 format=3 uid="uid://dhbkj2kfpdna0"]
 
-[ext_resource type="Script" path="res://game/Scenario.gd" id="1_ajgca"]
+[ext_resource type="Script" path="res://scenarios/story_island_scenario.gd" id="1_lydem"]
 [ext_resource type="PackedScene" uid="uid://cx2ye0w0rqf4n" path="res://game/UI/hud.tscn" id="2_mf02r"]
 [ext_resource type="PackedScene" uid="uid://nsr1sq37maew" path="res://maps/island_v1.tscn" id="2_pwdnd"]
 [ext_resource type="PackedScene" uid="uid://2uy6byy1384y" path="res://game/maps/day_night_cycle_v1/day_night_cycle.tscn" id="3_g8x2x"]
@@ -14,7 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://b530dsmiuti0k" path="res://game/resources/Morsel.tscn" id="12_8rwm3"]
 
 [node name="StoryIslandScenario" type="Node"]
-script = ExtResource("1_ajgca")
+script = ExtResource("1_lydem")
 
 [node name="Clock" type="Node" parent="."]
 script = ExtResource("11_sap3j")
