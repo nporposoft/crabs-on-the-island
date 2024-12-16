@@ -6,13 +6,13 @@ signal disassociation_changed
 signal crab_swapped
 
 
-var _crab: Crab
+var crab: Crab
 var _inputMovement: Vector2
 var is_disassociating: bool = false
 
 
 func _process(delta: float) -> void:
-	if !is_instance_valid(_crab): return
+	if !is_instance_valid(crab): return
 
 	_process_movement()
 	_process_dash()
@@ -22,9 +22,9 @@ func _process(delta: float) -> void:
 
 
 func _process_movement() -> void:
-	if !is_instance_valid(_crab): return
+	if !is_instance_valid(crab): return
 
-	_crab.move(movement_input())
+	crab.move(movement_input())
 
 
 func movement_input() -> Vector2:
@@ -47,6 +47,10 @@ func _disassociate() -> void:
 	disassociation_changed.emit()
 
 
+func _on_crab_reproduce() -> void:
+	pass
+
+
 func _process_swap() -> void:
 	if is_disassociating:
 		if Input.is_action_just_pressed("swap"):
@@ -64,11 +68,11 @@ func _process_swap() -> void:
 
 
 func _shift_crab(indexShift: int = 1) -> void:
-	var prev_crab: Crab = _crab
+	var prev_crab: Crab = crab
 	var familyCrabs: Array = get_family_crabs()
 	if familyCrabs.size() == 0: return
 	
-	var currentIndex: int = familyCrabs.find(_crab)
+	var currentIndex: int = familyCrabs.find(crab)
 	var newIndex: int = ((currentIndex + indexShift) as int) % familyCrabs.size()
 	var next_crab: Crab = familyCrabs[newIndex]
 	
@@ -83,17 +87,17 @@ func _shift_crab(indexShift: int = 1) -> void:
 	crab_swapped.emit()
 
 
-func set_crab(crab: Crab) -> void:
-	if _crab != null: _unset_crab()
-	_crab = crab
-	_crab.ai.enabled = false
-	_crab.on_death.connect(_on_crab_die)
+func set_crab(new_crab: Crab) -> void:
+	if crab != null: unset_crab()
+	crab = new_crab
+	crab.ai.enabled = false
+	_attach_crab_signals(crab)
 
 
-func _unset_crab() -> void:
-	if _crab == null: return
-	_crab.ai.enabled = true
-	_crab.on_death.disconnect(_on_crab_die)
+func unset_crab() -> void:
+	if crab == null: return
+	crab.ai.enabled = true
+	_detach_crab_signals(crab)
 
 
 func find_living_family_member() -> Crab:
@@ -116,15 +120,15 @@ func get_family_crabs() -> Array:
 
 func _process_dash() -> void:
 	if Input.is_action_just_pressed("dash"):
-		_crab.dash()
+		crab.dash()
 
 
 func _process_harvest(delta) -> void:
 	if Input.is_action_pressed("harvest"):
-		if !_crab.harvest(delta):
-			_crab.stop_harvest()
+		if !crab.harvest(delta):
+			crab.stop_harvest()
 	if Input.is_action_just_released("harvest"):
-		_crab.stop_harvest()
+		crab.stop_harvest()
 
 
 func _process_pickup() -> void:
@@ -138,7 +142,18 @@ func _process_pickup() -> void:
 
 func _process_reproduction(delta) -> void:
 	if Input.is_action_pressed("reproduce"):
-		if !_crab.auto_reproduce(delta):
-			_crab.stop_reproduce()
+		if !crab.auto_reproduce(delta):
+			crab.stop_reproduce()
 	if Input.is_action_just_released("reproduce"):
-		_crab.stop_reproduce()
+		crab.stop_reproduce()
+
+
+func _attach_crab_signals(crab: Crab) -> void:
+	crab.on_death.connect(_on_crab_die)
+	crab.on_reproduce.connect(_on_crab_reproduce)
+	
+
+func _detach_crab_signals(crab: Crab) -> void:
+	crab.on_death.disconnect(_on_crab_die)
+	crab.on_reproduce.disconnect(_on_crab_reproduce)
+	

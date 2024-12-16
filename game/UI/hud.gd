@@ -180,4 +180,4 @@ func _trigger_victory() -> void:
 
 
 func _crab() -> Crab:
-	return _player._crab
+	return _player.crab
