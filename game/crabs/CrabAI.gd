@@ -80,8 +80,10 @@ func _stop_attacking() -> bool:
 	if !_want_to_attack_crab(_attack_target): return true
 	return _visible_resources().crabs().has(_attack_target)
 
+
 func _reproduce_routine(delta: float) -> bool:
 	if _crab.has_reproduction_resources():
+		_crab.stop_harvest()
 		if _crab.can_reproduce(): _reproduce(delta)
 		else: _state = States.CHARGING_BATTERY
 		return true
