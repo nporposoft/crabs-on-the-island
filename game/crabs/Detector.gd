@@ -14,6 +14,8 @@ func get_resources() -> ResourceCollection:
 	return ResourceCollection.new(bodies, areas)
 
 
+# TODO: This is really slow -- should let the ResourceCollection worry about 
+# this so it's only calculated on demand, not for literally every collection
 func _sort_distance(a: Node2D, b: Node2D) -> bool:
 	var distance_to_a: float = position.distance_to(a.position)
 	var distance_to_b: float = position.distance_to(b.position)

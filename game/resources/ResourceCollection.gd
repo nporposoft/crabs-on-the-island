@@ -8,7 +8,10 @@ var _areas_cache: Array[Area2D]
 func _init(bodies: Array[Node2D], areas: Array[Area2D]) -> void:
 	_bodies_cache = bodies
 	_areas_cache = areas
-
+	
+# TODO: this entire class is just super inefficient.
+# 1. cache after each filter so we're not filtering over and over
+# 2. only return sorted collections, let the consumer worry about "nearest", "first", etc
 
 func crabs() -> Array[Crab]:
 	var all_crabs: Array[Crab]
