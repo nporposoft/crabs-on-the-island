@@ -292,14 +292,14 @@ func harvest(delta: float) -> bool:
 
 
 func want_resource(resource: Node2D) -> bool:
-	if resource is Crab:
-		return want_metal() && can_attack()
-	if resource is Morsel:
-		return want_metal()
 	if resource is Sand:
 		return want_silicon()
 	if resource is Water:
 		return want_water()
+	if resource is Crab:
+		return want_metal() && can_attack()
+	if resource is Morsel:
+		return want_metal()
 	return false
 
 
