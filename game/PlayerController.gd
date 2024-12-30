@@ -47,7 +47,7 @@ func _disassociate() -> void:
 	disassociation_changed.emit()
 
 
-func _on_crab_reproduce() -> void:
+func _on_crab_reproduce(parent: Crab, child: Crab) -> void:
 	pass
 
 
