@@ -109,6 +109,10 @@ swap={
 2d_physics/layer_2="Water"
 2d_physics/layer_3="Sand"
 
+[physics]
+
+2d/physics_engine="Rapier2D"
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
