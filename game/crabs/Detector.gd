@@ -8,18 +8,8 @@ extends Area2D
 
 func get_resources() -> ResourceCollection:
 	var bodies: Array[Node2D] = get_overlapping_bodies().filter(_filter_self)
-	bodies.sort_custom(_sort_distance)
 	var areas: Array[Area2D] = get_overlapping_areas()
-	areas.sort_custom(_sort_distance)
-	return ResourceCollection.new(bodies, areas)
-
-
-# TODO: This is really slow -- should let the ResourceCollection worry about 
-# this so it's only calculated on demand, not for literally every collection
-func _sort_distance(a: Node2D, b: Node2D) -> bool:
-	var distance_to_a: float = position.distance_to(a.position)
-	var distance_to_b: float = position.distance_to(b.position)
-	return distance_to_a < distance_to_b
+	return ResourceCollection.new(bodies + areas)
 
 
 func _filter_self(node: Node2D) -> bool:

@@ -1,85 +1,114 @@
 class_name ResourceCollection
-
 extends Object
 
-var _bodies_cache: Array[Node2D]
-var _areas_cache: Array[Area2D]
+var _resources: Array
+var _resource_by_distance_cache: Array
+var _resource_by_distance_cached: bool
 
-func _init(bodies: Array[Node2D], areas: Array[Area2D]) -> void:
-	_bodies_cache = bodies
-	_areas_cache = areas
-	
-# TODO: this entire class is just super inefficient.
-# 1. cache after each filter so we're not filtering over and over
-# 2. only return sorted collections, let the consumer worry about "nearest", "first", etc
-
-func crabs() -> Array[Crab]:
-	var all_crabs: Array[Crab]
-	for body in _bodies():
-		var crab: Crab = body as Crab
-		if crab != null: all_crabs.push_back(crab)
-	
-	return all_crabs
+func _init(resources: Array) -> void:
+	_resources = resources
 
 
-func nearest_crab() -> Crab:
-	var all_crabs: Array[Crab] = crabs()
+func all() -> Array:
+	return _resources
+
+
+func by_distance(position: Vector2) -> Array:
+	if not _resource_by_distance_cached:
+		_resource_by_distance_cache = _sort_by_distance(all(), position)
+		_resource_by_distance_cached = true
+	return _resource_by_distance_cache
+
+
+func nearest_resource(position: Vector2) -> Node2D:
+	var resources: Array = by_distance(position)
+	if resources.size() == 0: return null
+	return resources[0]
+
+
+func crabs() -> Array:
+	return all().filter(func(resource: Node2D) -> bool:
+		return is_instance_valid(resource) and resource is Crab
+	)
+
+
+# E 0:01:39:0923   ResourceCollection.gd:36 @ crabs_by_distance(): Error calling method from 'filter': 'GDScript::<anonymous lambda>': Cannot convert argument 1 from Object to Object
+#  <C++ Error>    Method/function failed. Returning: Array()
+#  <C++ Source>   core/variant/array.cpp:514 @ filter()
+#  <Stack Trace>  ResourceCollection.gd:36 @ crabs_by_distance()
+#                 CrabAI.gd:131 @ _harvest_crab_routine()
+#                 CrabAI.gd:51 @ _process()
+func crabs_by_distance(position: Vector2) -> Array:
+	return by_distance(position).filter(func(resource: Node2D) -> bool:
+		return is_instance_valid(resource) and resource is Crab
+	)
+
+
+func nearest_crab(position: Vector2) -> Crab:
+	var all_crabs: Array = crabs_by_distance(position)
 	if all_crabs.size() == 0: return null
 	return all_crabs[0]
 
 
-func morsels() -> Array[Morsel]:
-	var all_morsels: Array[Morsel]
-	for body in _bodies():
-		var morsel: Morsel = body as Morsel
-		if morsel != null: all_morsels.push_back(morsel)
-	
-	return all_morsels
+func morsels() -> Array:
+	return all().filter(func(resource: Node2D) -> bool:
+		return is_instance_valid(resource) and resource is Morsel
+	)
 
 
-func nearest_morsel() -> Morsel:
-	var all_morsels: Array[Morsel] = morsels()
+func morsels_by_distance(position: Vector2) -> Array:
+	return by_distance(position).filter(func(resource: Node2D) -> bool:
+		return is_instance_valid(resource) and resource is Morsel
+	)
+
+
+func nearest_morsel(position: Vector2) -> Morsel:
+	var all_morsels: Array = morsels_by_distance(position)
 	if all_morsels.size() == 0: return null
 	return all_morsels[0]
 
 
-func water() -> Array[Water]:
-	var all_water: Array[Water]
-	for area in _areas_cache:
-		var area_as_water: Water = area as Water
-		if area_as_water != null: all_water.push_back(area_as_water)
-	
-	return all_water
+func water() -> Array:
+	return all().filter(func(resource: Node2D) -> bool:
+		return is_instance_valid(resource) and resource is Water
+	)
 
 
-func nearest_water() -> Water:
-	var all_water: Array[Water] = water()
+func water_by_distance(position: Vector2) -> Array:
+	return by_distance(position).filter(func(resource: Node2D) -> bool:
+		return is_instance_valid(resource) and resource is Water
+	)
+
+
+func nearest_water(position: Vector2) -> Water:
+	var all_water: Array = water_by_distance(position)
 	if all_water.size() == 0: return null
 	return all_water[0]
 
 
-func sand() -> Array[Sand]:
-	var all_sand: Array[Sand]
-	for area in _areas_cache:
-		var area_as_sand: Sand = area as Sand
-		if area_as_sand != null: all_sand.push_back(area_as_sand)
-	
-	return all_sand
+func sand() -> Array:
+	return all().filter(func(resource: Node2D) -> bool:
+		return is_instance_valid(resource) and resource is Sand
+	)
 
 
-func nearest_sand() -> Sand:
-	var all_sand: Array[Sand] = sand()
+func sand_by_distance(position: Vector2) -> Array:
+	return by_distance(position).filter(func(resource: Node2D) -> bool:
+		return is_instance_valid(resource) and resource is Sand
+	)
+
+
+func nearest_sand(position: Vector2) -> Sand:
+	var all_sand: Array = sand_by_distance(position)
 	if all_sand.size() == 0: return null
 	return all_sand[0]
 
 
-func _bodies() -> Array:
-	var all_bodies: Array[Node2D]
-	for body in _bodies_cache:
-		if is_instance_valid(body): all_bodies.push_back(body)
-	_bodies_cache = all_bodies
-	return _bodies_cache
-
-
-func _filter_valid(node: Node) -> bool:
-	return is_instance_valid(node)
+func _sort_by_distance(objects: Array, position: Vector2) -> Array:
+	var valid_objects: Array = objects.filter(is_instance_valid)
+	valid_objects.sort_custom(func(a: Node2D, b: Node2D) -> bool:
+		var distance_to_a: float = position.distance_to(a.position)
+		var distance_to_b: float = position.distance_to(b.position)
+		return distance_to_a < distance_to_b
+	)
+	return valid_objects

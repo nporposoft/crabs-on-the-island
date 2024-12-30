@@ -46,13 +46,10 @@ func _process(delta: float) -> void:
 	if !enabled: return
 	if _sleep_routine(): return
 	if _reproduce_routine(delta): return
-	
-	_cache_resources()
-	
-	if _harvest_routine(delta): return
 	if _continue_attack_routine(delta): return
+	if _harvest_routine(delta): return
 	if _harvest_crab_routine(delta): return
-	
+
 	on_target.emit(Vector2.ZERO)
 	
 	_wander_routine()
@@ -68,7 +65,7 @@ func _sleep_routine() -> bool:
 func _continue_attack_routine(delta: float) -> bool:
 	if _stop_attacking():
 		_attack_target = null
-		_crab.stop_harvest()
+		_crab.stop_harvest() # TODO: would be nice if the Crab state machine handled this
 		return false
 	
 	_attack_crab(delta, _attack_target)
@@ -83,7 +80,7 @@ func _stop_attacking() -> bool:
 
 func _reproduce_routine(delta: float) -> bool:
 	if _crab.has_reproduction_resources():
-		_crab.stop_harvest()
+		_crab.stop_harvest() # TODO: would be nice if the Crab state machine handled this
 		if _crab.can_reproduce(): _reproduce(delta)
 		else: _state = States.CHARGING_BATTERY
 		return true
@@ -91,49 +88,37 @@ func _reproduce_routine(delta: float) -> bool:
 
 
 func _harvest_routine(delta: float) -> bool:
-	if _harvest_sand_routine(delta) || _harvest_water_routine(delta) || _harvest_metal_routine(delta):
-		_state = States.HARVESTING
-		return true
-	_crab.stop_harvest()
+	var resources_in_reach: Array = _resources_in_reach().all()
+	var visible_resources: Array = _visible_resources().by_distance(_crab.position)
+	for resource in visible_resources:
+		# since we are caching resources, sometimes things die or disappear between vision checks
+		if not is_instance_valid(resource): continue
+
+		# skip crabs; we want to target those later so we prioritize other resources.
+		# this allows the player to use resources to distract attacking crabs.
+		if resource is Crab: continue
+
+		if _crab.want_resource(resource):
+			if resources_in_reach.has(resource):
+				return _harvest_resource(resource, delta)
+			else:
+				_move_toward_point(resource.position)
+				return true
+
+	_crab.stop_harvest() # TODO: would be nice if the Crab state machine handled this
 	return false
 
 
-func _harvest_sand_routine(delta: float) -> bool:
-	if !_want_silicon(): return false
-	
-	var sand: Sand = _visible_resources().nearest_sand()
-	if !sand: return false
-
-	if _resources_in_reach().sand().has(sand):
-		_crab.harvest_sand(delta)
-	else:
-		_move_toward_point(sand.position)
-	return true
-
-
-func _harvest_water_routine(delta: float) -> bool:
-	if !_want_water(): return false
-
-	var water: Water = _visible_resources().nearest_water()
-	if !water: return false
-
-	if _resources_in_reach().water().has(water):
-		_crab.harvest_water(delta)
-	else:
-		_move_toward_point(water.position)
-	return true
-
-
-func _harvest_metal_routine(delta: float) -> bool:
-	if !_want_metal(): return false
-
-	var morsel: Morsel = _visible_resources().nearest_morsel()
-	if !morsel: return false
-
-	if _resources_in_reach().morsels().has(morsel):
-		_crab.harvest_morsel(delta, morsel)
-	else:
-		_move_toward_point(morsel.position)
+func _harvest_resource(resource: Node2D, delta: float) -> bool:
+	if resource is Crab:
+		_crab.attackCrab(resource, delta)
+		return true
+	if resource is Sand:
+		return _crab.harvest_sand(delta)
+	if resource is Water:
+		return _crab.harvest_water(delta)
+	if resource is Morsel:
+		return _crab.harvest_morsel(delta, resource)
 	return true
 
 
@@ -143,7 +128,7 @@ func _harvest_crab_routine(delta: float) -> bool:
 	if is_instance_valid(_attack_target) && !_attack_target.is_dead():
 		_attack_crab(delta, _attack_target)
 	
-	for crab: Crab in _visible_resources().crabs():
+	for crab: Crab in _visible_resources().crabs_by_distance(_crab.position):
 		if !_want_to_attack_crab(crab): continue
 		
 		_attack_crab(delta, crab)
@@ -219,7 +204,7 @@ func _move(direction: Vector2) -> void:
 
 
 func _can_attack() -> bool:
-	return _crab._contains_cobalt
+	return _crab.can_attack()
 
 
 func _want_to_attack_crab(crab: Crab) -> bool:
@@ -249,10 +234,12 @@ func _want_silicon() -> bool:
 
 
 func _visible_resources() -> ResourceCollection:
+	if _vision_timer.is_stopped(): _cache_resources()
 	return _visible_resources_cache
 
 
 func _resources_in_reach() -> ResourceCollection:
+	if _vision_timer.is_stopped(): _cache_resources()
 	return _resources_in_reach_cache
 
 

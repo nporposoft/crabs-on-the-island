@@ -15,6 +15,7 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	text = ""
+	_target_line.visible = false
 	if !DebugMode.enabled: return
 	
 	_print_position()

@@ -272,25 +272,51 @@ func harvest(delta: float) -> bool:
 
 	var resources_in_reach: ResourceCollection = reach.get_resources()
 
-	if _contains_cobalt:
-		var nearestCrab: Crab = resources_in_reach.nearest_crab()
+	if can_attack():
+		var nearestCrab: Crab = resources_in_reach.nearest_crab(position)
 		if nearestCrab != null:
 			attackCrab(nearestCrab, delta)
 			return true
 
-	var nearestMorsel: Morsel = resources_in_reach.nearest_morsel()
-	if nearestMorsel != null:
-		return harvest_morsel(delta, nearestMorsel)
-
-	var nearestSand: Sand = resources_in_reach.nearest_sand()
-	if nearestSand != null:
-		return harvest_sand(delta)
-	
-	var nearestWater: Water = resources_in_reach.nearest_water()
-	if nearestWater != null:
-		return harvest_water(delta)
+	var nearest_resources: Array = resources_in_reach.by_distance(position)
+	for nearest_resource: Node2D in nearest_resources:
+		if want_resource(nearest_resource):
+			if nearest_resource is Morsel:
+				return harvest_morsel(delta, nearest_resource as Morsel)
+			if nearest_resource is Sand:
+				return harvest_sand(delta)
+			if nearest_resource is Water:
+				return harvest_water(delta)
 
 	return false
+
+
+func want_resource(resource: Node2D) -> bool:
+	if resource is Crab:
+		return want_metal() && can_attack()
+	if resource is Morsel:
+		return want_metal()
+	if resource is Sand:
+		return want_silicon()
+	if resource is Water:
+		return want_water()
+	return false
+
+
+func want_metal() -> bool:
+	return _carried_resources.metal < metalTarget
+
+
+func want_silicon() -> bool:
+	return _carried_resources.silicon < siliconTarget
+
+
+func want_water() -> bool:
+	return _carried_resources.water < waterTarget
+
+
+func can_attack() -> bool:
+	return _contains_cobalt
 
 
 func attackCrab(target: Crab, delta: float) -> void:
