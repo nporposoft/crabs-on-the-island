@@ -50,7 +50,7 @@ func _process(delta: float) -> void:
 	if _harvest_routine(delta): return
 	if _harvest_crab_routine(delta): return
 
-	on_target.emit(Vector2.ZERO)
+
 	
 	_wander_routine()
 
@@ -66,6 +66,7 @@ func _continue_attack_routine(delta: float) -> bool:
 	if _stop_attacking():
 		_attack_target = null
 		_crab.stop_harvest() # TODO: would be nice if the Crab state machine handled this
+		on_target.emit(Vector2.ZERO)
 		return false
 	
 	_attack_crab(delta, _attack_target)
@@ -81,6 +82,7 @@ func _stop_attacking() -> bool:
 func _reproduce_routine(delta: float) -> bool:
 	if _crab.has_reproduction_resources():
 		_crab.stop_harvest() # TODO: would be nice if the Crab state machine handled this
+		on_target.emit(Vector2.ZERO)
 		if _crab.can_reproduce(): _reproduce(delta)
 		else: _state = States.CHARGING_BATTERY
 		return true
@@ -106,6 +108,7 @@ func _harvest_routine(delta: float) -> bool:
 				return true
 
 	_crab.stop_harvest() # TODO: would be nice if the Crab state machine handled this
+	on_target.emit(Vector2.ZERO)
 	return false
 
 
