@@ -45,22 +45,27 @@ family = 1
 [node name="AI Crab 1 Spawn" type="Node2D" parent="."]
 position = Vector2(158, -815)
 script = ExtResource("8_qslcf")
+team_color = Color(0.137255, 0.239216, 0.301961, 1)
 
 [node name="AI Crab 2 Spawn" type="Node2D" parent="."]
 position = Vector2(259, -812)
 script = ExtResource("8_qslcf")
+team_color = Color(0.996078, 0.498039, 0.176471, 1)
 
 [node name="AI Crab 3 Spawn" type="Node2D" parent="."]
 position = Vector2(353, -813)
 script = ExtResource("8_qslcf")
+team_color = Color(0.988235, 0.792157, 0.27451, 1)
 
 [node name="AI Crab 4 Spawn" type="Node2D" parent="."]
 position = Vector2(159, -720)
 script = ExtResource("8_qslcf")
+team_color = Color(0.631373, 0.756863, 0.505882, 1)
 
 [node name="AI Crab 5 Spawn" type="Node2D" parent="."]
 position = Vector2(356, -721)
 script = ExtResource("8_qslcf")
+team_color = Color(0.380392, 0.607843, 0.541176, 1)
 
 [node name="PlayerController" type="Node" parent="."]
 script = ExtResource("9_m04ma")
