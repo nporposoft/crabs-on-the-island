@@ -44,7 +44,7 @@ func _disassociate() -> void:
 	disassociation_changed.emit()
 
 
-func _on_crab_reproduce(parent: Crab, child: Crab) -> void:
+func _on_crab_reproduce(_parent: Crab, _child: Crab) -> void:
 	pass
 
 
@@ -65,7 +65,7 @@ func _process_swap() -> void:
 
 
 func _shift_crab(indexShift: int = 1) -> void:
-	var prev_crab: Crab = crab
+#	var prev_crab: Crab = crab
 	var familyCrabs: Array = get_family_crabs()
 	if familyCrabs.size() == 0: return
 	
@@ -162,12 +162,12 @@ func _process_reproduction(delta) -> void:
 		crab.stop_reproduce()
 
 
-func _attach_crab_signals(crab: Crab) -> void:
-	crab.on_death.connect(_on_crab_die)
-	crab.on_reproduce.connect(_on_crab_reproduce)
+func _attach_crab_signals(new_crab: Crab) -> void:
+	new_crab.on_death.connect(_on_crab_die)
+	new_crab.on_reproduce.connect(_on_crab_reproduce)
 	
 
-func _detach_crab_signals(crab: Crab) -> void:
-	crab.on_death.disconnect(_on_crab_die)
-	crab.on_reproduce.disconnect(_on_crab_reproduce)
+func _detach_crab_signals(old_crab: Crab) -> void:
+	old_crab.on_death.disconnect(_on_crab_die)
+	old_crab.on_reproduce.disconnect(_on_crab_reproduce)
 	

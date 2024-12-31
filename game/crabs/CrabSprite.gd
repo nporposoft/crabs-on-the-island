@@ -6,6 +6,7 @@ extends AnimatedSprite2D
 var _current_animation: String
 var _current_flip_h: bool
 
+
 func set_color(color: Color) -> void:
 	set_self_modulate(color)
 
@@ -14,7 +15,7 @@ func _process(_delta: float) -> void:
 	var new_animation: String
 	var new_flip_h: bool
 
-	if _crab.movementDirection.x < 0: new_flip_h = true
+	if _crab._movementDirection.x < 0: new_flip_h = true
 
 	if _crab.state.has(Crab.States.OUT_OF_BATTERY):
 		new_animation = "sleep"

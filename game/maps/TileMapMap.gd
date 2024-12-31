@@ -14,7 +14,7 @@ extends TileMapLayer
 
 
 const background_size: int = 1000000
-const background_rect: Rect2 = Rect2(-background_size / 2, -background_size / 2, background_size, background_size)
+const background_rect: Rect2 = Rect2(-background_size / 2.0, -background_size / 2.0, background_size, background_size)
 
 
 func _ready() -> void:
@@ -36,18 +36,18 @@ func _create_collider_for_cell(cell: Vector2i) -> void:
 	var harvest_type: String = tile_data.get_custom_data("harvest_type")
 	if harvest_type == "": return
 	
-	var real_position = map_to_local(cell)
+	var real_position: Vector2 = map_to_local(cell)
 	var collider: Node2D = _create_collider(harvest_type, real_position, cell_size)
 	add_child(collider)
 
 
-func _create_collider(harvest_type: String, position: Vector2, size: Vector2) -> Area2D:
+func _create_collider(harvest_type: String, collider_position: Vector2, size: Vector2) -> Area2D:
 	var scene: PackedScene
 	match harvest_type:
 		"sand": scene = sand_collider
 		"water": scene = water_collider
 	
 	var collider: MapResource = scene.instantiate()
-	collider.position = position
+	collider.position = collider_position
 	collider.set_size(size)
 	return collider

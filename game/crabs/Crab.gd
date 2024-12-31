@@ -39,7 +39,7 @@ signal on_reproduce(parent: Crab, child: Crab)
 
 var tutorial_swap = false
 var isPlayerFamily: bool
-var movementDirection: Vector2 = Vector2.RIGHT
+var _movementDirection: Vector2 = Vector2.RIGHT
 var _velocity: Vector2
 @onready var _foot_step_sounds: Array[AudioStreamPlayer2D] = [$FootStepSound1, $FootStepSound2]
 var _foot_step_timer: Timer
@@ -53,7 +53,7 @@ var waterTarget: float = 1.0
 var buildProgress: float = 0.0
 var default_color: Color = Color(1, 1, 1, 1)
 var _color: Color = default_color
-var family: Family
+var _family: Family
 var batteryEnergyTargetPercentage = 50
 
 enum States {
@@ -128,7 +128,7 @@ func init(
 	_carried_resources = carried_resources
 	_contains_cobalt = contains_cobalt
 	set_color(color)
-	self.family = family
+	_family = family
 	_stats_base = stats
 	apply_size_bonuses()
 	_body_metal = _stats_base.size ** 3
@@ -156,7 +156,7 @@ func is_dead() -> bool:
 
 
 func move(movementDirection: Vector2) -> void:
-	self.movementDirection = movementDirection.normalized()
+	_movementDirection = movementDirection.normalized()
 	
 	if !can_move(): return
 	if is_zero_approx(movementDirection.length()): return
@@ -177,11 +177,11 @@ func can_move() -> bool:
 func dash() -> void:
 	if !can_dash(): return
 	
-	if is_zero_approx(movementDirection.length()): return
+	if is_zero_approx(_movementDirection.length()): return
 	
 	state.add(States.DASHING)
 	var batteryPercent = min(_carried_resources.battery_energy / dash_battery_usage, 1.0)
-	apply_central_impulse(movementDirection * _stats_effective.move_power * dash_speed_multiplier * batteryPercent)
+	apply_central_impulse(_movementDirection * _stats_effective.move_power * dash_speed_multiplier * batteryPercent)
 	_modify_battery_energy(-dash_battery_usage)
 	on_dash.emit()
 	
@@ -405,7 +405,7 @@ func reproduce(mutation: Dictionary) -> void:
 		MutationEngine.apply_mutation(_stats_base, mutation),
 		_color,
 		_contains_cobalt,
-		family
+		_family
 	)
 	on_reproduce.emit(self, child)
 	child.stat_toasts(mutation)
