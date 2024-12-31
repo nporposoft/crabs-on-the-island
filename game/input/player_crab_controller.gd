@@ -1,6 +1,6 @@
 class_name PlayerCrabController
 
-extends Node
+extends PlayerInputController
 
 signal disassociation_changed
 signal crab_swapped
@@ -10,7 +10,7 @@ var crab: Crab
 var is_disassociating: bool = false
 
 
-func _process(delta: float) -> void:
+func process(delta: float) -> void:
 	if !is_instance_valid(crab): return
 
 	_process_movement()

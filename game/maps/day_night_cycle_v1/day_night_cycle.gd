@@ -7,12 +7,8 @@ extends CanvasModulate
 var _clock: Clock
 
 
-func _ready() -> void:
-	scenario.clock_init.connect(_init_clock)
-
-
-func _init_clock(clock: Clock) -> void:
-	_clock = clock
+func init() -> void:
+	_clock = Util.require_child(scenario, Clock)
 
 
 func _process(_delta: float) -> void:

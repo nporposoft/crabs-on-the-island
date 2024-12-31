@@ -2,9 +2,9 @@ class_name HUD
 
 extends CanvasLayer
 
-@onready var _scenario: Scenario = get_parent()
 var _player: PlayerCrabController
 var _clock: Clock
+var _crab: Crab
 var _day: int = -1
 
 @onready var energyBar = $topleft/energy_bar
@@ -23,26 +23,26 @@ const active_color: Color = Color(1.0, 1.0, 1.0)
 const inactive_color: Color = Color(0.0625, 0.0625, 0.0625)
 
 
-func _ready() -> void:
-	_scenario.player_init.connect(_init_player)
-	_scenario.clock_init.connect(_init_clock)
-	_scenario.victory.connect(_trigger_victory)
-	_scenario.defeat.connect(_trigger_defeat)
+func init() -> void:
+	var scenario: Scenario = get_parent()
 
+	_clock = Util.require_child(scenario, Clock)
 
-func _init_clock(clock: Clock) -> void:
-	_clock = clock
-
-
-func _init_player(player: PlayerCrabController) -> void:
-	_player = player
+	_player = Util.require_child(scenario, PlayerCrabController)
 	_player.crab_swapped.connect(_update_statblock)
 	_player.disassociation_changed.connect(_set_tab_menu)
 
+	var crab_spawner: CrabSpawner = Util.require_child(scenario, CrabSpawner)
+	crab_spawner.on_player_spawn.connect(func(crab: Crab) -> void: _crab = crab)
 
-func _process(_delta):
+	var victory_conditions: VictoryConditions = Util.require_child(scenario, VictoryConditions)
+	victory_conditions.defeat.connect(_trigger_defeat)
+	victory_conditions.victory.connect(_trigger_victory)
+
+
+func _process(_delta) -> void:
 	_update_sundial()
-	if !is_instance_valid(_crab()): return
+	if !is_instance_valid(_crab): return
 
 	_update_battery()
 	_update_resources()
@@ -61,7 +61,7 @@ func _update_sundial() -> void:
 
 
 func _update_battery() -> void:
-	var batteryPercent = _crab()._carried_resources.battery_energy / _crab()._stats_effective.battery_capacity
+	var batteryPercent = _crab._carried_resources.battery_energy / _crab._stats_effective.battery_capacity
 	energyBar.value = 100.0 * batteryPercent
 	var redVal = max(1.0 - 3.0 * batteryPercent, 0.0)
 	var greenVal = min(3 * batteryPercent, 1.0)
@@ -83,7 +83,7 @@ func _update_ready_to_clone() -> void:
 
 
 func _update_build_progress() -> void:
-	var progress = 100.0 * _crab().buildProgress
+	var progress = 100.0 * _crab.buildProgress
 	waterCloneBar.value = progress
 	siliconCloneBar.value = progress
 	metalCloneBar.value = progress
@@ -94,38 +94,38 @@ func _reproduction_targets_reached() -> bool:
 
 
 func _water_target_reached() -> bool:
-	return _crab()._carried_resources.water >= _crab().waterTarget
+	return _crab._carried_resources.water >= _crab.waterTarget
 
 
 func _silicon_target_reached() -> bool:
-	return _crab()._carried_resources.silicon >= _crab().siliconTarget
+	return _crab._carried_resources.silicon >= _crab.siliconTarget
 
 
 func _metal_target_reached() -> bool:
-	return _crab()._carried_resources.metal >= _crab().metalTarget
+	return _crab._carried_resources.metal >= _crab.metalTarget
 
 
 func _cobalt_target_reached() -> bool:
-	return _crab()._contains_cobalt
+	return _crab._contains_cobalt
 
 
 func _update_water() -> void:
-	waterBar.value = 100.0 * _crab()._carried_resources.water / _crab().waterTarget
+	waterBar.value = 100.0 * _crab._carried_resources.water / _crab.waterTarget
 	_set_water_light(_water_target_reached())
 
 
 func _update_silicon() -> void:
-	siliconBar.value = 100.0 * _crab()._carried_resources.silicon / _crab().siliconTarget
+	siliconBar.value = 100.0 * _crab._carried_resources.silicon / _crab.siliconTarget
 	_set_silicon_light(_silicon_target_reached())
 
 
 func _update_metal() -> void:
-	metalBar.value = 100.0 * _crab()._carried_resources.metal / _crab().metalTarget
+	metalBar.value = 100.0 * _crab._carried_resources.metal / _crab.metalTarget
 	_set_metal_light(_metal_target_reached())
 
 
 func _set_cobalt_light(activate: bool) -> void:
-	var sizeFloat = 2.0 + 0.5 * sin(_clock.time * 240.0)
+	var sizeFloat: float = 2.0 + 0.5 * sin(_clock.time * 240.0)
 	$topleft/cobalt_light/cobalt_glow.set_scale(Vector2(sizeFloat, sizeFloat))
 	$topleft/cobalt_light.set_self_modulate(active_color if activate else inactive_color)
 	$topleft/cobalt_light/cobalt_glow.set_visible(activate)
@@ -161,11 +161,11 @@ func _set_tab_menu() -> void:
 
 func _update_statblock() -> void:
 	if !_player.is_disassociating: return
-	if !is_instance_valid(_crab()): return
+	if !is_instance_valid(_crab): return
 
 	var lines: Array = []
-	for stat in _crab()._stats_effective:
-		var stat_value: int = floor(100.0 * _crab()._stats_effective[stat] / _crab()._default_stats[stat])
+	for stat in _crab._stats_effective:
+		var stat_value: int = floor(100.0 * _crab._stats_effective[stat] / _crab._default_stats[stat])
 		var stat_name: String = Translator.g(stat)
 		lines.append(stat_name + ":\t\t" + str(stat_value) + "%")
 	$center/statblock.set_text("\n".join(lines))
@@ -177,7 +177,3 @@ func _trigger_defeat() -> void:
 
 func _trigger_victory() -> void:
 	$center/victory.set_visible(true)
-
-
-func _crab() -> Crab:
-	return _player.crab

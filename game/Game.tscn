@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://dh2a4agrr1sr0"]
+[gd_scene load_steps=5 format=3 uid="uid://dh2a4agrr1sr0"]
 
 [ext_resource type="Script" path="res://game/game.gd" id="1_umy7e"]
 [ext_resource type="Script" path="res://game/scene_manager.gd" id="2_tqlxo"]
 [ext_resource type="PackedScene" uid="uid://dhbkj2kfpdna0" path="res://scenarios/story_island_scenario.tscn" id="3_w7ipl"]
+[ext_resource type="Script" path="res://game/input/player_input_manager.gd" id="4_q6qps"]
 
 [node name="Game" type="Node"]
 script = ExtResource("1_umy7e")
@@ -10,3 +11,6 @@ script = ExtResource("1_umy7e")
 [node name="SceneManager" type="Node" parent="."]
 script = ExtResource("2_tqlxo")
 starting_scene = ExtResource("3_w7ipl")
+
+[node name="PlayerInputManager" type="Node" parent="."]
+script = ExtResource("4_q6qps")

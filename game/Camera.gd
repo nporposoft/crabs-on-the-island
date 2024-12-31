@@ -11,7 +11,7 @@ extends Camera2D
 var _target: Node2D
 
 
-func init(target: Node2D) -> void:
+func set_target(target: Node2D) -> void:
 	_target = target
 	position = target.position
 

@@ -6,6 +6,7 @@ extends RigidBody2D
 @onready var sprite: AnimatedSprite2D = $Sprite
 @onready var ai: CrabAI = $AI
 @onready var scenario: Scenario = get_parent()
+var _clock: Clock
 @onready var reach: Detector = $ReachArea
 @onready var vision: Detector = $VisionArea
 
@@ -135,10 +136,16 @@ func init(
 	if start_sleeping:
 		_start_sleep(false)
 
+	_clock = Util.require_child(scenario, Clock)
+
 
 func set_color(color: Color) -> void:
 	_color = color
 	$Sprite.set_color(color)
+
+
+func is_player() -> bool:
+	return _family == Family.PLAYER
 
 
 func die() -> void:
@@ -445,7 +452,7 @@ func _harvest_sunlight(delta: float) -> void:
 
 
 func _can_harvest_sunlight() -> bool:
-	var time: float = scenario.clock.time
+	var time: float = _clock.time
 	return time > 0.25 && time < 0.75
 
 
