@@ -11,13 +11,13 @@ config_version=5
 [application]
 
 config/name="Crabs on the Island"
-run/main_scene="res://game/Game.tscn"
+run/main_scene="res://game/game.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
 config/icon="res://assets/crab.png"
 
 [autoload]
 
-DebugMode="*res://util/DebugMode.gd"
+DebugMode="*res://util/debug_mode.gd"
 
 [display]
 

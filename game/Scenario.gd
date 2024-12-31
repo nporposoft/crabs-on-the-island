@@ -6,12 +6,12 @@ extends Node
 var victory_conditions: VictoryConditions
 var crab_spawner: CrabSpawner
 var camera: Camera
-var player: PlayerController
+var player: PlayerCrabController
 var clock: Clock
 var hud: HUD
 
 
-signal player_init(player: PlayerController)
+signal player_init(player: PlayerCrabController)
 signal clock_init(clock: Clock)
 signal victory
 signal defeat
@@ -24,7 +24,7 @@ func _ready() -> void:
 	
 	crab_spawner = Util.require_child(self, CrabSpawner)
 	
-	player = Util.require_child(self, PlayerController)
+	player = Util.require_child(self, PlayerCrabController)
 	var player_crab: Crab = _init_player_crab()
 	player.set_crab(player_crab)
 	player_init.emit(player)

@@ -3,7 +3,7 @@ class_name HUD
 extends CanvasLayer
 
 @onready var _scenario: Scenario = get_parent()
-var _player: PlayerController
+var _player: PlayerCrabController
 var _clock: Clock
 var _day: int = -1
 
@@ -17,7 +17,7 @@ var _day: int = -1
 @onready var sundial = $topright/sundial
 @onready var dayLabel = $topright/day_label
 
-var tutorial_clone = false
+var tutorial_clone: bool
 
 const active_color: Color = Color(1.0, 1.0, 1.0)
 const inactive_color: Color = Color(0.0625, 0.0625, 0.0625)
@@ -34,7 +34,7 @@ func _init_clock(clock: Clock) -> void:
 	_clock = clock
 
 
-func _init_player(player: PlayerController) -> void:
+func _init_player(player: PlayerCrabController) -> void:
 	_player = player
 	_player.crab_swapped.connect(_update_statblock)
 	_player.disassociation_changed.connect(_set_tab_menu)

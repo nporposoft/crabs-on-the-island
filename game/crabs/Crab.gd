@@ -23,8 +23,8 @@ const harvestDrainMult = -0.25
 const buildDrainMult = -2.0
 
 
-var morselTemplate: PackedScene = preload("res://game/resources/Morsel.tscn")
-var toastTemplate: PackedScene = preload("res://game/crabs/Toast.tscn")
+var morsel_template: PackedScene = preload("res://game/resources/morsel.tscn")
+var toast_template: PackedScene  = preload("res://game/crabs/toast.tscn")
 #@onready var tabForTrigger: AnimatedSprite2D = $"/root/Game/hud/center/TAB"
 
 
@@ -37,9 +37,7 @@ signal on_wakeup
 signal on_reproduce(parent: Crab, child: Crab)
 
 
-var tutorial_swap = false
-var isPlayerFamily: bool
-var _movementDirection: Vector2 = Vector2.RIGHT
+var _movement_direction: Vector2 = Vector2.RIGHT
 var _velocity: Vector2
 @onready var _foot_step_sounds: Array[AudioStreamPlayer2D] = [$FootStepSound1, $FootStepSound2]
 var _foot_step_timer: Timer
@@ -54,7 +52,6 @@ var buildProgress: float = 0.0
 var default_color: Color = Color(1, 1, 1, 1)
 var _color: Color = default_color
 var _family: Family
-var batteryEnergyTargetPercentage = 50
 
 enum States {
 	RUNNING,
@@ -156,7 +153,7 @@ func is_dead() -> bool:
 
 
 func move(movementDirection: Vector2) -> void:
-	_movementDirection = movementDirection.normalized()
+	_movement_direction = movementDirection.normalized()
 	
 	if !can_move(): return
 	if is_zero_approx(movementDirection.length()): return
@@ -177,11 +174,11 @@ func can_move() -> bool:
 func dash() -> void:
 	if !can_dash(): return
 	
-	if is_zero_approx(_movementDirection.length()): return
+	if is_zero_approx(_movement_direction.length()): return
 	
 	state.add(States.DASHING)
 	var batteryPercent = min(_carried_resources.battery_energy / dash_battery_usage, 1.0)
-	apply_central_impulse(_movementDirection * _stats_effective.move_power * dash_speed_multiplier * batteryPercent)
+	apply_central_impulse(_movement_direction * _stats_effective.move_power * dash_speed_multiplier * batteryPercent)
 	_modify_battery_energy(-dash_battery_usage)
 	on_dash.emit()
 	
@@ -219,7 +216,7 @@ func generate_chunks(percent: float, include_body: bool) -> void:
 		metalMass -= randMass
 		if percent < 1.0 and _carried_resources.metal > 0.0:
 			_carried_resources.metal = max(0.0, _carried_resources.metal - randMass)
-		var new_morsel = morselTemplate.instantiate()
+		var new_morsel = morsel_template.instantiate()
 		scenario.add_child(new_morsel)
 		new_morsel._set_resource(randMass, _contains_cobalt, true)
 		new_morsel.set_position(Vector2(position.x, position.y))
@@ -524,7 +521,7 @@ func _update_movementstate() -> void:
 
 
 func stat_toasts(mutation: Dictionary) -> void:
-	var newToast = toastTemplate.instantiate()
+	var newToast = toast_template.instantiate()
 	add_child(newToast)
 	newToast.set_stats(mutation)
 

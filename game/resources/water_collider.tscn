@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://c5pl5wyt6bu4h"]
 
-[ext_resource type="Script" path="res://game/resources/Water.gd" id="1_k4b02"]
+[ext_resource type="Script" path="res://game/resources/water.gd" id="1_k4b02"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_befjk"]
 

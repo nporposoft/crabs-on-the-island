@@ -9,8 +9,8 @@ extends TileMapLayer
 # we're assuming that tiles are all the same size
 @onready var cell_size: Vector2 = tile_set.tile_size
 
-@onready var water_collider: PackedScene = preload("res://game/resources/WaterCollider.tscn")
-@onready var sand_collider: PackedScene = preload("res://game/resources/SandCollider.tscn")
+@onready var water_collider: PackedScene = preload("res://game/resources/water_collider.tscn")
+@onready var sand_collider: PackedScene = preload("res://game/resources/sand_collider.tscn")
 
 
 const background_size: int = 1000000

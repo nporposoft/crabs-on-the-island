@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=4 uid="uid://nsr1sq37maew"]
 
-[ext_resource type="Script" path="res://game/maps/TileMapMap.gd" id="1_12vk2"]
+[ext_resource type="Script" path="res://game/maps/tile_map_map.gd" id="1_12vk2"]
 [ext_resource type="TileSet" uid="uid://cx5n7i8uguq3n" path="res://maps/tilesetv3.tres" id="1_dsgvw"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_w3ahn"]
