@@ -1,6 +1,6 @@
 class_name PlayerCrabController
 
-extends PlayerInputController
+extends InputController
 
 signal disassociation_changed
 signal crab_swapped
@@ -8,6 +8,13 @@ signal crab_swapped
 
 var crab: Crab
 var is_disassociating: bool = false
+
+
+func init() -> void:
+	var scenario: Scenario = get_parent()
+	var crab_spawner: CrabSpawner = Util.require_child(scenario, CrabSpawner)
+	crab_spawner.on_player_spawn.connect(func(crab: Crab) -> void: set_crab(crab))
+	PlayerInputManager.set_controller(self)
 
 
 func process(delta: float) -> void:

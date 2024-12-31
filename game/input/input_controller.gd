@@ -1,8 +1,8 @@
-class_name PlayerInputController
+class_name InputController
 
 extends Node
 
-var _manager: PlayerInputManager
+var _manager: InputManager
 
 
 # Stub to be overridden by subclasses

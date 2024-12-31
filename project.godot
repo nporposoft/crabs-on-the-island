@@ -18,6 +18,7 @@ config/icon="res://assets/crab.png"
 [autoload]
 
 DebugMode="*res://util/debug_mode.gd"
+PlayerInputManager="*res://game/input/input_manager.gd"
 
 [display]
 
