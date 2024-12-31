@@ -35,7 +35,7 @@ func spawn_with_attributes(
 	var crab: Crab = crab_scene.instantiate()
 	_crab_container.add_child(crab)
 
-	crab.init(carried_resources, stats, color, contains_cobalt, family)
+	crab.init(carried_resources, stats, stats, color, contains_cobalt, family)
 	crab.position = position
 
 	on_spawn.emit(crab)

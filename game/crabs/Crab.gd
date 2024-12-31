@@ -72,19 +72,11 @@ enum Family {
 }
 
 
-var _body_metal: float = 0.0
+var _body_metal: float
 var _carried_resources: Dictionary
-var _stats_base: Dictionary = {
-	"size": 0,
-	"hit_points": 0,
-	"strength": 0,
-	"move_power": 0,
-	"solar_charge_rate": 0,
-	"battery_capacity": 0,
-	"harvest_speed": 0,
-	"build_speed": 0
-}
-var _stats_effective: Dictionary = _stats_base.duplicate()
+var _family_base_stats: Dictionary
+var _stats_base: Dictionary
+var _stats_effective: Dictionary
 
 
 func _ready() -> void:
@@ -117,6 +109,7 @@ func apply_size_bonuses() -> void:
 func init(
 		carried_resources: Dictionary,
 		stats: Dictionary,
+		family_base_stats: Dictionary,
 		color: Color,
 		contains_cobalt: bool,
 		family: Family,
@@ -127,6 +120,7 @@ func init(
 	_contains_cobalt = contains_cobalt
 	set_color(color)
 	_family = family
+	_family_base_stats = family_base_stats
 	_stats_base = stats
 	apply_size_bonuses()
 	_body_metal = _stats_base.size ** 3

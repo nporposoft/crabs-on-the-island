@@ -24,6 +24,9 @@ func init() -> void:
 		super.init_target(crab)
 	)
 
+	var switcher_controller: SwitcherController = Util.require_child(scenario, SwitcherController)
+	switcher_controller.on_set_crab.connect(set_target)
+
 
 func _process(delta: float) -> void:
 	super._process(delta)

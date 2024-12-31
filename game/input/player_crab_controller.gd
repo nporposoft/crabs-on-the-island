@@ -2,8 +2,8 @@ class_name PlayerCrabController
 
 extends InputController
 
-signal new_crab_set(crab: Crab)
-
+signal on_new_crab_set(crab: Crab)
+signal on_disassociate
 
 var crab: Crab
 var _scenario: Scenario
@@ -56,6 +56,7 @@ func _on_crab_die() -> void:
 
 func _disassociate() -> void:
 	unset_crab()
+	on_disassociate.emit()
 	PlayerInputManager.set_controller(_switcher_controller)
 
 
@@ -73,7 +74,7 @@ func set_crab(new_crab: Crab) -> void:
 	crab = new_crab
 	_attach_crab_signals(crab)
 	crab.ai.enabled = false
-	new_crab_set.emit(new_crab)
+	on_new_crab_set.emit(new_crab)
 
 
 func unset_crab() -> void:

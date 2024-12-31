@@ -41,9 +41,16 @@ func init() -> void:
 	victory_conditions.defeat.connect(_trigger_defeat)
 	victory_conditions.victory.connect(_trigger_victory)
 
+	var player_crab_controller: PlayerCrabController = Util.require_child(scenario, PlayerCrabController)
+	player_crab_controller.on_disassociate.connect(func() -> void: _set_tab_menu(true))
+	var switcher_controller: SwitcherController = Util.require_child(scenario, SwitcherController)
+	switcher_controller.on_set_crab.connect(set_crab)
+	switcher_controller.on_select.connect(func(__crab: Crab) -> void: _set_tab_menu(false))
+
 
 func set_crab(crab: Crab) -> void:
 	_crab = crab
+	_update_statblock()
 
 
 func _process(_delta) -> void:
@@ -55,7 +62,6 @@ func _process(_delta) -> void:
 	_update_cobalt_light()
 	_update_ready_to_clone()
 	_update_build_progress()
-	_update_statblock()
 
 
 func _update_sundial() -> void:
@@ -89,7 +95,7 @@ func _update_ready_to_clone() -> void:
 
 
 func _update_build_progress() -> void:
-	var progress = 100.0 * _crab.buildProgress
+	var progress: float = 100.0 * _crab.buildProgress
 	waterCloneBar.value = progress
 	siliconCloneBar.value = progress
 	metalCloneBar.value = progress
@@ -157,26 +163,20 @@ func _set_clone_light(activate: bool) -> void:
 		$topleft/Q.fading = true
 
 
-func _set_tab_menu() -> void:
-	pass
-#	if _player.is_disassociating:
-#		_update_statblock()
-#	$center/TAB.set_visible(true if _player.is_disassociating else false)
-#	$center/crab_cursor.set_visible(true if _player.is_disassociating else false)
-#	$center/statblock.set_visible(true if _player.is_disassociating else false)
+func _set_tab_menu(visibility: bool) -> void:
+	_update_statblock()
+	$center/TAB.set_visible(visibility)
+	$center/crab_cursor.set_visible(visibility)
+	$center/statblock.set_visible(visibility)
 
 
 func _update_statblock() -> void:
-	pass
-#	if !_player.is_disassociating: return
-#	if !is_instance_valid(_crab): return
-#
-#	var lines: Array = []
-#	for stat in _crab._stats_effective:
-#		var stat_value: int = floor(100.0 * _crab._stats_effective[stat] / _crab._default_stats[stat])
-#		var stat_name: String = Translator.g(stat)
-#		lines.append(stat_name + ":\t\t" + str(stat_value) + "%")
-#	$center/statblock.set_text("\n".join(lines))
+	var lines: Array = []
+	for stat in _crab._stats_effective:
+		var stat_value: int = floor(100.0 * _crab._stats_effective[stat] / _crab._family_base_stats[stat])
+		var stat_name: String = Translator.g(stat)
+		lines.append(stat_name + ":\t\t" + str(stat_value) + "%")
+	$center/statblock.set_text("\n".join(lines))
 
 
 func _trigger_defeat() -> void:

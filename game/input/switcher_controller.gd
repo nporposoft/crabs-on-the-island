@@ -2,28 +2,25 @@ class_name SwitcherController
 
 extends InputController
 
+signal on_set_crab(crab: Crab)
+signal on_select(crab: Crab)
+
 var _scenario: Scenario
 var _player_crab_controller: PlayerCrabController
-var _hud: HUD
-var _camera: PlayerCrabCamera
 var _current_crab: Crab
+
 
 func init() -> void:
 	_scenario = get_parent()
 	_player_crab_controller = Util.require_child(_scenario, PlayerCrabController)
-	_player_crab_controller.new_crab_set.connect(set_crab)
-
-	# TODO: I don't love the SwitcherController knowing so much about the HUD and the camera. Consider using a signal.
-	_camera = Util.require_child(_scenario, PlayerCrabCamera)
-	_hud = Util.require_child(_scenario, HUD)
+	_player_crab_controller.on_new_crab_set.connect(set_crab)
 
 	if _enabled: PlayerInputManager.set_controller(self)
 
 
 func set_crab(crab: Crab) -> void:
 	_current_crab = crab
-	_hud.set_crab(crab)
-	_camera.set_target(crab)
+	on_set_crab.emit(crab)
 
 
 func process(_delta: float) -> void:
@@ -32,6 +29,7 @@ func process(_delta: float) -> void:
 
 	if Input.is_action_just_pressed("swap"):
 		_player_crab_controller.set_crab(_current_crab)
+		on_select.emit(_current_crab)
 		PlayerInputManager.restore()
 	elif Input.is_action_just_pressed("move_left"):
 		_shift_crab(-1)
