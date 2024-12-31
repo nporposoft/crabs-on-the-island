@@ -265,29 +265,21 @@ func is_holding() -> bool:
 	return false #TODO
 
 
-func harvest(delta: float) -> bool:
-	if state.has(States.OUT_OF_BATTERY):
-		stop_harvest()
-		return false
+func harvest(resource: Node2D, delta: float) -> bool:
+	if !can_harvest(): return false
 
-	var resources_in_reach: ResourceCollection = reach.get_resources()
+	# TODO: this ideally should only emit when we _start_ harvesting, not
+	# every frame we're harvesting
+	on_harvest.emit(resource.get_name())
 
-	if can_attack():
-		var nearestCrab: Crab = resources_in_reach.nearest_crab(position)
-		if nearestCrab != null:
-			attackCrab(nearestCrab, delta)
-			return true
-
-	var nearest_resources: Array = resources_in_reach.by_distance(position)
-	for nearest_resource: Node2D in nearest_resources:
-		if want_resource(nearest_resource):
-			if nearest_resource is Morsel:
-				return harvest_morsel(delta, nearest_resource as Morsel)
-			if nearest_resource is Sand:
-				return harvest_sand(delta)
-			if nearest_resource is Water:
-				return harvest_water(delta)
-
+	if resource is Crab:
+		return attack(resource as Crab, delta)
+	if resource is Morsel:
+		return harvest_morsel(delta, resource as Morsel)
+	if resource is Sand:
+		return harvest_sand(delta)
+	if resource is Water:
+		return harvest_water(delta)
 	return false
 
 
@@ -316,20 +308,27 @@ func want_water() -> bool:
 
 
 func can_attack() -> bool:
-	return _contains_cobalt
+	return can_harvest() and _contains_cobalt
 
 
-func attackCrab(target: Crab, delta: float) -> void:
+func can_harvest() -> bool:
+	return !state.has_any([States.OUT_OF_BATTERY, States.REPRODUCING])
+
+
+func attack(target: Crab, delta: float) -> bool:
+	if !can_attack(): return false
+
 	var relative_strength_mult = _stats_effective.strength / target._stats_effective.strength
 	var dmg = _stats_effective.strength * delta * relative_strength_mult
 	target.apply_damage(dmg)
 	$Sparks.set_emitting(true)
 	$Sparks.global_position = target.global_position
 	$HarvestSoundEffect.play(randf_range(0, 5.0))
+	return true
 
 
 func harvest_sand(delta: float) -> bool:
-	if state.has(States.OUT_OF_BATTERY):
+	if !can_harvest():
 		stop_harvest()
 		return false
 
@@ -342,7 +341,7 @@ func harvest_sand(delta: float) -> bool:
 
 
 func harvest_water(delta: float) -> bool:
-	if state.has(States.OUT_OF_BATTERY):
+	if !can_harvest():
 		stop_harvest()
 		return false
 
@@ -355,7 +354,7 @@ func harvest_water(delta: float) -> bool:
 
 
 func harvest_morsel(delta: float, morsel: Morsel) -> bool:
-	if state.has(States.OUT_OF_BATTERY):
+	if !can_harvest():
 		stop_harvest()
 		return false
 
@@ -473,6 +472,8 @@ func _modify_battery_energy(value: float) -> void:
 func _start_sleep(play_sound: bool = true) -> void:
 	if state.has(States.OUT_OF_BATTERY): return
 
+	on_sleep.emit()
+
 	state.add_all([States.OUT_OF_BATTERY, States.SHUTDOWN_COOLDOWN])
 	if play_sound: $PowerOffSoundEffect.play()
 	$Zs.set_emitting(true)
@@ -484,6 +485,7 @@ func _start_sleep(play_sound: bool = true) -> void:
 
 func _end_sleep() -> void:
 	state.remove(States.OUT_OF_BATTERY)
+	on_wakeup.emit()
 	$PowerOnSoundEffect.play()
 	$Zs.set_emitting(false)
 

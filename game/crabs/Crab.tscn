@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://game/crabs/Crab.gd" id="1_xe67b"]
 [ext_resource type="Texture2D" uid="uid://cinsac2bckvcm" path="res://assets/graphics/robocrab.png" id="2_pcqpt"]
-[ext_resource type="Script" path="res://game/crabs/CrabSprite.gd" id="3_a83at"]
+[ext_resource type="Script" uid="uid://les3lerwss74" path="res://game/crabs/CrabSprite.gd" id="3_a83at"]
 [ext_resource type="Script" path="res://game/crabs/DebugLabel.gd" id="3_wxbeg"]
 [ext_resource type="AudioStream" uid="uid://droer2prtggda" path="res://assets/sfx/poweron2.wav" id="4_3pxvx"]
 [ext_resource type="PackedScene" uid="uid://ck3fg10c2vv46" path="res://game/crabs/Zs.tscn" id="4_grhim"]
@@ -13,9 +13,9 @@
 [ext_resource type="AudioStream" uid="uid://dydsdao7apbh8" path="res://assets/sfx/step2.wav" id="8_gxgl0"]
 [ext_resource type="PackedScene" uid="uid://cigl58gfahcla" path="res://game/crabs/sparks.tscn" id="9_67f86"]
 [ext_resource type="AudioStream" uid="uid://b5cht8lwr0ltg" path="res://assets/sfx/welder.wav" id="11_cnkh1"]
-[ext_resource type="Script" path="res://game/crabs/DashSoundEffect.gd" id="11_xfgk8"]
+[ext_resource type="Script" uid="uid://cltakdif8kjgh" path="res://game/crabs/DashSoundEffect.gd" id="11_xfgk8"]
 [ext_resource type="PackedScene" uid="uid://cx3wmwc4x4ug0" path="res://game/crabs/vacuum.tscn" id="12_w2bfo"]
-[ext_resource type="Script" path="res://game/crabs/HealthBar.gd" id="13_ln3uw"]
+[ext_resource type="Script" uid="uid://bwpw728btyya" path="res://game/crabs/HealthBar.gd" id="13_ln3uw"]
 [ext_resource type="Script" path="res://game/crabs/CrabAI.gd" id="16_lscu2"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_0bir5"]
@@ -86,7 +86,7 @@ animations = [{
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_hx6oy"]
-radius = 29.0172
+radius = 22.0227
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_t5lib"]
 radius = 64.0

@@ -9,12 +9,8 @@ signal on_target(target: Vector2)
 var _state: States
 var enabled: bool = true
 
-var _attack_target: Crab
 var _visible_resources_cache: ResourceCollection
 var _resources_in_reach_cache: ResourceCollection
-
-@export var dash_chance: float = 0.1
-@export var dash_attack_chance: float = 0.5
 
 @export var vision_interval: float = 0.3
 @export var vision_interval_jitter: float = 0.1
@@ -46,12 +42,7 @@ func _process(delta: float) -> void:
 	if !enabled: return
 	if _sleep_routine(): return
 	if _reproduce_routine(delta): return
-	if _continue_attack_routine(delta): return
 	if _harvest_routine(delta): return
-	if _harvest_crab_routine(delta): return
-
-
-	
 	_wander_routine()
 
 
@@ -60,23 +51,6 @@ func _sleep_routine() -> bool:
 		_sleep()
 		return true
 	return false
-
-
-func _continue_attack_routine(delta: float) -> bool:
-	if _stop_attacking():
-		_attack_target = null
-		_crab.stop_harvest() # TODO: would be nice if the Crab state machine handled this
-		on_target.emit(Vector2.ZERO)
-		return false
-	
-	_attack_crab(delta, _attack_target)
-	return true
-
-
-func _stop_attacking() -> bool:
-	if !is_instance_valid(_attack_target): return true
-	if !_want_to_attack_crab(_attack_target): return true
-	return _visible_resources().crabs().has(_attack_target)
 
 
 func _reproduce_routine(delta: float) -> bool:
@@ -96,10 +70,6 @@ func _harvest_routine(delta: float) -> bool:
 		# since we are caching resources, sometimes things die or disappear between vision checks
 		if not is_instance_valid(resource): continue
 
-		# skip crabs; we want to target those later so we prioritize other resources.
-		# this allows the player to use resources to distract attacking crabs.
-		if resource is Crab: continue
-
 		if _crab.want_resource(resource):
 			if resources_in_reach.has(resource):
 				return _harvest_resource(resource, delta)
@@ -114,29 +84,13 @@ func _harvest_routine(delta: float) -> bool:
 
 func _harvest_resource(resource: Node2D, delta: float) -> bool:
 	if resource is Crab:
-		_crab.attackCrab(resource, delta)
-		return true
+		return _crab.attack(resource, delta)
 	if resource is Sand:
 		return _crab.harvest_sand(delta)
 	if resource is Water:
 		return _crab.harvest_water(delta)
 	if resource is Morsel:
 		return _crab.harvest_morsel(delta, resource)
-	return true
-
-
-func _harvest_crab_routine(delta: float) -> bool:
-	if !_can_attack(): return false
-	
-	if is_instance_valid(_attack_target) && !_attack_target.is_dead():
-		_attack_crab(delta, _attack_target)
-	
-	for crab: Crab in _visible_resources().crabs_by_distance(_crab.position):
-		if !_want_to_attack_crab(crab): continue
-		
-		_attack_crab(delta, crab)
-		return true
-	
 	return false
 
 
@@ -195,45 +149,19 @@ func _keep_wandering() -> void:
 
 
 func _move_toward_point(point: Vector2) -> void:
+	# TODO: this signal is firing a lot -- it only gets used to draw the debug lines
+	# maybe should only emit when the point changes
 	on_target.emit(point)
+
+	# TODO: sometimes crabs get hung up on other crabs and can't reach their target
+	# we should add some "stuck detection" logic and try to move away from the obstacle for a second
+	# to jostle free
 	var direction: Vector2 = point - _crab.position
 	_move(direction)
 
 
 func _move(direction: Vector2) -> void:
 	_crab.move(direction)
-	if randf() == dash_chance:
-		_crab.dash()
-
-
-func _can_attack() -> bool:
-	return _crab.can_attack()
-
-
-func _want_to_attack_crab(crab: Crab) -> bool:
-	return crab.will_drop_metal() && _want_metal()
-
-
-func _attack_crab(delta: float, crab: Crab) -> void:
-	_state = States.ATTACKING
-	if _resources_in_reach().crabs().has(crab):
-		_crab.attackCrab(crab, delta)
-	else:
-		_move_toward_point(crab.position)
-		if randf() == dash_attack_chance:
-			_crab.dash()
-
-
-func _want_metal() -> bool:
-	return _crab._carried_resources.metal < _crab.metalTarget
-
-
-func _want_water() -> bool:
-	return _crab._carried_resources.water < _crab.waterTarget
-
-
-func _want_silicon() -> bool:
-	return _crab._carried_resources.silicon < _crab.siliconTarget
 
 
 func _visible_resources() -> ResourceCollection:

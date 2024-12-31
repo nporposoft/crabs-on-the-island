@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://dh2a4agrr1sr0"]
 
-[ext_resource type="Script" path="res://game/Game.gd" id="1_umy7e"]
-[ext_resource type="Script" path="res://game/SceneManager.gd" id="2_tqlxo"]
+[ext_resource type="Script" uid="uid://bfucxx1t5axx7" path="res://game/Game.gd" id="1_umy7e"]
+[ext_resource type="Script" uid="uid://62cw85anp1jk" path="res://game/SceneManager.gd" id="2_tqlxo"]
 [ext_resource type="PackedScene" uid="uid://dhbkj2kfpdna0" path="res://scenarios/story_island_scenario.tscn" id="3_w7ipl"]
 
 [node name="Game" type="Node"]

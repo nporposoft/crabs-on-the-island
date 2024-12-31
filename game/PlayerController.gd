@@ -7,7 +7,6 @@ signal crab_swapped
 
 
 var crab: Crab
-var _inputMovement: Vector2
 var is_disassociating: bool = false
 
 
@@ -22,8 +21,6 @@ func _process(delta: float) -> void:
 
 
 func _process_movement() -> void:
-	if !is_instance_valid(crab): return
-
 	crab.move(movement_input())
 
 
@@ -125,10 +122,27 @@ func _process_dash() -> void:
 
 func _process_harvest(delta) -> void:
 	if Input.is_action_pressed("harvest"):
-		if !crab.harvest(delta):
+		if !_harvest(delta):
 			crab.stop_harvest()
 	if Input.is_action_just_released("harvest"):
 		crab.stop_harvest()
+
+
+func _harvest(delta: float) -> bool:
+	if !crab.can_harvest(): return false
+
+	var resources_in_reach: ResourceCollection = crab.reach.get_resources()
+
+	if crab.can_attack():
+		var nearest_crab: Crab = resources_in_reach.nearest_crab(crab.position)
+		if nearest_crab != null:
+			return crab.attack(nearest_crab, delta)
+
+	var nearest_resources: Array = resources_in_reach.by_distance(crab.position)
+	for nearest_resource: Node2D in nearest_resources:
+		if crab.want_resource(nearest_resource):
+			return crab.harvest(nearest_resource, delta)
+	return false
 
 
 func _process_pickup() -> void:
