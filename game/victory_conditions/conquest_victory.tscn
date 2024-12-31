@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://b7nkwabfweman"]
-
-[ext_resource type="Script" path="res://game/victory_conditions/conquest_conditions.gd" id="1_s17rt"]
-
-[node name="ConquestVictory" type="Node"]
-script = ExtResource("1_s17rt")

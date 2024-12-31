@@ -6,6 +6,7 @@ signal on_ready
 
 var crab_spawner: CrabSpawner
 
+
 func _ready() -> void:
 	crab_spawner = Util.require_child(self, CrabSpawner)
 

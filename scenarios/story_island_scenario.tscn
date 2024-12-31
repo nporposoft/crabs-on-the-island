@@ -1,17 +1,18 @@
-[gd_scene load_steps=13 format=3 uid="uid://dhbkj2kfpdna0"]
+[gd_scene load_steps=14 format=3 uid="uid://dhbkj2kfpdna0"]
 
 [ext_resource type="Script" path="res://scenarios/story_island_scenario.gd" id="1_lydem"]
 [ext_resource type="PackedScene" uid="uid://cx2ye0w0rqf4n" path="res://game/ui/hud.tscn" id="2_mf02r"]
 [ext_resource type="PackedScene" uid="uid://nsr1sq37maew" path="res://maps/island_v1.tscn" id="2_pwdnd"]
 [ext_resource type="PackedScene" uid="uid://2uy6byy1384y" path="res://game/maps/day_night_cycle_v1/day_night_cycle.tscn" id="3_g8x2x"]
-[ext_resource type="PackedScene" uid="uid://b7nkwabfweman" path="res://game/victory_conditions/conquest_victory.tscn" id="4_xh18d"]
-[ext_resource type="PackedScene" uid="uid://bop410g4bgxmi" path="res://game/crabs/crab_spawner.tscn" id="5_ylf2h"]
+[ext_resource type="Script" path="res://game/victory_conditions/conquest_conditions.gd" id="6_j2fh6"]
 [ext_resource type="PackedScene" uid="uid://ch3lyfrb4hms3" path="res://game/crabs/crab.tscn" id="6_outce"]
+[ext_resource type="Script" path="res://game/crabs/crab_spawner.gd" id="7_d158s"]
 [ext_resource type="Script" path="res://game/spawn_point.gd" id="8_qslcf"]
 [ext_resource type="Script" path="res://game/player_crab_camera.gd" id="9_avgow"]
 [ext_resource type="Script" path="res://game/input/player_crab_controller.gd" id="9_m04ma"]
 [ext_resource type="Script" path="res://util/clock.gd" id="11_sap3j"]
 [ext_resource type="PackedScene" uid="uid://b530dsmiuti0k" path="res://game/resources/morsel.tscn" id="12_8rwm3"]
+[ext_resource type="Script" path="res://game/input/switcher_controller.gd" id="12_yqejf"]
 
 [node name="StoryIslandScenario" type="Node"]
 script = ExtResource("1_lydem")
@@ -25,9 +26,11 @@ script = ExtResource("11_sap3j")
 
 [node name="IslandV1" parent="." instance=ExtResource("2_pwdnd")]
 
-[node name="ConquestVictory" parent="." instance=ExtResource("4_xh18d")]
+[node name="ConquestConditions" type="Node" parent="."]
+script = ExtResource("6_j2fh6")
 
-[node name="CrabSpawner" parent="." instance=ExtResource("5_ylf2h")]
+[node name="CrabSpawner" type="Node" parent="."]
+script = ExtResource("7_d158s")
 crab_scene = ExtResource("6_outce")
 
 [node name="Camera" type="Camera2D" parent="."]
@@ -67,6 +70,10 @@ team_color = Color(0.380392, 0.607843, 0.541176, 1)
 
 [node name="PlayerCrabController" type="Node" parent="."]
 script = ExtResource("9_m04ma")
+
+[node name="SwitcherController" type="Node" parent="."]
+script = ExtResource("12_yqejf")
+_enabled = false
 
 [node name="resource0" parent="." instance=ExtResource("12_8rwm3")]
 position = Vector2(-1295, 762)

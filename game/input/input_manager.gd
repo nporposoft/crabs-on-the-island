@@ -15,13 +15,7 @@ func _process(delta: float) -> void:
 
 func set_controller(controller: InputController) -> void:
 	_controllers.push_back(controller)
-	controller.set_manager(self)
 
 
-func remove_controller() -> void:
+func restore() -> void:
 	_controllers.pop_back()
-
-
-func replace_controller(controller: InputController) -> void:
-	_controllers.pop_back()
-	set_controller(controller)

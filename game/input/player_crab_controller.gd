@@ -2,19 +2,30 @@ class_name PlayerCrabController
 
 extends InputController
 
-signal disassociation_changed
-signal crab_swapped
+signal new_crab_set(crab: Crab)
 
 
 var crab: Crab
-var is_disassociating: bool = false
+var _scenario: Scenario
+var _switcher_controller: SwitcherController
 
 
 func init() -> void:
-	var scenario: Scenario = get_parent()
-	var crab_spawner: CrabSpawner = Util.require_child(scenario, CrabSpawner)
-	crab_spawner.on_player_spawn.connect(func(crab: Crab) -> void: set_crab(crab))
-	PlayerInputManager.set_controller(self)
+	_scenario = get_parent()
+
+	# connect to the crab spawner's on_player_spawn signal to set the initial crab
+	# but ignore subsequent signals when other player family crabs spawn
+	var crab_spawner: CrabSpawner = Util.require_child(_scenario, CrabSpawner)
+	crab_spawner.on_spawn.connect(func(player_crab: Crab) -> void:
+		if crab != null: return
+		if player_crab._family != Crab.Family.PLAYER: return
+
+		set_crab(player_crab)
+	)
+
+	_switcher_controller = Util.require_child(_scenario, SwitcherController)
+
+	if _enabled: PlayerInputManager.set_controller(self)
 
 
 func process(delta: float) -> void:
@@ -25,6 +36,7 @@ func process(delta: float) -> void:
 	_process_harvest(delta)
 	_process_pickup()
 	_process_reproduction(delta)
+	_process_swap()
 
 
 func _process_movement() -> void:
@@ -39,16 +51,12 @@ func movement_input() -> Vector2:
 
 
 func _on_crab_die() -> void:
-	var new_crab: Crab = find_living_family_member()
-	if new_crab == null: return
-	
-	_shift_crab()
 	_disassociate()
 
 
 func _disassociate() -> void:
-	is_disassociating = true
-	disassociation_changed.emit()
+	unset_crab()
+	PlayerInputManager.set_controller(_switcher_controller)
 
 
 func _on_crab_reproduce(_parent: Crab, _child: Crab) -> void:
@@ -56,70 +64,22 @@ func _on_crab_reproduce(_parent: Crab, _child: Crab) -> void:
 
 
 func _process_swap() -> void:
-	if is_disassociating:
-		if Input.is_action_just_pressed("swap"):
-			is_disassociating = false
-			disassociation_changed.emit()
-		elif Input.is_action_just_pressed("move_left"):
-			_shift_crab(-1)
-		elif Input.is_action_just_pressed("move_right"):
-			_shift_crab(+1)
-			
-	else:
-		if Input.is_action_just_pressed("swap"):
-			_disassociate()
-			crab_swapped.emit()
-
-
-func _shift_crab(indexShift: int = 1) -> void:
-#	var prev_crab: Crab = crab
-	var familyCrabs: Array = get_family_crabs()
-	if familyCrabs.size() == 0: return
-	
-	var currentIndex: int = familyCrabs.find(crab)
-	var newIndex: int = ((currentIndex + indexShift) as int) % familyCrabs.size()
-	var next_crab: Crab = familyCrabs[newIndex]
-	
-	#var replacement_ai: CrabAI = crab_ai_scene.instantiate()
-	#prev_crab.add_child(replacement_ai)
-	
-	var existing_ai: CrabAI = next_crab.get_node("CrabAI")
-	if existing_ai != null: existing_ai.queue_free()
-	
-	set_crab(next_crab)
-	
-	crab_swapped.emit()
+	if Input.is_action_just_pressed("swap"):
+		_disassociate()
 
 
 func set_crab(new_crab: Crab) -> void:
 	if crab != null: unset_crab()
 	crab = new_crab
-	crab.ai.enabled = false
 	_attach_crab_signals(crab)
+	crab.ai.enabled = false
+	new_crab_set.emit(new_crab)
 
 
 func unset_crab() -> void:
 	if crab == null: return
 	crab.ai.enabled = true
 	_detach_crab_signals(crab)
-
-
-func find_living_family_member() -> Crab:
-	var living_family_members: Array = get_family_crabs()
-	if living_family_members.size() == 0: return null
-	
-	return get_family_crabs().front()
-
-
-func get_family_crabs() -> Array:
-	#return (_map.get_all_crabs()
-		#.filter(func(crab: Crab) -> bool:
-		#return (is_instance_valid(crab) && 
-		#crab._family == Crab.Family.PLAYER && 
-		#!crab.is_dead())
-		#)
-	#)
-	return []
 
 
 func _process_dash() -> void:

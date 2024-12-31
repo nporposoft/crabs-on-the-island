@@ -70,7 +70,7 @@ func _harvest_routine(delta: float) -> bool:
 		# since we are caching resources, sometimes things die or disappear between vision checks
 		if not is_instance_valid(resource): continue
 
-		if _crab.want_resource(resource):
+		if want_resource(resource):
 			if resources_in_reach.has(resource):
 				return _harvest_resource(resource, delta)
 			else:
@@ -92,6 +92,13 @@ func _harvest_resource(resource: Node2D, delta: float) -> bool:
 	if resource is Morsel:
 		return _crab.harvest_morsel(delta, resource)
 	return false
+
+
+func want_resource(resource: Node2D) -> bool:
+	if resource is Crab:
+		# TODO: set a murder cooldown so we don't just murder our children immediately
+		pass
+	return _crab.want_resource(resource)
 
 
 func _wander_routine() -> void:

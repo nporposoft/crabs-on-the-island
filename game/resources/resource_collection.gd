@@ -122,7 +122,7 @@ func _sort_by_distance(objects: Array, position: Vector2) -> Array:
 
 func _get_nearest(objects: Array, position: Vector2) -> Node2D:
 	var nearest_object: Node2D
-	var nearest_distance: float = float("inf")
+	var nearest_distance: float = float(INF)
 	for object in objects:
 		var distance: float = position.distance_to(object.position)
 		if distance < nearest_distance:

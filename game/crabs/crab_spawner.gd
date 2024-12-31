@@ -6,8 +6,7 @@ extends Node
 var _crab_container: Node
 
 signal on_spawn(crab: Crab)
-signal on_death()
-signal on_player_spawn(crab: Crab)
+signal on_death
 
 
 func init() -> void:
@@ -39,8 +38,6 @@ func spawn_with_attributes(
 	crab.init(carried_resources, stats, color, contains_cobalt, family)
 	crab.position = position
 
-	if crab.is_player():
-		on_player_spawn.emit(crab)
 	on_spawn.emit(crab)
 	crab.on_death.connect(func() -> void: on_death.emit())
 
