@@ -22,7 +22,7 @@ func living() -> CrabCollection:
 
 func of_family(family: Crab.Family) -> CrabCollection:
 	var family_crabs: Array[Crab] = (_crabs.filter(func(crab: Crab) -> bool:
-		return crab.family == family
+		return crab._family == family
 	))
 	return CrabCollection.new(family_crabs)
 
