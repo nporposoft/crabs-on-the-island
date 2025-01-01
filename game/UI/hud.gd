@@ -27,13 +27,8 @@ func init() -> void:
 
 	_clock = Util.require_child(scenario, Clock)
 
-	# connect to the crab spawner's on_player_spawn signal to set the initial crab
-	# but ignore subsequent signals when other player family crabs spawn
 	var crab_spawner: CrabSpawner = Util.require_child(scenario, CrabSpawner)
-	crab_spawner.on_spawn.connect(func(crab: Crab) -> void:
-		if _crab != null: return
-		if crab._family != Crab.Family.PLAYER: return
-
+	crab_spawner.on_player_spawn.connect(func(crab: Crab) -> void:
 		set_crab(crab)
 	)
 

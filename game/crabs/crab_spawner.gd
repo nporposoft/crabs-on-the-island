@@ -4,9 +4,11 @@ extends Node
 
 @export var crab_scene: PackedScene
 var _crab_container: Node
+var _player_has_spawned: bool
 
 signal on_spawn(crab: Crab)
 signal on_death
+signal on_player_spawn(player_crab: Crab)
 
 
 func init() -> void:
@@ -38,6 +40,9 @@ func spawn_with_attributes(
 	crab.init(carried_resources, stats, stats, color, contains_cobalt, family)
 	crab.position = position
 
+	if family == Crab.Family.PLAYER && !_player_has_spawned:
+		_player_has_spawned = true
+		on_player_spawn.emit(crab)
 	on_spawn.emit(crab)
 	crab.on_death.connect(func() -> void: on_death.emit())
 

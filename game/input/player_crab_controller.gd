@@ -2,7 +2,6 @@ class_name PlayerCrabController
 
 extends InputController
 
-signal on_new_crab_set(crab: Crab)
 signal on_disassociate
 
 var crab: Crab
@@ -13,13 +12,8 @@ var _switcher_controller: SwitcherController
 func init() -> void:
 	_scenario = get_parent()
 
-	# connect to the crab spawner's on_player_spawn signal to set the initial crab
-	# but ignore subsequent signals when other player family crabs spawn
 	var crab_spawner: CrabSpawner = Util.require_child(_scenario, CrabSpawner)
-	crab_spawner.on_spawn.connect(func(player_crab: Crab) -> void:
-		if crab != null: return
-		if player_crab._family != Crab.Family.PLAYER: return
-
+	crab_spawner.on_player_spawn.connect(func(player_crab: Crab) -> void:
 		set_crab(player_crab)
 	)
 
@@ -74,7 +68,6 @@ func set_crab(new_crab: Crab) -> void:
 	crab = new_crab
 	_attach_crab_signals(crab)
 	crab.ai.enabled = false
-	on_new_crab_set.emit(new_crab)
 
 
 func unset_crab() -> void:

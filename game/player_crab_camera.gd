@@ -7,20 +7,12 @@ extends Camera
 @export var _current_zoom: int = _max_zoom
 @export var _zoom_strength: float = 0.5
 
-var _crab: Crab
-
 
 func init() -> void:
 	var scenario: Scenario = get_parent()
 
-	# connect to the crab spawner's on_player_spawn signal to set the initial crab
-	# but ignore subsequent signals when other player family crabs spawn
 	var crab_spawner: CrabSpawner = Util.require_child(scenario, CrabSpawner)
-	crab_spawner.on_spawn.connect(func(crab: Crab) -> void:
-		if _crab != null: return
-		if crab._family != Crab.Family.PLAYER: return
-
-		_crab = crab
+	crab_spawner.on_player_spawn.connect(func(crab: Crab) -> void:
 		super.init_target(crab)
 	)
 
