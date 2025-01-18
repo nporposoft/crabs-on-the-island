@@ -21,6 +21,8 @@ var _vision_timer: Timer
 var _wander_direction: Vector2
 var _wander_timer: Timer
 
+var _current_target: Vector2
+
 enum States {
 	IDLING,
 	WANDERING,
@@ -56,7 +58,7 @@ func _sleep_routine() -> bool:
 func _reproduce_routine(delta: float) -> bool:
 	if _crab.has_reproduction_resources():
 		_crab.stop_harvest() # TODO: would be nice if the Crab state machine handled this
-		on_target.emit(Vector2.ZERO)
+		set_target(Vector2.ZERO)
 		if _crab.can_reproduce(): _reproduce(delta)
 		else: _state = States.CHARGING_BATTERY
 		return true
@@ -78,7 +80,7 @@ func _harvest_routine(delta: float) -> bool:
 				return true
 
 	_crab.stop_harvest() # TODO: would be nice if the Crab state machine handled this
-	on_target.emit(Vector2.ZERO)
+	set_target(Vector2.ZERO)
 	return false
 
 
@@ -115,6 +117,13 @@ func _sleep() -> void:
 
 func _out_of_battery() -> bool:
 	return _crab.state.has(Crab.States.OUT_OF_BATTERY)
+
+
+func set_target(target: Vector2) -> void:
+	if target == _current_target: return
+
+	on_target.emit(target)
+	_current_target = target
 
 
 func _start_wandering() -> void:
@@ -156,13 +165,10 @@ func _keep_wandering() -> void:
 
 
 func _move_toward_point(point: Vector2) -> void:
-	# TODO: this signal is firing a lot -- it only gets used to draw the debug lines
-	# maybe should only emit when the point changes
-	on_target.emit(point)
-
 	# TODO: sometimes crabs get hung up on other crabs and can't reach their target
 	# we should add some "stuck detection" logic and try to move away from the obstacle for a second
 	# to jostle free
+	set_target(point)
 	var direction: Vector2 = point - _crab.position
 	_move(direction)
 
