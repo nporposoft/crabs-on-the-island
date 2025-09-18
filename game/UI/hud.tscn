@@ -1,9 +1,9 @@
 [gd_scene load_steps=66 format=3 uid="uid://cx2ye0w0rqf4n"]
 
-[ext_resource type="Script" path="res://game/ui/hud.gd" id="1_a2y7d"]
+[ext_resource type="Script" uid="uid://bmecwyledkyuq" path="res://game/ui/hud.gd" id="1_a2y7d"]
 [ext_resource type="Texture2D" uid="uid://c2e3eoxyqgivc" path="res://assets/UI/energy.png" id="1_p7i3m"]
 [ext_resource type="Texture2D" uid="uid://b4812ywitkgq0" path="res://assets/UI/water.png" id="2_2ik4q"]
-[ext_resource type="Script" path="res://game/ui/fps_counter.gd" id="4_0ejut"]
+[ext_resource type="Script" uid="uid://bwdit1ubbtl83" path="res://game/ui/fps_counter.gd" id="4_0ejut"]
 [ext_resource type="Texture2D" uid="uid://crwfnyltk1xxa" path="res://assets/UI/sand.png" id="4_5x7w6"]
 [ext_resource type="Texture2D" uid="uid://bfaup65ugpegb" path="res://assets/graphics/ingot.png" id="4_q7b3k"]
 [ext_resource type="Texture2D" uid="uid://db5h2n8wc1b1q" path="res://assets/UI/sundial2.png" id="6_60k4m"]
@@ -14,16 +14,16 @@
 [ext_resource type="Texture2D" uid="uid://c6qci8pbv05x" path="res://assets/UI/linelight.png" id="11_vefkc"]
 [ext_resource type="Texture2D" uid="uid://c6wsosjwa33v6" path="res://assets/UI/Q.png" id="12_bh64y"]
 [ext_resource type="Texture2D" uid="uid://dscxdahf1xr6y" path="res://assets/UI/W.png" id="13_321fv"]
-[ext_resource type="Script" path="res://game/ui/w.gd" id="14_kdc53"]
+[ext_resource type="Script" uid="uid://fxbtk7ri6g48" path="res://game/ui/w.gd" id="14_kdc53"]
 [ext_resource type="Texture2D" uid="uid://c8djgvipetf6n" path="res://assets/UI/A.png" id="14_nhugq"]
 [ext_resource type="Texture2D" uid="uid://pr2ephogtjv2" path="res://assets/UI/S.png" id="15_3kp5x"]
 [ext_resource type="Texture2D" uid="uid://cawgaq3kmdb1k" path="res://assets/UI/D.png" id="16_7x7ja"]
 [ext_resource type="Texture2D" uid="uid://coamgkw6lycjy" path="res://assets/UI/SHIFT.png" id="17_gm33g"]
 [ext_resource type="Texture2D" uid="uid://d158qgjvpubo0" path="res://assets/UI/SPACE.png" id="17_nusjc"]
-[ext_resource type="Script" path="res://game/ui/shift.gd" id="18_1mbtt"]
-[ext_resource type="Script" path="res://game/ui/q.gd" id="20_7vvya"]
+[ext_resource type="Script" uid="uid://di5t3ia180tb1" path="res://game/ui/shift.gd" id="18_1mbtt"]
+[ext_resource type="Script" uid="uid://cfoc2mxk5a88b" path="res://game/ui/q.gd" id="20_7vvya"]
 [ext_resource type="Texture2D" uid="uid://dx4415nhnngyh" path="res://assets/UI/TAB.png" id="22_3qq0m"]
-[ext_resource type="Script" path="res://game/ui/tab.gd" id="23_6cqp6"]
+[ext_resource type="Script" uid="uid://b34lyx8gfflfi" path="res://game/ui/tab.gd" id="23_6cqp6"]
 [ext_resource type="Texture2D" uid="uid://l6rv73uhms8l" path="res://assets/UI/cursor.png" id="24_biq0j"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eyiba"]
@@ -367,7 +367,6 @@ offset_left = 64.0
 offset_top = 32.0
 offset_right = 364.0
 offset_bottom = 64.0
-theme_override_font_sizes/font_size = 11
 theme_override_styles/fill = SubResource("StyleBoxFlat_eyiba")
 value = 50.0
 
@@ -382,7 +381,6 @@ offset_left = 64.0
 offset_top = 80.0
 offset_right = 364.0
 offset_bottom = 112.0
-theme_override_font_sizes/font_size = 11
 theme_override_styles/fill = SubResource("StyleBoxFlat_wm8pw")
 value = 50.0
 
@@ -390,7 +388,6 @@ value = 50.0
 layout_mode = 0
 offset_right = 300.0
 offset_bottom = 32.0
-theme_override_font_sizes/font_size = 11
 theme_override_styles/background = SubResource("StyleBoxFlat_g1d2l")
 theme_override_styles/fill = SubResource("StyleBoxFlat_cvxov")
 value = 25.0
@@ -407,7 +404,6 @@ offset_left = 64.0
 offset_top = 128.0
 offset_right = 364.0
 offset_bottom = 160.0
-theme_override_font_sizes/font_size = 11
 theme_override_styles/fill = SubResource("StyleBoxFlat_dv2vv")
 value = 50.0
 
@@ -415,7 +411,6 @@ value = 50.0
 layout_mode = 0
 offset_right = 300.0
 offset_bottom = 32.0
-theme_override_font_sizes/font_size = 11
 theme_override_styles/background = SubResource("StyleBoxFlat_r5580")
 theme_override_styles/fill = SubResource("StyleBoxFlat_t3qyx")
 value = 25.0
@@ -432,7 +427,6 @@ offset_left = 64.0
 offset_top = 176.0
 offset_right = 364.0
 offset_bottom = 208.0
-theme_override_font_sizes/font_size = 11
 theme_override_styles/fill = SubResource("StyleBoxFlat_vgvjd")
 value = 50.0
 
@@ -440,7 +434,6 @@ value = 50.0
 layout_mode = 0
 offset_right = 300.0
 offset_bottom = 32.0
-theme_override_font_sizes/font_size = 11
 theme_override_styles/background = SubResource("StyleBoxFlat_jce3a")
 theme_override_styles/fill = SubResource("StyleBoxFlat_t2pt6")
 value = 25.0
